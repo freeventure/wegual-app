@@ -1,33 +1,105 @@
 package app.wegual.poc.springdatamysql;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.amqp.core.Binding;
+import org.springframework.amqp.core.BindingBuilder;
+import org.springframework.amqp.core.Queue;
+import org.springframework.amqp.core.TopicExchange;
+//import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
-import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.context.annotation.Bean;
 
-import app.wegual.poc.common.model.User;
+import app.wegual.poc.springdatamysql.events.PledgeEventHandler;
 
 @EntityScan(basePackages = "app.wegual.poc.common.model")
 @SpringBootApplication
 public class SpringDataMysqlApplication implements CommandLineRunner {
 	
-//	@Autowired
-//	private UserRepository repository;
+//	private static final String BENEFICIARY_NAME = "XYZ Foundation";
+    static final String topicExchangeName = "spring-boot-exchange";
 
+    static final String queueNameES = "spring-es-pledges";
+    static final String queueNameCassandra = "spring-cas-pledges";
+	
+//	@Autowired
+//	private UserPagingAndSortingRepository userRepository;
+//
+//	@Autowired
+//	private BeneficiaryRepository beneficiaryRepository;
+//	
+//	@Autowired
+//	private PledgeRepository pledgeRepository;
+	
 	public static void main(String[] args) {
 		SpringApplication.run(SpringDataMysqlApplication.class, args);
 	}
 	
+    @Bean
+    Queue queueES() {
+        return new Queue(queueNameES, false);
+    }
+
+    @Bean
+    Queue queueCassandra() {
+        return new Queue(queueNameCassandra, false);
+    }
+    
+    @Bean
+    TopicExchange exchange() {
+        return new TopicExchange(topicExchangeName);
+    }
+
+    @Bean
+    Binding bindingES(TopicExchange exchange) {
+    	return BindingBuilder.bind(queueES()).to(exchange).with("pledges");
+    }
+
+    @Bean
+    Binding binding(TopicExchange exchange) {
+    	return BindingBuilder.bind(queueCassandra()).to(exchange).with("pledges");
+        
+    }
+
+	 @Bean
+	 PledgeEventHandler pledgeEventHandler() {
+	    return new PledgeEventHandler();
+	  }
 	
 	public void run(String... args) {
 //		try {
-//			repository.save(new User("Michael Jackson", "jacksonm@gmail.com"));
+//			userRepository.save(new User("Michael Jackson", "jacksonm@gmail.com"));
 //		} catch (DataIntegrityViolationException dive) {
 //			System.out.println("User already exists with email");
 //		}
-//		repository.findByEmail("jacksonm@gmail.com").forEach(x -> System.out.println(x.getName()));
-
+//		User owner = userRepository.findByEmail("jacksonm@gmail.com").get(0);
+//		
+//		// create new beneficiaries and persist
+//		Beneficiary ben = null;
+//		try {
+//			ben = beneficiaryRepository.findByName(BENEFICIARY_NAME);
+//			if(ben == null)
+//			{
+//				ben = new Beneficiary();
+//				ben.setName(BENEFICIARY_NAME);
+//				ben.setUrl("https://www.xyz.org");
+//				ben.setOwner(owner);
+//				ben.setBeneficiaryType(BeneficiaryType.NONPROFIT);
+//				beneficiaryRepository.save(ben);
+//			}
+//		} catch (Exception dive) {
+//			System.out.println("Exception reading/creating Beneficiary");
+//			//return;
+//		}
+//		
+//		Pledge pledge = new Pledge();
+//		pledge.setBeneficiary(ben);
+//		pledge.setPledgedBy(owner);
+//		pledge.setAmount(200.00);
+//		pledge.setCurrency(Currency.getInstance("USD"));
+//		pledge.setPledgedDate(new Date());
+//		
+//		pledgeRepository.save(pledge);
 	}
 }
