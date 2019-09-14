@@ -27,7 +27,7 @@ public class Beneficiary  implements Serializable {
     @Enumerated(EnumType.STRING)
     private BeneficiaryType beneficiaryType;
     
-    @Column(unique=true)
+    @Column(unique=true, nullable=false)
     private String url;
     
     private String facebookPage;

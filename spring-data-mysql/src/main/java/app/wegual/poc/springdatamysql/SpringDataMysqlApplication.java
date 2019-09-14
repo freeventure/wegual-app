@@ -11,6 +11,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.annotation.Bean;
 
+import app.wegual.poc.springdatamysql.events.BeneficiaryEventHandler;
 import app.wegual.poc.springdatamysql.events.PledgeEventHandler;
 
 @EntityScan(basePackages = "app.wegual.poc.common.model")
@@ -22,7 +23,10 @@ public class SpringDataMysqlApplication implements CommandLineRunner {
 
     static final String queueNameES = "spring-es-pledges";
     static final String queueNameCassandra = "spring-cas-pledges";
-	
+
+    static final String queueNameESBen = "spring-es-beneficiaries";
+    static final String queueNameCassandraBen = "spring-cas-beneficiaries";
+    
 //	@Autowired
 //	private UserPagingAndSortingRepository userRepository;
 //
@@ -45,6 +49,16 @@ public class SpringDataMysqlApplication implements CommandLineRunner {
     Queue queueCassandra() {
         return new Queue(queueNameCassandra, false);
     }
+
+    @Bean
+    Queue queueESBen() {
+        return new Queue(queueNameESBen, false);
+    }
+
+    @Bean
+    Queue queueCassandraBen() {
+        return new Queue(queueNameCassandraBen, false);
+    }
     
     @Bean
     TopicExchange exchange() {
@@ -52,20 +66,36 @@ public class SpringDataMysqlApplication implements CommandLineRunner {
     }
 
     @Bean
-    Binding bindingES(TopicExchange exchange) {
+    Binding bindingESPledges(TopicExchange exchange) {
     	return BindingBuilder.bind(queueES()).to(exchange).with("pledges");
     }
 
     @Bean
-    Binding binding(TopicExchange exchange) {
+    Binding bindingCASPledges(TopicExchange exchange) {
     	return BindingBuilder.bind(queueCassandra()).to(exchange).with("pledges");
         
     }
 
-	 @Bean
-	 PledgeEventHandler pledgeEventHandler() {
-	    return new PledgeEventHandler();
-	  }
+    @Bean
+    Binding bindingESBeneficiary(TopicExchange exchange) {
+    	return BindingBuilder.bind(queueESBen()).to(exchange).with("beneficiaries");
+    }
+
+    @Bean
+    Binding bindingCASBeneficiary(TopicExchange exchange) {
+    	return BindingBuilder.bind(queueCassandraBen()).to(exchange).with("beneficiaries");
+        
+    }
+
+	@Bean
+	PledgeEventHandler pledgeEventHandler() {
+		return new PledgeEventHandler();
+	}
+
+	@Bean
+	BeneficiaryEventHandler beneficiaryEventHandler() {
+		return new BeneficiaryEventHandler();
+	}
 	
 	public void run(String... args) {
 //		try {
