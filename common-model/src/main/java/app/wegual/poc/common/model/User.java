@@ -1,6 +1,8 @@
 package app.wegual.poc.common.model;
 
 import java.io.Serializable;
+//import java.security.Timestamp;
+import java.sql.*;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -18,6 +20,12 @@ public class User  implements Serializable {
 
     @Column(name="email", unique=true)
     private String email;
+    
+    @Column(nullable=false)
+	private Timestamp creationDate;
+    
+    @Column(nullable=false)
+   	private Timestamp updationDate;
     
     public User() {}
     
@@ -50,6 +58,25 @@ public class User  implements Serializable {
 	public void setEmail(String email) {
 		this.email = email;
 	}
+
+	public Timestamp getCreationDate() {
+		return creationDate;
+	}
+
+	public void setCreationDate(Timestamp creationDate) {
+		this.creationDate = creationDate;
+	}
+
+	public Timestamp getUpdationDate() {
+		return updationDate;
+	}
+
+	public void setUpdationDate(Timestamp updationDate) {
+		this.updationDate = updationDate;
+	}
+	
+
+
 
 
 }

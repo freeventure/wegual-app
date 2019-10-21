@@ -1,6 +1,8 @@
 package app.wegual.poc.common.model;
 
 import java.io.Serializable;
+//import java.security.Timestamp;
+import java.sql.*;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -23,6 +25,12 @@ public class GiveUp implements Serializable {
 	@OneToOne
 	@JoinColumn(name="CREATED_BY", nullable=false, insertable=true, updatable=false)
 	private User createdBy;
+	
+	@Column(nullable=false)
+	private Timestamp creationDate;
+    
+    @Column(nullable=false)
+   	private Timestamp updationDate;
 
 	public Long getId() {
 		return id;
@@ -55,6 +63,24 @@ public class GiveUp implements Serializable {
 	public void setCreatedBy(User createdBy) {
 		this.createdBy = createdBy;
 	}
+
+	public Timestamp getCreationDate() {
+		return creationDate;
+	}
+
+	public void setCreationDate(Timestamp creationDate) {
+		this.creationDate = creationDate;
+	}
+
+	public Timestamp getUpdationDate() {
+		return updationDate;
+	}
+
+	public void setUpdationDate(Timestamp updationDate) {
+		this.updationDate = updationDate;
+	}
+	
+	
 	
 	
 }

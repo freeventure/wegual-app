@@ -1,6 +1,8 @@
 package app.wegual.poc.common.model;
 
 import java.io.Serializable;
+//import java.security.Timestamp;
+import java.sql.*;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -14,7 +16,7 @@ import javax.persistence.OneToOne;
 
 @Entity 
 public class Beneficiary  implements Serializable {
-    @Id
+	@Id
     @GeneratedValue(strategy=GenerationType.AUTO)
     private Long id;
 
@@ -30,6 +32,7 @@ public class Beneficiary  implements Serializable {
     @Column(unique=true, nullable=false)
     private String url;
     
+    
     private String facebookPage;
     private String twitterHandle;
     
@@ -38,6 +41,13 @@ public class Beneficiary  implements Serializable {
     @OneToOne
     @JoinColumn(name="OWNER_ID", nullable=false, insertable=true, updatable=true)
     private User owner;
+    
+    @Column(nullable=false)
+	private Timestamp creationDate;
+    
+    @Column(nullable=false)
+   	private Timestamp updationDate;
+	
     
 	public Long getId() {
 		return id;
@@ -110,5 +120,24 @@ public class Beneficiary  implements Serializable {
 	public void setOwner(User owner) {
 		this.owner = owner;
 	}
+
+	public Timestamp getCreationDate() {
+		return creationDate;
+	}
+
+	public void setCreationDate(Timestamp creationDate) {
+		this.creationDate = creationDate;
+	}
+
+	public Timestamp getUpdationDate() {
+		return updationDate;
+	}
+
+	public void setUpdationDate(Timestamp updationDate) {
+		this.updationDate = updationDate;
+	}
+
+	
+	
 
 }

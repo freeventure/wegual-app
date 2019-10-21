@@ -23,13 +23,13 @@ public class BeneficiaryEventHandler {
   }
 
 	@HandleAfterSave
-	public void handlePledgeSave(Beneficiary pl) {
+	public void handleBeneficiarySave(Beneficiary pl) {
 		System.out.println("Beneficiary save called");
 		sendMessageAsynch(pl);
 	}
 
 	@HandleAfterDelete
-	public void handlePledgeDelete(Beneficiary pl) {
+	public void handleBeneficiaryDelete(Beneficiary pl) {
 
 		System.out.println("Beneficiary delete called");
 		sendMessageAsynch(pl);

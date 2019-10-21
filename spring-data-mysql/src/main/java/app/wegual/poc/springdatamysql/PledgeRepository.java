@@ -15,4 +15,6 @@ public interface PledgeRepository extends PagingAndSortingRepository<Pledge, Lon
 	List<Beneficiary> findAllByBeneficiary(String name);
 	
 	List<Beneficiary> findAllByPledgedBy(User pledgedBy);
+	
+	//List<Pledge> findAllByBeneficiary(Long id);
 }
