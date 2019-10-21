@@ -16,10 +16,9 @@ import org.springframework.data.repository.query.Param;
 @RepositoryRestResource(collectionResourceRel = "beneficiaryFollowers", path = "beneficiaryFollowers")
 
 public interface BeneficiaryFollowersRepository extends PagingAndSortingRepository<BeneficiaryFollowers, Long> {
-
-	//Beneficiary findByUrl(String url);
 	
-	//Beneficiary findByName(String name);
-@Query("select b from BeneficiaryFollowers b where b.followee=:followee and b.follow_date=:follow_date")	
+	List<User> findAllByFollowee(Beneficiary followee);
+	
+@Query("select b from BeneficiaryFollowers b where b.followee=:followee and b.follow_date<=:follow_date")	
 	List<BeneficiaryFollowers> findAllByFolloweeAndfollow_date(@Param("followee") Beneficiary followee, @Param("follow_date") Date follow_date);
 }

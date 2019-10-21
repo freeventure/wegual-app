@@ -1,6 +1,7 @@
 package app.wegual.poc.common.model;
 
 import java.io.Serializable;
+import java.sql.Timestamp;
 import java.util.Currency;
 import java.util.Date;
 
@@ -12,6 +13,8 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 
+import org.hibernate.annotations.CreationTimestamp;
+
 @Entity
 public class Pledge implements Serializable {
     @Id
@@ -22,8 +25,9 @@ public class Pledge implements Serializable {
     @JoinColumn(name="PLEDGED_BY", nullable=false, insertable=true, updatable=false)
 	private User pledgedBy;
     
-    @Column(nullable=false)
-	private Date pledgedDate;
+    //@Column(nullable=false)
+    @CreationTimestamp
+	private Timestamp pledgedDate;
     
     @Column(nullable=false)
 	private Double amount;
@@ -51,10 +55,10 @@ public class Pledge implements Serializable {
 	public void setPledgedBy(User pledgedBy) {
 		this.pledgedBy = pledgedBy;
 	}
-	public Date getPledgedDate() {
+	public Timestamp getPledgedDate() {
 		return pledgedDate;
 	}
-	public void setPledgedDate(Date pledgedDate) {
+	public void setPledgedDate(Timestamp pledgedDate) {
 		this.pledgedDate = pledgedDate;
 	}
 	public Double getAmount() {

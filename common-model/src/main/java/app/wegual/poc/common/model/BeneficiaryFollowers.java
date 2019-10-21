@@ -1,6 +1,8 @@
 package app.wegual.poc.common.model;
 
 import java.io.Serializable;
+import java.sql.Timestamp;
+//import java.sql.Timestamp;
 import java.util.Date;
 
 import javax.persistence.Column;
@@ -11,11 +13,13 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
+import org.hibernate.annotations.CreationTimestamp;
+
 @Entity
 public class BeneficiaryFollowers implements Serializable{
 	
 	@Id
-    @GeneratedValue(strategy=GenerationType.AUTO)
+	@GeneratedValue(strategy=GenerationType.AUTO)
     private Long id;
 
 	@ManyToOne
@@ -26,8 +30,8 @@ public class BeneficiaryFollowers implements Serializable{
     @JoinColumn(name="FOLLOWEE_ID", nullable=false, insertable=true, updatable=false)
 	private Beneficiary followee;
 	
-	@Column(nullable=false)
-	private Date follow_date;
+	@CreationTimestamp
+	private Timestamp follow_date;
 	
 
 	public User getFollower() {
@@ -46,11 +50,11 @@ public class BeneficiaryFollowers implements Serializable{
 		this.followee = followee;
 	}
 
-	public Date getFollow_date() {
+	public Timestamp getFollow_date() {
 		return follow_date;
 	}
 
-	public void setFollow_date(Date follow_date) {
+	public void setFollow_date(Timestamp follow_date) {
 		this.follow_date = follow_date;
 	}
 

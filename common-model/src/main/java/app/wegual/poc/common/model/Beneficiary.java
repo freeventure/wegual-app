@@ -14,6 +14,8 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 
+import org.hibernate.annotations.CreationTimestamp;
+
 @Entity 
 public class Beneficiary  implements Serializable {
 	@Id
@@ -42,10 +44,10 @@ public class Beneficiary  implements Serializable {
     @JoinColumn(name="OWNER_ID", nullable=false, insertable=true, updatable=true)
     private User owner;
     
-    @Column(nullable=false)
+    @CreationTimestamp
 	private Timestamp creationDate;
     
-    @Column(nullable=false)
+    @CreationTimestamp
    	private Timestamp updationDate;
 	
     

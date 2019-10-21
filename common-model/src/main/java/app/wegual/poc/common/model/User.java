@@ -10,6 +10,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
+import org.hibernate.annotations.CreationTimestamp;
+
 @Entity 
 public class User  implements Serializable {
     @Id
@@ -21,10 +23,12 @@ public class User  implements Serializable {
     @Column(name="email", unique=true)
     private String email;
     
-    @Column(nullable=false)
+    //@Column(name="creationDate", columnDefinition="TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
+    @CreationTimestamp
 	private Timestamp creationDate;
     
-    @Column(nullable=false)
+    //@Column(name="updationDate", columnDefinition="TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
+    @CreationTimestamp
    	private Timestamp updationDate;
     
     public User() {}

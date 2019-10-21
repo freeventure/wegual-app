@@ -12,6 +12,8 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 
+import org.hibernate.annotations.CreationTimestamp;
+
 @Entity
 public class GiveUp implements Serializable {
     @Id
@@ -26,10 +28,10 @@ public class GiveUp implements Serializable {
 	@JoinColumn(name="CREATED_BY", nullable=false, insertable=true, updatable=false)
 	private User createdBy;
 	
-	@Column(nullable=false)
+	@CreationTimestamp
 	private Timestamp creationDate;
     
-    @Column(nullable=false)
+	@CreationTimestamp
    	private Timestamp updationDate;
 
 	public Long getId() {
