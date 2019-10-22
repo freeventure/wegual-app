@@ -17,6 +17,9 @@ public interface PledgeRepository extends PagingAndSortingRepository<Pledge, Lon
 
 	//List<Beneficiary> findAllByBeneficiary(String name);
 	
+	@Query(value="Select count(*) FROM Pledge")
+	Long countAllPLedges();
+	
 	@Query(value="SELECT p.beneficiary FROM Pledge p WHERE p.pledgedBy=:pledgedBy")
 	List<Beneficiary> findAllBeneficiariesPledgedBy(@Param("pledgedBy") User pledgedBy);
 	

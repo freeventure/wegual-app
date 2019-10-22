@@ -3,6 +3,7 @@ package app.wegual.poc.common.model;
 import java.io.Serializable;
 //import java.security.Timestamp;
 import java.sql.*;
+import java.util.Currency;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -23,6 +24,12 @@ public class GiveUp implements Serializable {
     @Column(unique=true)
 	private String name;
 	private String description;
+	
+	@Column(nullable=false)
+	private Double amount;
+    
+    @Column(nullable=false)
+	private Currency currency;
 	
 	@OneToOne
 	@JoinColumn(name="CREATED_BY", nullable=false, insertable=true, updatable=false)
@@ -80,6 +87,23 @@ public class GiveUp implements Serializable {
 
 	public void setUpdationDate(Timestamp updationDate) {
 		this.updationDate = updationDate;
+	}
+	
+
+	public Currency getCurrency() {
+		return currency;
+	}
+
+	public void setCurrency(Currency currency) {
+		this.currency = currency;
+	}
+
+	public Double getAmount() {
+		return amount;
+	}
+
+	public void setAmount(Double amount) {
+		this.amount = amount;
 	}
 	
 	

@@ -2,6 +2,7 @@ package app.wegual.poc.springdatamysql;
 
 import java.util.List;
 
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
@@ -13,6 +14,9 @@ import app.wegual.poc.common.model.User;
 
 @RepositoryRestResource(collectionResourceRel = "beneficiary", path = "beneficiary")
 public interface BeneficiaryRepository extends PagingAndSortingRepository<Beneficiary, Long> {
+	
+	@Query(value="Select count(*) FROM Beneficiary")
+	Long countAllBeneficiary();
 
 	Beneficiary findByUrl(String url);
 	
