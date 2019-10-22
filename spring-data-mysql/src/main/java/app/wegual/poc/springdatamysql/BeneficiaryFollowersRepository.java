@@ -10,6 +10,7 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
 import app.wegual.poc.common.model.Beneficiary;
 import app.wegual.poc.common.model.BeneficiaryFollowers;
+import app.wegual.poc.common.model.GiveUp;
 import app.wegual.poc.common.model.User;
 import org.springframework.data.repository.query.Param; 
 
@@ -17,8 +18,19 @@ import org.springframework.data.repository.query.Param;
 
 public interface BeneficiaryFollowersRepository extends PagingAndSortingRepository<BeneficiaryFollowers, Long> {
 	
-	List<User> findAllByFollowee(Beneficiary followee);
 	
-@Query("select b from BeneficiaryFollowers b where b.followee=:followee and b.follow_date<=:follow_date")	
-	List<BeneficiaryFollowers> findAllByFolloweeAndfollow_date(@Param("followee") Beneficiary followee, @Param("follow_date") Date follow_date);
+	@Query(value="SELECT b.follower from BeneficiaryFollowers b WHERE b.beneficiary=:beneficiary")
+	List<User> findAllByBeneficiary(@Param("beneficiary") Beneficiary beneficiary);
+	
+	@Query(value="SELECT count(b.follower) from BeneficiaryFollowers b WHERE b.beneficiary=:beneficiary")
+	Long countAllByBeneficiary(@Param("beneficiary") Beneficiary beneficiary);
+	
+	@Query(value="SELECT b.beneficiary from BeneficiaryFollowers b WHERE b.follower=:follower")
+	List<Beneficiary> findAllByFollower(@Param("follower") User follower);
+	
+	@Query(value="SELECT count(b.beneficiary) from BeneficiaryFollowers b WHERE b.follower=:follower")
+	List<Beneficiary> countAllByFollower(@Param("follower") User follower);
+	
+	@Query("select b from BeneficiaryFollowers b where b.beneficiary=:beneficiary and b.follow_date<=:follow_date")	
+	List<BeneficiaryFollowers> findAllByBeneficiaryAndfollow_date(@Param("beneficiary") Beneficiary beneficiary, @Param("follow_date") Date follow_date);
 }

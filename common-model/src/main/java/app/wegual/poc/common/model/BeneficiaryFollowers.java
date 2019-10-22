@@ -28,7 +28,7 @@ public class BeneficiaryFollowers implements Serializable{
 
 	@ManyToOne
     @JoinColumn(name="FOLLOWEE_ID", nullable=false, insertable=true, updatable=false)
-	private Beneficiary followee;
+	private Beneficiary beneficiary;
 	
 	@CreationTimestamp
 	private Timestamp follow_date;
@@ -42,12 +42,12 @@ public class BeneficiaryFollowers implements Serializable{
 		this.follower = follower;
 	}
 
-	public Beneficiary getFollowee() {
-		return followee;
+	public Beneficiary getBeneficiary() {
+		return beneficiary;
 	}
 
-	public void setFollowee(Beneficiary followee) {
-		this.followee = followee;
+	public void setBeneficiary(Beneficiary beneficiary) {
+		this.beneficiary = beneficiary;
 	}
 
 	public Timestamp getFollow_date() {
