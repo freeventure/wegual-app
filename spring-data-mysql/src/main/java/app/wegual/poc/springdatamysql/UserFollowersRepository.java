@@ -22,4 +22,10 @@ public interface UserFollowersRepository extends PagingAndSortingRepository<User
 	@Query(value="SELECT count(u.follower) from UserFollowers u WHERE u.followee=:followee")
 	Long countAllByFollowee(@Param("followee") User followee);
 	
+	@Query(value="SELECT u FROM UserFollowers u WHERE u.followee=:followee AND TIMESTAMPDIFF(day, u.follow_date, now()) <= :days")
+	List<User> findAllUserFollowedInLastDays(@Param("days") int days, @Param("followee") User followee);
+	
+	@Query(value="SELECT u FROM UserFollowers u WHERE u.follower=:follower AND TIMESTAMPDIFF(day, u.follow_date, now()) <= :days")
+	List<User> findAllUserFollowingInLastDays(@Param("days") int days, @Param("follower") User follower);
+	
 }

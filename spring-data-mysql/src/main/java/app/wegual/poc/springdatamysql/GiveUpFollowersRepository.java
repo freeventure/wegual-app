@@ -25,5 +25,8 @@ public interface GiveUpFollowersRepository extends PagingAndSortingRepository<Gi
 	
 	@Query(value="SELECT count(g.giveup) from GiveUpFollower g WHERE g.follower=:follower")
 	Long countAllByFollower(@Param("follower") User follower);
+	
+	@Query(value="SELECT g FROM GiveUpFollower g WHERE g.follower=:follower AND TIMESTAMPDIFF(day, g.follow_date, now()) <= :days")
+	List<User> findAllGiveUpFollowersInLastDays(@Param("days") int days, @Param("follower") User follower);
 
 }

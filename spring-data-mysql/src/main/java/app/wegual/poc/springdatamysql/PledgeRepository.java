@@ -41,7 +41,7 @@ public interface PledgeRepository extends PagingAndSortingRepository<Pledge, Lon
 	double findTotalForBeneficiary(@Param("beneficiary") Beneficiary beneficiary);
 	
 	@Query(value="SELECT p.pledgedBy FROM Pledge p WHERE p.giveUp=:giveUp")
-	List<User> findAllUsersByGiveUp(@Param("giveUp") GiveUp giveUp);
+	List<User> findAllUsersPLedgeByGiveUp(@Param("giveUp") GiveUp giveUp);
 	
 	@Query(value="SELECT count(distinct p.pledgedBy) FROM Pledge p WHERE p.giveUp=:giveUp")
 	Long countAllUsersByGiveUp(@Param("giveUp") GiveUp giveUp);
@@ -56,6 +56,12 @@ public interface PledgeRepository extends PagingAndSortingRepository<Pledge, Lon
 	
 	@Query(value="SELECT count(p) FROM Pledge p WHERE p.giveUp=:giveUp")
 	Long countAllByGiveUp(GiveUp giveUp);
+	
+	@Query(value="SELECT p FROM Pledge p WHERE p.beneficiary=:beneficiary AND TIMESTAMPDIFF(day, p.pledgedDate, now()) <= :days")
+	List<Pledge> findAllPledgesFollowersInLastDays(@Param("days") int days, @Param("beneficiary") Beneficiary beneficiary);
+	
+	@Query(value="SELECT p FROM Pledge p WHERE p.pledgedBy=:pledgedBy AND TIMESTAMPDIFF(day, p.pledgedDate, now()) <= :days")
+	List<Pledge> findAllPledgesTakenByUserInLastDays(@Param("days") int days, @Param("pledgedBy") User pledgedBy);
 	
 	//List<Pledge> findAllByBeneficiary(Long id);
 }

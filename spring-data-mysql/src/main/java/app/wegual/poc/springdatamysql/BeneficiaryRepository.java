@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
+import org.springframework.data.repository.query.Param;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
 import app.wegual.poc.common.model.Beneficiary;
@@ -23,4 +24,7 @@ public interface BeneficiaryRepository extends PagingAndSortingRepository<Benefi
 	Beneficiary findByName(String name);
 	
 	List<Beneficiary> findAllByOwner(User owner);
+	
+	@Query(value="SELECT b FROM Beneficiary b WHERE b=:beneficiary AND TIMESTAMPDIFF(day, b.creationDate, now()) <= :days")
+	List<Beneficiary> findAllBeneficiaryAddedInLastDays(@Param("days") int days, @Param("beneficiary") Beneficiary beneficiary);
 }

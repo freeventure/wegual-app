@@ -20,7 +20,10 @@ public interface UserPagingAndSortingRepository extends PagingAndSortingReposito
 	
 	List<User> findAllByName(String name, Pageable pageable);
 	
-	@Query(value="Select count(*) FROM Users")
+	@Query(value="Select count(*) FROM User")
 	Long countAllUsers();
+	
+	@Query(value="SELECT u FROM User u WHERE TIMESTAMPDIFF(day, u.creationDate, now()) <= :days")
+	List<User> findAllUsersInLastDays(@Param("days") int days);
 	
 }
