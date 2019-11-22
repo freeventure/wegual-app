@@ -52,8 +52,7 @@ public class BeneficiaryEventHandler {
 		@Override
 		public void run() {
 			System.out.println("I am running in thread: " +  Thread.currentThread().getName());
-			sender.sendMessage(ben);
-			
+			sender.sendMessage(ben);	
 		}
 		
 	}

@@ -13,7 +13,7 @@ public class MessageSenderRestController {
 	@Autowired
 	private ObjectCreateMessageSender sender;
 
-	@PostMapping("/obectCreate")
+	@PostMapping("/objectCreate")
 	  String newEmployee(@RequestBody ObjectCreate newObject) {
 		sender.sendMessage(newObject);
 	    return "success";

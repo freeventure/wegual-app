@@ -9,15 +9,16 @@ import app.wegual.poc.common.util.MessagingConstants;
 
 @Component
 public class ObjectCreateMessageSender {
-	private final RabbitTemplate rabbitTemplate;
 	
+	private final RabbitTemplate rabbitTemplate;
+
 	public ObjectCreateMessageSender(RabbitTemplate template) {
 		this.rabbitTemplate = template;
 	}
-	
-	public void sendMessage(ObjectCreate payload) throws AmqpException {
-		
-        System.out.println("Sending message...");
-        rabbitTemplate.convertAndSend(MessagingConstants.EXCHANGE_NAME, MessagingConstants.ES_CAS_ROUTING_KEY, payload);
+
+public void sendMessage(ObjectCreate payload) throws AmqpException {
+
+       System.out.println("Sending message...");
+       rabbitTemplate.convertAndSend(MessagingConstants.EXCHANGE_NAME, MessagingConstants.ES_CAS_ROUTING_KEY, payload);
 	}
 }

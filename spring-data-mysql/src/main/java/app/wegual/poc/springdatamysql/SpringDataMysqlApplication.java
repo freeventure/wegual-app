@@ -2,6 +2,7 @@ package app.wegual.poc.springdatamysql;
 
 import org.springframework.amqp.core.Binding;
 import org.springframework.amqp.core.BindingBuilder;
+import org.springframework.amqp.core.DirectExchange;
 import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.core.TopicExchange;
 //import org.springframework.beans.factory.annotation.Autowired;
@@ -18,72 +19,38 @@ import app.wegual.poc.springdatamysql.events.PledgeEventHandler;
 @SpringBootApplication
 public class SpringDataMysqlApplication implements CommandLineRunner {
 	
-//	private static final String BENEFICIARY_NAME = "XYZ Foundation";
-    static final String topicExchangeName = "spring-boot-exchange";
+    static final String exchangeName = "timeline";
 
-    static final String queueNameES = "spring-es-pledges";
-    static final String queueNameCassandra = "spring-cas-pledges";
-
-    static final String queueNameESBen = "spring-es-beneficiaries";
-    static final String queueNameCassandraBen = "spring-cas-beneficiaries";
-    
-//	@Autowired
-//	private UserPagingAndSortingRepository userRepository;
-//
-//	@Autowired
-//	private BeneficiaryRepository beneficiaryRepository;
-//	
-//	@Autowired
-//	private PledgeRepository pledgeRepository;
+    static final String queueNameUserTimeline = "userTimeline";
+    static final String queueNameBeneficiaryTimeline = "beneficiaryTimeline";
 	
 	public static void main(String[] args) {
 		SpringApplication.run(SpringDataMysqlApplication.class, args);
 	}
 	
     @Bean
-    Queue queueES() {
-        return new Queue(queueNameES, false);
+    Queue queueUserTimeline() {
+        return new Queue(queueNameUserTimeline, true);
     }
 
     @Bean
-    Queue queueCassandra() {
-        return new Queue(queueNameCassandra, false);
-    }
-
-    @Bean
-    Queue queueESBen() {
-        return new Queue(queueNameESBen, false);
-    }
-
-    @Bean
-    Queue queueCassandraBen() {
-        return new Queue(queueNameCassandraBen, false);
+    Queue queueBeneficiaryTimeline() {
+        return new Queue(queueNameBeneficiaryTimeline, true);
     }
     
     @Bean
-    TopicExchange exchange() {
-        return new TopicExchange(topicExchangeName);
+    DirectExchange exchange() {
+        return new DirectExchange(exchangeName);
     }
 
     @Bean
-    Binding bindingESPledges(TopicExchange exchange) {
-    	return BindingBuilder.bind(queueES()).to(exchange).with("pledges");
+    Binding bindingUserTimeline(DirectExchange exchange) {
+    	return BindingBuilder.bind(queueUserTimeline()).to(exchange).with("user");
     }
 
     @Bean
-    Binding bindingCASPledges(TopicExchange exchange) {
-    	return BindingBuilder.bind(queueCassandra()).to(exchange).with("pledges");
-        
-    }
-
-    @Bean
-    Binding bindingESBeneficiary(TopicExchange exchange) {
-    	return BindingBuilder.bind(queueESBen()).to(exchange).with("beneficiaries");
-    }
-
-    @Bean
-    Binding bindingCASBeneficiary(TopicExchange exchange) {
-    	return BindingBuilder.bind(queueCassandraBen()).to(exchange).with("beneficiaries");
+    Binding bindingBeneficiaryTimeline(DirectExchange exchange) {
+    	return BindingBuilder.bind(queueBeneficiaryTimeline()).to(exchange).with("beneficiary");
         
     }
 

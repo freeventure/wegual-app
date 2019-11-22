@@ -18,6 +18,6 @@ public class BeneficiaryMessageSender {
 	public void sendMessage(Beneficiary ben) throws AmqpException {
 		// replace with logger
         System.out.println("Sending message for beneficary...");
-        rabbitTemplate.convertAndSend(MessagingConstants.EXCHANGE_NAME, "beneficiaries", ben);
+        rabbitTemplate.convertAndSend(MessagingConstants.directExchange, "beneficiary", ben);
 	}
 }
