@@ -1,13 +1,17 @@
 package app.wegual.poc.common.model;
 
 import java.io.Serializable;
+import java.util.Date;
 import java.sql.Timestamp;
 
 import javax.persistence.Column;
 
 import org.hibernate.annotations.CreationTimestamp;
 
-public class BeneficiaryTimeline implements Serializable {
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+public class BeneficiaryTimeline{
 	
 	@Column
 	private String beneficiaryId;
@@ -15,8 +19,15 @@ public class BeneficiaryTimeline implements Serializable {
 	@Column
 	private String operationType;
 	
-	@CreationTimestamp
+	@Column
 	private Timestamp timestamp;
+	
+	public BeneficiaryTimeline(@JsonProperty("beneficiaryId") String beneficiaryId,
+								@JsonProperty("opertionType") String operationType) {
+		this.beneficiaryId = beneficiaryId;
+		this.operationType = operationType;
+		this.timestamp = new Timestamp(new Date().getTime());
+	}
 	
 	public String getBeneficiaryId() {
 		return beneficiaryId;
@@ -41,5 +52,13 @@ public class BeneficiaryTimeline implements Serializable {
 	public void setTimestamp(Timestamp timestamp) {
 		this.timestamp = timestamp;
 	}
-
+	
+	@Override
+	public String toString() {
+        return "BeneficiaryTimeline{" +
+                "benId='" + beneficiaryId + "'"+
+                ", operationType='" + operationType +"'"+
+                ", timestamp=" + timestamp +
+                '}';
+	}
 }

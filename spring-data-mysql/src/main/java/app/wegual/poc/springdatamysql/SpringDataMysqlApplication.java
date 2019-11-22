@@ -5,12 +5,16 @@ import org.springframework.amqp.core.BindingBuilder;
 import org.springframework.amqp.core.DirectExchange;
 import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.core.TopicExchange;
-//import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.amqp.rabbit.connection.CachingConnectionFactory;
+import org.springframework.amqp.rabbit.connection.ConnectionFactory;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.annotation.Bean;
+
 
 import app.wegual.poc.springdatamysql.events.BeneficiaryEventHandler;
 import app.wegual.poc.springdatamysql.events.PledgeEventHandler;
@@ -40,7 +44,7 @@ public class SpringDataMysqlApplication implements CommandLineRunner {
     
     @Bean
     DirectExchange exchange() {
-        return new DirectExchange(exchangeName);
+        return new DirectExchange(exchangeName, true, false);
     }
 
     @Bean
@@ -62,6 +66,43 @@ public class SpringDataMysqlApplication implements CommandLineRunner {
 	@Bean
 	BeneficiaryEventHandler beneficiaryEventHandler() {
 		return new BeneficiaryEventHandler();
+	}
+	
+	@Bean
+	public ConnectionFactory connectionFactory() {
+	    CachingConnectionFactory connectionFactory = new CachingConnectionFactory();
+	    connectionFactory.setAddresses("localhost:8081");
+	    connectionFactory.setUsername("user");
+	    connectionFactory.setPassword("Shruti@123");
+	    return connectionFactory;
+	}
+	
+	@Bean
+	public RabbitTemplate rabbitTemplate(ConnectionFactory connectionFactory) {
+	    final RabbitTemplate rabbitTemplate = new RabbitTemplate(connectionFactory);
+	    rabbitTemplate.setMessageConverter(producerJackson2MessageConverter());
+	    return rabbitTemplate;
+	}
+	
+	 
+	/*@Bean
+    public ConnectionFactory connectionFactory() {
+       ConnectionFactory connectionFactory = new ConnectionFactory();
+       connectionFactory.setHost("localhost");
+        return connectionFactory;
+    }
+	
+	@Bean
+	public RabbitTemplate rabbitTemplate(final ConnectionFactory connectionFactory) {
+		final RabbitTemplate rabbitTemplate = new RabbitTemplate(new connectionFactory());
+		rabbitTemplate.setMessageConverter(producerJackson2MessageConverter());
+		return rabbitTemplate;
+	}
+ 	*/
+	
+	@Bean
+	public Jackson2JsonMessageConverter producerJackson2MessageConverter() {
+		return new Jackson2JsonMessageConverter();
 	}
 	
 	public void run(String... args) {

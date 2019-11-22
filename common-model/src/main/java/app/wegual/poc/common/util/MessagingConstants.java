@@ -11,4 +11,7 @@ public class MessagingConstants {
 	public static final String userRoutingKey = "user";
 	public static final String beneficiaryRoutingKey = "beneficiary";
 	
+	public static final String queueNameUserTimeline = "userTimeline";
+    public static final String queueNameBeneficiaryTimeline = "beneficiaryTimeline";
+    
 }
