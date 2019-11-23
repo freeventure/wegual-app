@@ -1,5 +1,8 @@
 package app.wegual.poc.springdatamysql.events;
 
+import java.util.Date;
+import java.sql.Timestamp;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.rest.core.annotation.HandleAfterCreate;
 import org.springframework.data.rest.core.annotation.HandleAfterDelete;
@@ -23,7 +26,8 @@ public class BeneficiaryEventHandler {
   public void handleBeneficiaryCreate(Beneficiary ben) {
     // … you can now deal with Person in a type-safe way
 	  System.out.println("Beneficiary create called");
-	  beneficiaryTimeline = new BeneficiaryTimeline("ben"+ ben.getId(), "create");
+	  Timestamp ts = new Timestamp(new Date().getTime());
+	  beneficiaryTimeline = new BeneficiaryTimeline("ben"+ ben.getId(), "create", ts);
 	  sendMessageAsynch(beneficiaryTimeline);
   }
 

@@ -24,7 +24,6 @@ import app.wegual.poc.springdatamysql.events.PledgeEventHandler;
 public class SpringDataMysqlApplication implements CommandLineRunner {
 	
     static final String exchangeName = "timeline";
-
     static final String queueNameUserTimeline = "userTimeline";
     static final String queueNameBeneficiaryTimeline = "beneficiaryTimeline";
 	
@@ -69,36 +68,11 @@ public class SpringDataMysqlApplication implements CommandLineRunner {
 	}
 	
 	@Bean
-	public ConnectionFactory connectionFactory() {
-	    CachingConnectionFactory connectionFactory = new CachingConnectionFactory();
-	    connectionFactory.setAddresses("localhost:8081");
-	    connectionFactory.setUsername("user");
-	    connectionFactory.setPassword("Shruti@123");
-	    return connectionFactory;
-	}
-	
-	@Bean
 	public RabbitTemplate rabbitTemplate(ConnectionFactory connectionFactory) {
 	    final RabbitTemplate rabbitTemplate = new RabbitTemplate(connectionFactory);
 	    rabbitTemplate.setMessageConverter(producerJackson2MessageConverter());
 	    return rabbitTemplate;
 	}
-	
-	 
-	/*@Bean
-    public ConnectionFactory connectionFactory() {
-       ConnectionFactory connectionFactory = new ConnectionFactory();
-       connectionFactory.setHost("localhost");
-        return connectionFactory;
-    }
-	
-	@Bean
-	public RabbitTemplate rabbitTemplate(final ConnectionFactory connectionFactory) {
-		final RabbitTemplate rabbitTemplate = new RabbitTemplate(new connectionFactory());
-		rabbitTemplate.setMessageConverter(producerJackson2MessageConverter());
-		return rabbitTemplate;
-	}
- 	*/
 	
 	@Bean
 	public Jackson2JsonMessageConverter producerJackson2MessageConverter() {

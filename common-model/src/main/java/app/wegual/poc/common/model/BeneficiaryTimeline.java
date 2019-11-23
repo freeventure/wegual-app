@@ -23,10 +23,11 @@ public class BeneficiaryTimeline{
 	private Timestamp timestamp;
 	
 	public BeneficiaryTimeline(@JsonProperty("beneficiaryId") String beneficiaryId,
-								@JsonProperty("opertionType") String operationType) {
+								@JsonProperty("opertionType") String operationType,
+								@JsonProperty("timestamp") Timestamp timestamp){
 		this.beneficiaryId = beneficiaryId;
 		this.operationType = operationType;
-		this.timestamp = new Timestamp(new Date().getTime());
+		this.timestamp = timestamp;
 	}
 	
 	public String getBeneficiaryId() {
