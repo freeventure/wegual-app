@@ -5,6 +5,7 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Component;
 
 import app.wegual.poc.common.model.UserFollowers;
+import app.wegual.poc.common.model.UserTimeline;
 import app.wegual.poc.common.util.MessagingConstants;
 
 @Component
@@ -15,10 +16,10 @@ public class UserFollowersMessageSender {
 		this.rabbitTemplate = template;
 	}
 	
-	public void sendMessage(UserFollowers ben) throws AmqpException {
+	public void sendMessage(UserTimeline usr) throws AmqpException {
 		// TODO Auto-generated method stub
-		System.out.println("Sending message for beneficary...");
-        rabbitTemplate.convertAndSend(MessagingConstants.directExchange, "user", ben);
+		System.out.println("Sending message for userFollower...");
+        rabbitTemplate.convertAndSend(MessagingConstants.directExchange, "user", usr);
 	}
 	
 }

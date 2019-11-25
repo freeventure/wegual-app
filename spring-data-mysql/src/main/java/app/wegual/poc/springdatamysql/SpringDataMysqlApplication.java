@@ -15,17 +15,20 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.annotation.Bean;
 
-
+import app.wegual.poc.common.util.MessagingConstants;
 import app.wegual.poc.springdatamysql.events.BeneficiaryEventHandler;
+import app.wegual.poc.springdatamysql.events.GiveUpFollowerEventHandler;
 import app.wegual.poc.springdatamysql.events.PledgeEventHandler;
+import app.wegual.poc.springdatamysql.events.UserEventHandler;
+import app.wegual.poc.springdatamysql.events.UserFollowersEventHandler;
 
 @EntityScan(basePackages = "app.wegual.poc.common.model")
 @SpringBootApplication
 public class SpringDataMysqlApplication implements CommandLineRunner {
 	
-    static final String exchangeName = "timeline";
-    static final String queueNameUserTimeline = "userTimeline";
-    static final String queueNameBeneficiaryTimeline = "beneficiaryTimeline";
+    static final String exchangeName = MessagingConstants.directExchange;
+    static final String queueNameUserTimeline = MessagingConstants.queueNameUserTimeline;
+    static final String queueNameBeneficiaryTimeline = MessagingConstants.queueNameBeneficiaryTimeline;
 	
 	public static void main(String[] args) {
 		SpringApplication.run(SpringDataMysqlApplication.class, args);
@@ -48,12 +51,12 @@ public class SpringDataMysqlApplication implements CommandLineRunner {
 
     @Bean
     Binding bindingUserTimeline(DirectExchange exchange) {
-    	return BindingBuilder.bind(queueUserTimeline()).to(exchange).with("user");
+    	return BindingBuilder.bind(queueUserTimeline()).to(exchange).with(MessagingConstants.userRoutingKey);
     }
 
     @Bean
     Binding bindingBeneficiaryTimeline(DirectExchange exchange) {
-    	return BindingBuilder.bind(queueBeneficiaryTimeline()).to(exchange).with("beneficiary");
+    	return BindingBuilder.bind(queueBeneficiaryTimeline()).to(exchange).with(MessagingConstants.beneficiaryRoutingKey);
         
     }
 
@@ -65,6 +68,21 @@ public class SpringDataMysqlApplication implements CommandLineRunner {
 	@Bean
 	BeneficiaryEventHandler beneficiaryEventHandler() {
 		return new BeneficiaryEventHandler();
+	}
+	
+	@Bean
+	UserEventHandler userEventHandler() {
+		return new UserEventHandler();
+	}
+	
+	@Bean
+	UserFollowersEventHandler userFollowersEventHandler() {
+		return new UserFollowersEventHandler();
+	}
+	
+	@Bean
+	GiveUpFollowerEventHandler giveUpFollowersEventHandler() {
+		return new GiveUpFollowerEventHandler();
 	}
 	
 	@Bean

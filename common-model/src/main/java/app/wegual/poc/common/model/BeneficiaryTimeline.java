@@ -5,13 +5,23 @@ import java.util.Date;
 import java.sql.Timestamp;
 
 import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 
 import org.hibernate.annotations.CreationTimestamp;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class BeneficiaryTimeline{
+@Entity
+public class BeneficiaryTimeline implements Serializable{
+	
+	@Id
+    @GeneratedValue(strategy=GenerationType.AUTO)
+    private Long id;
 	
 	@Column
 	private String beneficiaryId;
@@ -22,12 +32,19 @@ public class BeneficiaryTimeline{
 	@Column
 	private Timestamp timestamp;
 	
-	public BeneficiaryTimeline(@JsonProperty("beneficiaryId") String beneficiaryId,
-								@JsonProperty("opertionType") String operationType,
-								@JsonProperty("timestamp") Timestamp timestamp){
-		this.beneficiaryId = beneficiaryId;
-		this.operationType = operationType;
-		this.timestamp = timestamp;
+	public BeneficiaryTimeline withId(String id) {
+		this.beneficiaryId = id;
+		return this;
+	}
+	
+	public BeneficiaryTimeline withOperationType(String op) {
+		this.operationType = op;
+		return this;
+	}
+	
+	public BeneficiaryTimeline withTimestamp(Timestamp ts) {
+		this.timestamp = ts;
+		return this;
 	}
 	
 	public String getBeneficiaryId() {
@@ -35,7 +52,7 @@ public class BeneficiaryTimeline{
 	}
 
 	public void setBeneficiaryId(String beneficiaryId) {
-		this.beneficiaryId = beneficiaryId;
+		this.beneficiaryId = "ben" + beneficiaryId;
 	}
 
 	public String getOperationType() {

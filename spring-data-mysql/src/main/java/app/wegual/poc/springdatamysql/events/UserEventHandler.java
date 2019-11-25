@@ -9,39 +9,46 @@ import org.springframework.data.rest.core.annotation.HandleAfterDelete;
 import org.springframework.data.rest.core.annotation.HandleAfterSave;
 import org.springframework.data.rest.core.annotation.RepositoryEventHandler;
 
-import app.wegual.poc.common.model.UserFollowers;
 import app.wegual.poc.common.model.UserTimeline;
+import app.wegual.poc.common.model.User;
+import app.wegual.poc.springdatamysql.messaging.UserMessageSender;
 
-import app.wegual.poc.springdatamysql.messaging.UserFollowersMessageSender;
-
-@RepositoryEventHandler(UserFollowers.class)
-public class UserFollowersEventHandler {
-
+@RepositoryEventHandler(User.class)
+public class UserEventHandler {
+	
 	@Autowired
-	UserFollowersMessageSender ums;
+	UserMessageSender ums;
 
 	UserTimeline userTimeline;
 
 	@HandleAfterCreate
-	public void handleUserFollowersCreate(UserFollowers user) {
+	public void handleUserCreate(User user) {
 		// … you can now deal with Person in a type-safe way
-		System.out.println("User follower create called");
+		System.out.println("User create called");
 		Timestamp ts = new Timestamp(new Date().getTime());
-		userTimeline = new UserTimeline().withId("usr"+user.getFollower().getId().toString())
-				.withObjectId("usr"+user.getFollowee().getId().toString())
-				.withOperationType("Follow")
+		userTimeline = new UserTimeline().withId("usr" + user.getId().toString())
+				.withOperationType("Create")
+				.withTimestamp(ts);
+		sendMessageAsynch(userTimeline);
+	}
+
+	@HandleAfterSave
+	public void handleBeneficiarySave(User user) {
+		System.out.println("User save called");
+		Timestamp ts = new Timestamp(new Date().getTime());
+		userTimeline = new UserTimeline().withId("usr" + user.getId().toString())
+				.withOperationType("Update")
 				.withTimestamp(ts);
 		sendMessageAsynch(userTimeline);
 	}
 
 	@HandleAfterDelete
-	public void handleUserDelete(UserFollowers user) {
+	public void handleUserDelete(User user) {
 
 		System.out.println("User delete called");
 		Timestamp ts = new Timestamp(new Date().getTime());
-		userTimeline = new UserTimeline().withId("usr"+user.getFollower().getId().toString())
-				.withObjectId("usr"+user.getFollowee().getId().toString())
-				.withOperationType("Unfollow")
+		userTimeline = new UserTimeline().withId("usr" + user.getId().toString())
+				.withOperationType("Delete")
 				.withTimestamp(ts);
 		sendMessageAsynch(userTimeline);
 	}
@@ -54,10 +61,10 @@ public class UserFollowersEventHandler {
 
 	private static class SenderRunnable implements Runnable {
 
-		private UserFollowersMessageSender sender;
+		private UserMessageSender sender;
 
 		private UserTimeline userTimeline;
-		public SenderRunnable(final UserFollowersMessageSender sender, UserTimeline userTimeline) {
+		public SenderRunnable(final UserMessageSender sender, UserTimeline userTimeline) {
 			this.sender = sender;
 			this.userTimeline = userTimeline;
 		}

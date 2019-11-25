@@ -24,48 +24,58 @@ public class BeneficiaryEventHandler {
   
   @HandleAfterCreate
   public void handleBeneficiaryCreate(Beneficiary ben) {
-    // … you can now deal with Person in a type-safe way
+	  // … you can now deal with Person in a type-safe way
 	  System.out.println("Beneficiary create called");
 	  Timestamp ts = new Timestamp(new Date().getTime());
-	  beneficiaryTimeline = new BeneficiaryTimeline("ben"+ ben.getId(), "create", ts);
+	  beneficiaryTimeline = new BeneficiaryTimeline().withId("ben" + ben.getId().toString())
+			  .withOperationType("Create")
+			  .withTimestamp(ts);
 	  sendMessageAsynch(beneficiaryTimeline);
   }
 
-	/*@HandleAfterSave
-	public void handleBeneficiarySave(Beneficiary pl) {
-		System.out.println("Beneficiary save called");
-		sendMessageAsynch(pl);
-	}
+  @HandleAfterSave
+  public void handleBeneficiarySave(Beneficiary ben) {
+	  System.out.println("Beneficiary save called");
+	  Timestamp ts = new Timestamp(new Date().getTime());
+	  beneficiaryTimeline = new BeneficiaryTimeline().withId("ben" + ben.getId().toString())
+			  .withOperationType("Update")
+			  .withTimestamp(ts);
+	  sendMessageAsynch(beneficiaryTimeline);
+  }
 
-	@HandleAfterDelete
-	public void handleBeneficiaryDelete(Beneficiary pl) {
+  @HandleAfterDelete
+  public void handleBeneficiaryDelete(Beneficiary ben) {
 
-		System.out.println("Beneficiary delete called");
-		sendMessageAsynch(pl);
-	}
-	*/
-  
-	protected void sendMessageAsynch(BeneficiaryTimeline payload) {
-		Thread th = new Thread(new SenderRunnable(bms, payload));
-		th.start();
-		
-	}
-	
-	private static class SenderRunnable implements Runnable {
+	  System.out.println("Beneficiary delete called");
+	  Timestamp ts = new Timestamp(new Date().getTime());
+	  beneficiaryTimeline = new BeneficiaryTimeline().withId("ben" + ben.getId().toString())
+			  .withOperationType("Delete")
+			  .withTimestamp(ts);
+	  sendMessageAsynch(beneficiaryTimeline);
+  }
 
-		private BeneficiaryMessageSender sender;
-		
-		private BeneficiaryTimeline benTimeline;
-		public SenderRunnable(final BeneficiaryMessageSender sender, BeneficiaryTimeline benTimeline) {
-			this.sender = sender;
-			this.benTimeline = benTimeline;
-		}
-		
-		@Override
-		public void run() {
-			System.out.println("I am running in thread: " +  Thread.currentThread().getName());
-			sender.sendMessage(benTimeline);
-		}
-		
-	}
+  protected void sendMessageAsynch(BeneficiaryTimeline payload) {
+	  Thread th = new Thread(new SenderRunnable(bms, payload));
+	  th.start();
+
+  }
+
+  private static class SenderRunnable implements Runnable {
+
+	  private BeneficiaryMessageSender sender;
+
+	  private BeneficiaryTimeline benTimeline;
+	  public SenderRunnable(final BeneficiaryMessageSender sender, BeneficiaryTimeline benTimeline) {
+		  this.sender = sender;
+		  this.benTimeline = benTimeline;
+	  }
+
+	  @Override
+	  public void run() {
+		  System.out.println("I am running in thread: " +  Thread.currentThread().getName());
+		  sender.sendMessage(benTimeline);
+	  }
+
+  }
+
 }
