@@ -1,4 +1,4 @@
-package app.wegual.poc.common.model;
+package app.wegual.common.model;
 
 public enum BeneficiaryType {
 

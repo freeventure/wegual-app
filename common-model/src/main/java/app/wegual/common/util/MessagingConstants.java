@@ -1,4 +1,4 @@
-package app.wegual.poc.common.util;
+package app.wegual.common.util;
 
 public class MessagingConstants {
 
