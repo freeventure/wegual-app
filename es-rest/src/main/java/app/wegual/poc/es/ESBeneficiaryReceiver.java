@@ -9,7 +9,7 @@ import app.wegual.poc.common.model.Beneficiary;
 public class ESBeneficiaryReceiver {
 
 
-    @RabbitListener(queues = "spring-es-beneficiaries")
+    //@RabbitListener(queues = "spring-es-beneficiaries")
     public void receiveObjectMessage(Beneficiary ben) {
         System.out.println("ES Received beneficiary message");
         System.out.println("Name: " + ben.getName() + " desc: " + ben.getDescription());
