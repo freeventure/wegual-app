@@ -1,0 +1,22 @@
+{
+	"settings": {
+		"number_of_shards": 5
+	},
+	"mappings": {
+		"_doc": {
+			"properties": {
+				"beneficiary": {
+					"type": "text",
+					"fields": {
+						"name_suggest": {
+							"type": "completion"
+						}
+					}
+				},
+				"description": {
+					"type": "text"
+				}
+			}
+		}
+	}
+}

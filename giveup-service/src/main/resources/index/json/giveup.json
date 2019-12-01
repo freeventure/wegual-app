@@ -1,0 +1,17 @@
+{
+	"settings": {
+		"number_of_shards": 5
+	},
+	"mappings": {
+		"_doc": {
+			"properties": {
+				"giveup": {
+					"type": "text"
+				},
+				"description": {
+					"type": "text"
+				}
+			}
+		}
+	}
+}
