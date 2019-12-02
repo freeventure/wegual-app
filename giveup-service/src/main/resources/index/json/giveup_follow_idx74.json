@@ -1,0 +1,18 @@
+{
+	"settings": {
+		"number_of_shards": 5
+	},
+	"mappings": {
+		"properties": {
+			"follower_user": {
+				"type": "keyword"
+			},
+			"giveup": {
+				"type": "keyword"
+			},
+			"date_stamp": {
+				"type": "integer"
+			}
+		}
+	}
+}
