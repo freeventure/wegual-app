@@ -1,0 +1,33 @@
+{
+	"settings": {
+		"number_of_shards": 5
+	},
+	"mappings": {
+		"properties": {
+			"pledge_id": {
+				"type": "keyword"
+			},
+			"giveup_id": {
+				"type": "keyword"
+			},
+			"beneficiary_id": {
+				"type": "keyword"
+			},
+			"user_id": {
+				"type": "keyword"
+			},
+			"currency": {
+				"type": "keyword"
+			},
+			"amount": {
+				"type": "double"
+			},
+			"pledged_time": {
+				"type": "long"
+			},
+			"pledged_comments": {
+				"type": "text"
+			}
+		}
+	}
+}

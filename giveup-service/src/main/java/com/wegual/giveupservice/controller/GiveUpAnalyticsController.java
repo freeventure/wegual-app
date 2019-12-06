@@ -33,4 +33,11 @@ public class GiveUpAnalyticsController {
 		return new ResponseEntity<>(guas.popularGiveUps(), HttpStatus.OK);
 	}
 	
+	@GetMapping("/giveup/analytics/count")
+	ResponseEntity<Long> giveUpCount() {
+		
+		return new ResponseEntity<>(guas.giveUpCount(), HttpStatus.OK);
+	}
+	
+	
 }

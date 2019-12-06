@@ -1,0 +1,4 @@
+{ "index" : {} }
+{ "pledge_id" : "1001", "giveup_id" : "10", "beneficiary_id": "200", "user_id": "100", "currency": "USD", "amount": "10", "pledged_time" : "1575357600", "pledged_comments" : "Thank you all my friends for your donations instead of bithday gifts"}
+{ "index" : {} }
+{ "pledge_id" : "1002", "giveup_id" : "10", "beneficiary_id": "200", "user_id": "101", "currency": "USD", "amount": "20", "pledged_time" : "1575358100", "pledged_comments" : "Giving up birthday gifts"}

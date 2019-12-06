@@ -26,6 +26,25 @@ public class BeneficaryAnalyticsService {
 	@Autowired
 	private RestHighLevelClient client;
 	
+	// get beneficiary count in the system
+	public Long beneficiaryCount() {
+		
+		SearchRequest searchRequest = new SearchRequest("beneficiary_idx");
+		SearchSourceBuilder sourceBuilder = new SearchSourceBuilder(); 
+		sourceBuilder.query(QueryBuilders.matchAllQuery()); 
+		sourceBuilder.size(0); 		
+		searchRequest.source(sourceBuilder);
+		
+		try {
+			SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
+			return searchResponse.getHits().getTotalHits();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return new Long(0L);
+		}
+	}
+		
 	// get follower count for a beneficiary
 	public BeneficiaryFollowers followersCount(Long beneficiaryId) {
 		
