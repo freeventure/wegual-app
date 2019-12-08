@@ -26,13 +26,15 @@ import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.wegual.pledgeservice.ElasticSearchConfig;
+
 import app.wegual.common.rest.model.BeneficiarySnapshot;
 
 @Service
 public class PledgeAnalyticsService {
 
 	@Autowired
-	private RestHighLevelClient client;
+	private ElasticSearchConfig esConfig;
 	
 	// get Pledge count in the system
 	public Long pledgeCount() {
@@ -44,6 +46,7 @@ public class PledgeAnalyticsService {
 		searchRequest.source(sourceBuilder);
 		
 		try {
+			RestHighLevelClient client = esConfig.getElastcsearchClient();
 			SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
 			return searchResponse.getHits().getTotalHits();
 		} catch (IOException e) {
@@ -88,6 +91,7 @@ public class PledgeAnalyticsService {
 		searchRequest.source(sourceBuilder);
 		
 		try {
+			RestHighLevelClient client = esConfig.getElastcsearchClient();
 			SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
 			Aggregations aggregations = searchResponse.getAggregations();
 
@@ -134,6 +138,7 @@ public class PledgeAnalyticsService {
 		searchRequest.source(sourceBuilder);
 		
 		try {
+			RestHighLevelClient client = esConfig.getElastcsearchClient();
 			SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
 			Aggregations aggregations = searchResponse.getAggregations();
 
@@ -172,6 +177,7 @@ public class PledgeAnalyticsService {
 		searchRequest.source(sourceBuilder);
 		
 		try {
+			RestHighLevelClient client = esConfig.getElastcsearchClient();
 			SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
 			Aggregations aggregations = searchResponse.getAggregations();
 

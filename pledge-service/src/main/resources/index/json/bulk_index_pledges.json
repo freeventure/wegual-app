@@ -1,4 +1,20 @@
 { "index" : {} }
-{ "pledge_id" : "1001", "giveup_id" : "10", "beneficiary_id": "200", "user_id": "100", "currency": "USD", "amount": "10", "pledged_time" : "1575357600", "pledged_comments" : "Thank you all my friends for your donations instead of bithday gifts"}
+{ "pledge_id" : "1001", "giveup_id" : "10", "beneficiary_id": "200", "user_id": "100", "currency": "USD", "amount": "180", "pledged_time" : "1575357600", "pledged_comments" : "Thank you all my friends for your donations instead of bithday gifts"}
 { "index" : {} }
-{ "pledge_id" : "1002", "giveup_id" : "10", "beneficiary_id": "200", "user_id": "101", "currency": "USD", "amount": "20", "pledged_time" : "1575358100", "pledged_comments" : "Giving up birthday gifts"}
+{ "pledge_id" : "1002", "giveup_id" : "30", "beneficiary_id": "200", "user_id": "101", "currency": "USD", "amount": "90", "pledged_time" : "1575358100", "pledged_comments" : "Giving up partying for one occasion"}
+{ "index" : {} }
+{ "pledge_id" : "1003", "giveup_id" : "10", "beneficiary_id": "300", "user_id": "103", "currency": "USD", "amount": "150", "pledged_time" : "1575358100", "pledged_comments" : "Giving up birthday gifts"}
+{ "index" : {} }
+{ "pledge_id" : "1004", "giveup_id" : "20", "beneficiary_id": "200", "user_id": "103", "currency": "USD", "amount": "1100", "pledged_time" : "1575358100", "pledged_comments" : "Donating % of profit"}
+{ "index" : {} }
+{ "pledge_id" : "1005", "giveup_id" : "10", "beneficiary_id": "100", "user_id": "104", "currency": "USD", "amount": "300", "pledged_time" : "1575358100", "pledged_comments" : "Giving up birthday gifts"}
+{ "index" : {} }
+{ "pledge_id" : "1006", "giveup_id" : "10", "beneficiary_id": "200", "user_id": "105", "currency": "USD", "amount": "120", "pledged_time" : "1575358100", "pledged_comments" : "Birthday presents money goes to charity"}
+{ "index" : {} }
+{ "pledge_id" : "1007", "giveup_id" : "20", "beneficiary_id": "300", "user_id": "103", "currency": "USD", "amount": "50", "pledged_time" : "1575358100", "pledged_comments" : "Giving up birthday gifts"}
+{ "index" : {} }
+{ "pledge_id" : "1008", "giveup_id" : "10", "beneficiary_id": "100", "user_id": "101", "currency": "USD", "amount": "200", "pledged_time" : "1575358100", "pledged_comments" : "I didn't celebrate expensive birthday"}
+{ "index" : {} }{ "index" : {} }
+{ "pledge_id" : "1009", "giveup_id" : "20", "beneficiary_id": "300", "user_id": "104", "currency": "USD", "amount": "100", "pledged_time" : "1575358100", "pledged_comments" : "Giving instead of partying. Fell so blessed doing this"}
+{ "index" : {} }{ "index" : {} }
+{ "pledge_id" : "1010", "giveup_id" : "30", "beneficiary_id": "200", "user_id": "101", "currency": "USD", "amount": "800", "pledged_time" : "1575358100", "pledged_comments" : "Donating 0.1% from profits"}
