@@ -18,13 +18,15 @@ import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.wegual.beneficiaryservice.ElasticSearchConfig;
+
 import app.wegual.common.rest.model.BeneficiaryFollowers;
 
 @Service
 public class BeneficaryAnalyticsService {
 
 	@Autowired
-	private RestHighLevelClient client;
+	private ElasticSearchConfig esConfig;
 	
 	// get beneficiary count in the system
 	public Long beneficiaryCount() {
@@ -36,6 +38,7 @@ public class BeneficaryAnalyticsService {
 		searchRequest.source(sourceBuilder);
 		
 		try {
+			RestHighLevelClient client = esConfig.getElastcsearchClient();
 			SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
 			return searchResponse.getHits().getTotalHits();
 		} catch (IOException e) {
@@ -55,8 +58,8 @@ public class BeneficaryAnalyticsService {
 		searchRequest.source(sourceBuilder);
 		
 		try {
+			RestHighLevelClient client = esConfig.getElastcsearchClient();
 			SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
-			
 			return new BeneficiaryFollowers(beneficiaryId, searchResponse.getHits().getTotalHits());
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -76,7 +79,7 @@ public class BeneficaryAnalyticsService {
 		
 		// Add aggregation
 		TermsAggregationBuilder aggregation = AggregationBuilders.terms("followers")
-		        .field("beneficiary");
+		        .field("beneficiary_id");
 		sourceBuilder.aggregation(aggregation);
 		
 		sourceBuilder.size(0); 		
@@ -86,6 +89,7 @@ public class BeneficaryAnalyticsService {
 		try {
 			
 			// process returned aggregation
+			RestHighLevelClient client = esConfig.getElastcsearchClient();
 			SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
 			Aggregations aggregations = searchResponse.getAggregations();
 			Terms byFollowersAggregation = aggregations.get("followers");

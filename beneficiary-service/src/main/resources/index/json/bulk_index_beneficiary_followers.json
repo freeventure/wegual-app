@@ -1,0 +1,28 @@
+{ "index" : {} }
+{ "follower_user_id" : "100", "beneficiary_id" : "100", "date_stamp": "1575850930"}
+{ "index" : {} }
+{ "follower_user_id" : "101", "beneficiary_id" : "100", "date_stamp": "1575840930"}
+{ "index" : {} }
+{ "follower_user_id" : "102", "beneficiary_id" : "100", "date_stamp": "1575830930"}
+{ "index" : {} }
+{ "follower_user_id" : "103", "beneficiary_id" : "300", "date_stamp": "1575820930"}
+{ "index" : {} }
+{ "follower_user_id" : "104", "beneficiary_id" : "100", "date_stamp": "1575810930"}
+{ "index" : {} }
+{ "follower_user_id" : "100", "beneficiary_id" : "300", "date_stamp": "1575790930"}
+{ "index" : {} }
+{ "follower_user_id" : "102", "beneficiary_id" : "200", "date_stamp": "1575670930"}
+{ "index" : {} }
+{ "follower_user_id" : "102", "beneficiary_id" : "300", "date_stamp": "1575570930"}
+{ "index" : {} }
+{ "follower_user_id" : "104", "beneficiary_id" : "200", "date_stamp": "1575200930"}
+{ "index" : {} }
+{ "follower_user_id" : "104", "beneficiary_id" : "300", "date_stamp": "1574000930"}
+{ "index" : {} }
+{ "follower_user_id" : "105", "beneficiary_id" : "100", "date_stamp": "1570000930"}
+{ "index" : {} }
+{ "follower_user_id" : "105", "beneficiary_id" : "300", "date_stamp": "1571100930"}
+{ "index" : {} }
+{ "follower_user_id" : "106", "beneficiary_id" : "200", "date_stamp": "1575000930"}
+{ "index" : {} }
+{ "follower_user_id" : "106", "beneficiary_id" : "300", "date_stamp": "1574000930"}

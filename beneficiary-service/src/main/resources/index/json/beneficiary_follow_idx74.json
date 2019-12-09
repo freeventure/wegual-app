@@ -4,14 +4,14 @@
 	},
 	"mappings": {
 		"properties": {
-			"follower_user": {
+			"follower_user_id": {
 				"type": "keyword"
 			},
-			"beneficiary": {
+			"beneficiary_id": {
 				"type": "keyword"
 			},
 			"date_stamp": {
-				"type": "integer"
+				"type": "long"
 			}
 		}
 	}

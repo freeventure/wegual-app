@@ -4,6 +4,9 @@
 	},
 	"mappings": {
 		"properties": {
+			"beneficiary_id" : {
+				"type": "keyword"
+			},
 			"beneficiary": {
 				"type": "text",
 				"fields": {
