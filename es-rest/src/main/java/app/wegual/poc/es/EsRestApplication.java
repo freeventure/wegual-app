@@ -11,6 +11,7 @@ import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfigurat
 public class EsRestApplication {
 
 	public static void main(String[] args) {
+		
 		SpringApplication.run(EsRestApplication.class, args);
 	}
 
