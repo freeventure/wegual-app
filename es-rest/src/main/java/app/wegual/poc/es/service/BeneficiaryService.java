@@ -6,8 +6,13 @@ import java.io.IOException;
 import org.elasticsearch.action.DocWriteRequest;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.index.IndexResponse;
+import org.elasticsearch.action.search.SearchRequest;
+import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.client.RestHighLevelClient;
+import org.elasticsearch.client.core.CountRequest;
 import org.elasticsearch.common.xcontent.XContentType;
+import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.Date;
@@ -34,9 +39,9 @@ public class BeneficiaryService {
 //	@Autowired
 //	private ActionListener<IndexResponse> listener;
 
-	public void save(String id, Beneficiary ben) throws IOException {
+	public void save(Beneficiary ben) throws IOException {
 		System.out.println("Inside beneficiary service");
-		IndexRequest request = new IndexRequest("beneficiary").id(id)
+		IndexRequest request = new IndexRequest("beneficiary").id(ben.getId())
 				.source(new ObjectMapper().writeValueAsString(ben), XContentType.JSON)
 				.opType(DocWriteRequest.OpType.CREATE);
 
@@ -55,6 +60,14 @@ public class BeneficiaryService {
 			sendMessageAsynch(benTimeline);
 		}
 
+	}
+	
+	public void beneficiaryTotal() throws IOException{
+		System.out.println("Inside beneficiary service");
+		CountRequest countRequest = new CountRequest(); 
+		SearchSourceBuilder sourceBuilder = new SearchSourceBuilder(); 
+		sourceBuilder.query(QueryBuilders.matchAllQuery()); 
+		countRequest.source(sourceBuilder);
 	}
 	
 	protected void sendMessageAsynch(Timeline payload)
