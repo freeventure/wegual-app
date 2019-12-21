@@ -6,7 +6,11 @@ import org.elasticsearch.action.DocWriteRequest;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.client.RestHighLevelClient;
+import org.elasticsearch.client.core.CountRequest;
+import org.elasticsearch.client.core.CountResponse;
 import org.elasticsearch.common.xcontent.XContentType;
+import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.Date;
@@ -33,15 +37,17 @@ public class UserService {
 	@Autowired
 	private UserMessageSender ums;
 
-	public void save(String id, User user) throws IOException {
+	public void save(User user) throws IOException {
 		System.out.println("Inside user service");
-		IndexRequest request = new IndexRequest("user").id(id)
+		IndexRequest request = new IndexRequest("user").id(user.getId())
 				.source(new ObjectMapper().writeValueAsString(user), XContentType.JSON)
 				.opType(DocWriteRequest.OpType.CREATE);
 
 		System.out.println(user.getName());
+
 		IndexResponse response = client.index(request, RequestOptions.DEFAULT);
 		System.out.println(response.getId());
+
 		if ((response.getResult().name()).equals("CREATED")) {
 			Timeline userTimeline = new Timeline().withActorId(response.getId()).withTargetID(null)
 					.withOperationType(response.getResult().name()).withTimestamp(new Date());
@@ -52,7 +58,7 @@ public class UserService {
 
 	public void followUser(UserFollowers userFollowers) throws IOException {
 		System.out.println("Inside user service");
-		IndexRequest request = new IndexRequest("userfollower")
+		IndexRequest request = new IndexRequest("userfollowers")
 				.id(userFollowers.getUserFollowerId() + "$$" + userFollowers.getUserFolloweeId())
 				.source(new ObjectMapper().writeValueAsString(userFollowers), XContentType.JSON)
 				.opType(DocWriteRequest.OpType.CREATE);
@@ -70,7 +76,7 @@ public class UserService {
 
 	public void followBeneficiary(BeneficiaryFollowers benFollowers) throws IOException {
 		System.out.println("Inside user service");
-		IndexRequest request = new IndexRequest("beneficiaryfollower")
+		IndexRequest request = new IndexRequest("beneficiaryfollowers")
 				.id(benFollowers.getUserFollowerId() + "$$" + benFollowers.getBeneficiaryFolloweeId())
 				.source(new ObjectMapper().writeValueAsString(benFollowers), XContentType.JSON)
 				.opType(DocWriteRequest.OpType.CREATE);
@@ -88,7 +94,7 @@ public class UserService {
 
 	public void followGiveUp(GiveUpFollowers giveUpFollowers) throws IOException {
 		System.out.println("Inside user service");
-		IndexRequest request = new IndexRequest("giveupfollower")
+		IndexRequest request = new IndexRequest("giveupfollowers")
 				.id(giveUpFollowers.getUserFollowerId() + "$$" + giveUpFollowers.getGiveUpFolloweeId())
 				.source(new ObjectMapper().writeValueAsString(giveUpFollowers), XContentType.JSON)
 				.opType(DocWriteRequest.OpType.CREATE);
@@ -102,6 +108,20 @@ public class UserService {
 					.withTimestamp(new Date());
 			sendMessageAsynch(userTimeline);
 		}
+	}
+
+	public long userTotal() throws IOException {
+		
+		System.out.println("Inside user service");
+		
+		CountRequest countRequest = new CountRequest("user");
+		SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
+		sourceBuilder.query(QueryBuilders.matchAllQuery());
+		countRequest.source(sourceBuilder);
+
+		CountResponse countResponse = client.count(countRequest, RequestOptions.DEFAULT);
+		System.out.println(countResponse.getCount());
+		return(countResponse.getCount());
 	}
 
 	protected void sendMessageAsynch(Timeline payload) {

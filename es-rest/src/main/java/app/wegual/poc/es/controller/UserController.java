@@ -3,6 +3,7 @@ package app.wegual.poc.es.controller;
 import java.io.IOException;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -22,29 +23,39 @@ public class UserController {
 	@Autowired
 	private UserService userService;
 	
-	@PostMapping(value="/save/{id}")
-	public void saveUser(@PathVariable String id,  @RequestBody User user){
+	@PostMapping(value="/save")
+	public String saveUser(@RequestBody User user){
 		try {
 			System.out.println("Inside user controller");
-			userService.save(id , user);
+			userService.save(user);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		return("User Created successfully!!");
+	}
+	
+	@GetMapping("/userTotal")
+	public long userTotal() throws IOException {
+		System.out.println("Inside user controller");
+		return(userService.userTotal());
 	}
 	
 	@PostMapping(value="/followUser")
-	public void followUser(@RequestBody UserFollowers userFollower) throws IOException {
+	public String followUser(@RequestBody UserFollowers userFollower) throws IOException {
 		userService.followUser(userFollower);
+		return("User Followed successfully!!");
 	}
 	
 	@PostMapping(value="/followBeneficiary")
-	public void followBeneficiary(@RequestBody BeneficiaryFollowers benFollowers) throws IOException {
+	public String followBeneficiary(@RequestBody BeneficiaryFollowers benFollowers) throws IOException {
 		userService.followBeneficiary(benFollowers);
+		return("Beneficiary Followed successfully!!");
 	}
 	
 	@PostMapping(value="/followGiveUp")
-	public void followGiveUp(@RequestBody GiveUpFollowers benFollowers) throws IOException {
+	public String followGiveUp(@RequestBody GiveUpFollowers benFollowers) throws IOException {
 		userService.followGiveUp(benFollowers);
+		return("GiveUp Followed successfully!!");
 	}
 }

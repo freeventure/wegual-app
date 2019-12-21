@@ -13,8 +13,8 @@ public class Beneficiary {
 	private String facebookPage;
 	private String twitterHandle;
 	private String linkedInPage;
-	private String owner_id;
-	private String owner_name;
+	private String ownerId;
+	private String ownerName;
 	
 	public String getId() {
 		return id;
@@ -64,17 +64,17 @@ public class Beneficiary {
 	public void setTwitterHandle(String twitterHandle) {
 		this.twitterHandle = twitterHandle;
 	}
-	public String getOwner_id() {
-		return owner_id;
+	public String getOwnerId() {
+		return ownerId;
 	}
-	public void setOwner_id(String owner_id) {
-		this.owner_id = owner_id;
+	public void setOwnerId(String ownerId) {
+		this.ownerId = ownerId;
 	}
-	public String getOwner_name() {
-		return owner_name;
+	public String getOwnerName() {
+		return ownerName;
 	}
-	public void setOwner_name(String owner_name) {
-		this.owner_name = owner_name;
+	public void setOwnerName(String ownerName) {
+		this.ownerName = ownerName;
 	}
 	
 }

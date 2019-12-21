@@ -3,6 +3,7 @@ package app.wegual.poc.es.controller;
 import java.io.IOException;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -20,7 +21,7 @@ public class GiveUpController {
 	private GiveUpService giveUpService;
 	
 	@PostMapping(value="/save")
-	public void saveUser(@RequestBody GiveUp giveUp){
+	public String saveUser(@RequestBody GiveUp giveUp){
 		try {
 			System.out.println("Inside user controller");
 			giveUpService.save(giveUp);
@@ -28,6 +29,13 @@ public class GiveUpController {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		return("GiveUp created sucessfully!");
+	}
+	
+	@GetMapping("/giveUpTotal")
+	public long userTotal() throws IOException {
+		System.out.println("Inside user controller");
+		return(giveUpService.giveUpTotal());
 	}
 
 }

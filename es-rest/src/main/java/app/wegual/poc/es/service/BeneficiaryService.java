@@ -1,6 +1,5 @@
 package app.wegual.poc.es.service;
 
-import org.elasticsearch.action.ActionListener;
 import java.io.IOException;
 
 import org.elasticsearch.action.DocWriteRequest;
@@ -10,6 +9,7 @@ import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.client.core.CountRequest;
+import org.elasticsearch.client.core.CountResponse;
 import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
@@ -45,33 +45,32 @@ public class BeneficiaryService {
 				.source(new ObjectMapper().writeValueAsString(ben), XContentType.JSON)
 				.opType(DocWriteRequest.OpType.CREATE);
 
-//	client.indexAsync(request, RequestOptions.DEFAULT, listener);  
-
 		System.out.println(ben.getName());
 		IndexResponse response = client.index(request, RequestOptions.DEFAULT);
 		System.out.println(response.getId());
-//  return(response.getResult().name());
 		if ((response.getResult().name()).equals("CREATED")) {
-			Timeline benTimeline = new Timeline()
-					.withActorId(response.getId())
-					.withTargetID(null)
-					.withOperationType(response.getResult().name())
-					.withTimestamp(new Date());
+			Timeline benTimeline = new Timeline().withActorId(response.getId()).withTargetID(null)
+					.withOperationType(response.getResult().name()).withTimestamp(new Date());
 			sendMessageAsynch(benTimeline);
 		}
 
 	}
-	
-	public void beneficiaryTotal() throws IOException{
+
+	public long beneficiaryTotal() throws IOException {
+
 		System.out.println("Inside beneficiary service");
-		CountRequest countRequest = new CountRequest(); 
-		SearchSourceBuilder sourceBuilder = new SearchSourceBuilder(); 
-		sourceBuilder.query(QueryBuilders.matchAllQuery()); 
+
+		CountRequest countRequest = new CountRequest("beneficiary");
+		SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
+		sourceBuilder.query(QueryBuilders.matchAllQuery());
 		countRequest.source(sourceBuilder);
+
+		CountResponse countResponse = client.count(countRequest, RequestOptions.DEFAULT);
+		System.out.println(countResponse.getCount());
+		return (countResponse.getCount());
 	}
-	
-	protected void sendMessageAsynch(Timeline payload)
-	{
+
+	protected void sendMessageAsynch(Timeline payload) {
 		Thread th = new Thread(new SenderRunnable<BeneficiaryMessageSender, Timeline>(bms, payload));
 		th.start();
 	}

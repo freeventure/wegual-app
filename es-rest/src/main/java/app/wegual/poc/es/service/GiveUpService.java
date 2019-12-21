@@ -6,9 +6,18 @@ import java.util.Date;
 import org.elasticsearch.action.DocWriteRequest;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.index.IndexResponse;
+import org.elasticsearch.action.search.SearchRequest;
+import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
+import org.elasticsearch.client.core.CountRequest;
+import org.elasticsearch.client.core.CountResponse;
 import org.elasticsearch.common.xcontent.XContentType;
+import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.search.aggregations.AggregationBuilders;
+import org.elasticsearch.search.aggregations.metrics.Cardinality;
+import org.elasticsearch.search.aggregations.metrics.CardinalityAggregationBuilder;
+import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -17,11 +26,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import app.wegual.poc.es.messaging.SenderRunnable;
 import app.wegual.poc.es.messaging.GiveUpMessageSender;
 import app.wegual.poc.es.model.Timeline;
+import app.wegual.poc.es.model.User;
+import app.wegual.poc.es.model.Beneficiary;
 import app.wegual.poc.es.model.GiveUp;
 
 @Service
 public class GiveUpService {
-	
+
 	@Autowired
 	private RestHighLevelClient client;
 
@@ -30,28 +41,90 @@ public class GiveUpService {
 
 	public void save(GiveUp giveUp) throws IOException {
 		System.out.println("Inside GiveUp service");
-		IndexRequest request = new IndexRequest("giveup")
-				.source(new ObjectMapper().writeValueAsString(giveUp), XContentType.JSON);
+		IndexRequest request = new IndexRequest("giveup").id(giveUp.getName())
+				.source(new ObjectMapper().writeValueAsString(giveUp), XContentType.JSON)
+				.opType(DocWriteRequest.OpType.CREATE);
 
 		System.out.println(giveUp.getName());
+
 		IndexResponse response = client.index(request, RequestOptions.DEFAULT);
-		System.out.println(response.getId());
+
+		System.out.println(giveUp.getName());
+
 		if ((response.getResult().name()).equals("CREATED")) {
-			Timeline giveUpTimeline = new Timeline()
-					.withActorId(response.getId())
-					.withTargetID(null)
-					.withOperationType(response.getResult().name())
-					.withTimestamp(new Date());
+			Timeline giveUpTimeline = new Timeline().withActorId(giveUp.getName()).withTargetID(null)
+					.withOperationType(response.getResult().name()).withTimestamp(new Date());
 			sendMessageAsynch(giveUpTimeline);
 		}
 
 	}
-	
-	protected void sendMessageAsynch(Timeline payload)
-	{
+
+	public long pledgesTotalForGiveUp(GiveUp giveUp) throws IOException {
+
+		System.out.println("Inside GiveUp Service");
+
+		SearchRequest searchRequest = new SearchRequest("pledge");
+		SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
+		sourceBuilder.query(QueryBuilders.termQuery("giveUpName", giveUp.getName())).size(0);
+
+		SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
+		CardinalityAggregationBuilder aggregation = AggregationBuilders.cardinality("agg").field("giveUpId");
+		Cardinality cardinality = searchResponse.getAggregations().get("agg");
+		System.out.println(cardinality.getValue());
+		return (cardinality.getValue());
+
+	}
+
+	public long usersTotalForGiveup(User user) throws IOException {
+
+		System.out.println("Inside GiveUp Service");
+
+		SearchRequest searchRequest = new SearchRequest("pledge");
+		SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
+		sourceBuilder.query(QueryBuilders.termQuery("userId", user.getId())).size(0);
+
+		SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
+		CardinalityAggregationBuilder aggregation = AggregationBuilders.cardinality("agg").field("userId");
+		Cardinality cardinality = searchResponse.getAggregations().get("agg");
+		System.out.println(cardinality.getValue());
+		return (cardinality.getValue());
+	}
+
+	public long beneficiaryTotalForGiveup(Beneficiary beneficiary) throws IOException {
+
+		System.out.println("Inside GiveUp Service");
+
+		SearchRequest searchRequest = new SearchRequest("pledge");
+		SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
+
+		// TODO : Change beneficiary.getName() to beneficiary.getId()
+		sourceBuilder.query(QueryBuilders.termQuery("beneficiaryId", beneficiary.getName())).size(0);
+
+		SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
+		CardinalityAggregationBuilder aggregation = AggregationBuilders.cardinality("agg").field("beneficiaryId");
+		Cardinality cardinality = searchResponse.getAggregations().get("agg");
+		System.out.println(cardinality.getValue());
+		return (cardinality.getValue());
+	}
+
+	public long giveUpTotal() throws IOException {
+
+		System.out.println("Inside GiveUp Service");
+
+		CountRequest countRequest = new CountRequest("giveup");
+		SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
+		sourceBuilder.query(QueryBuilders.matchAllQuery());
+		countRequest.source(sourceBuilder);
+
+		CountResponse countResponse = client.count(countRequest, RequestOptions.DEFAULT);
+		System.out.println(countResponse.getCount());
+		return (countResponse.getCount());
+
+	}
+
+	protected void sendMessageAsynch(Timeline payload) {
 		Thread th = new Thread(new SenderRunnable<GiveUpMessageSender, Timeline>(gms, payload));
 		th.start();
 	}
-
 
 }
