@@ -59,49 +59,55 @@ public class GiveUpService {
 
 	}
 
-	public long pledgesTotalForGiveUp(GiveUp giveUp) throws IOException {
+	public long pledgesTotalForGiveUp(String giveUpId) throws IOException {
 
 		System.out.println("Inside GiveUp Service");
 
 		SearchRequest searchRequest = new SearchRequest("pledge");
 		SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
-		sourceBuilder.query(QueryBuilders.termQuery("giveUpName", giveUp.getName())).size(0);
-
+		sourceBuilder.query(QueryBuilders.termQuery("giveUpId", giveUpId));
+		searchRequest.source(sourceBuilder);
 		SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
-		CardinalityAggregationBuilder aggregation = AggregationBuilders.cardinality("agg").field("giveUpId");
-		Cardinality cardinality = searchResponse.getAggregations().get("agg");
-		System.out.println(cardinality.getValue());
-		return (cardinality.getValue());
+		System.out.println(searchResponse.getHits().getTotalHits().value);
+		return (searchResponse.getHits().getTotalHits().value);
 
 	}
 
-	public long usersTotalForGiveup(User user) throws IOException {
+	public long usersTotalForGiveup(String giveUpId) throws IOException {
 
 		System.out.println("Inside GiveUp Service");
 
 		SearchRequest searchRequest = new SearchRequest("pledge");
 		SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
-		sourceBuilder.query(QueryBuilders.termQuery("userId", user.getId())).size(0);
-
-		SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
+		sourceBuilder.query(QueryBuilders.termQuery("giveUpId", giveUpId));
+		
 		CardinalityAggregationBuilder aggregation = AggregationBuilders.cardinality("agg").field("userId");
+		sourceBuilder.aggregation(aggregation);
+		
+		searchRequest.source(sourceBuilder);
+		
+		SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
+		
 		Cardinality cardinality = searchResponse.getAggregations().get("agg");
 		System.out.println(cardinality.getValue());
+		
 		return (cardinality.getValue());
 	}
 
-	public long beneficiaryTotalForGiveup(Beneficiary beneficiary) throws IOException {
+	public long beneficiaryTotalForGiveup(String giveUpId) throws IOException {
 
 		System.out.println("Inside GiveUp Service");
 
 		SearchRequest searchRequest = new SearchRequest("pledge");
 		SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
-
-		// TODO : Change beneficiary.getName() to beneficiary.getId()
-		sourceBuilder.query(QueryBuilders.termQuery("beneficiaryId", beneficiary.getName())).size(0);
-
-		SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
+		sourceBuilder.query(QueryBuilders.termQuery("giveUpId", giveUpId));
+		
 		CardinalityAggregationBuilder aggregation = AggregationBuilders.cardinality("agg").field("beneficiaryId");
+		sourceBuilder.aggregation(aggregation);
+		
+		searchRequest.source(sourceBuilder);
+		
+		SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
 		Cardinality cardinality = searchResponse.getAggregations().get("agg");
 		System.out.println(cardinality.getValue());
 		return (cardinality.getValue());

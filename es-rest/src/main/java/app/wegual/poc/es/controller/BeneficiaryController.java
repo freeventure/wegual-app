@@ -1,7 +1,11 @@
 package app.wegual.poc.es.controller;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 
+import org.elasticsearch.search.aggregations.Aggregation;
+import org.elasticsearch.search.aggregations.Aggregations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -43,6 +47,12 @@ public class BeneficiaryController {
 		return(pledgeService.usersTotalForBeneiciary(id));
 	}
 	
+	@GetMapping(value = "/giveUpTotalForBeneficiary/{id}")
+	public long giveUpTotalForBeneficiary(@PathVariable String id) throws IOException{
+		System.out.println("Inside beneficiary controller");
+		return(pledgeService.giveUpTotalForBeneiciary(id));
+	}
+	
 	@GetMapping(value = "/pledgesTotalForBeneficiary/{id}")
 	public long pledgesTotalForBeneficiary(@PathVariable String id) throws IOException{
 		System.out.println("Inside beneficiary controller");
@@ -53,5 +63,17 @@ public class BeneficiaryController {
 	public void amountTotalForBeneficiary(@PathVariable String id) throws IOException{
 		System.out.println("Inside beneficiary controller");
 		pledgeService.amountTotalForBeneficiary(id);
+	}
+	
+	@GetMapping(value = "/findBeneficiaryFollowers/{id}")
+	public void findBeneficiaryFollowers(@PathVariable String id) throws IOException{
+		System.out.println("Inside beneficiary controller");
+		beneficiaryService.findBeneficiaryFollowers(id);
+	}
+	
+	@GetMapping(value = "/topBeneficiariesByPledge")
+	public Aggregations topBeneficiariesByPledge() throws IOException{
+		System.out.println("Inside beneficiary controller");
+		return (beneficiaryService.topBeneficiariesByPledge());
 	}
 }

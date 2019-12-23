@@ -43,19 +43,34 @@ public class UserController {
 	
 	@PostMapping(value="/followUser")
 	public String followUser(@RequestBody UserFollowers userFollower) throws IOException {
+		System.out.println("Inside user controller");
 		userService.followUser(userFollower);
 		return("User Followed successfully!!");
 	}
 	
 	@PostMapping(value="/followBeneficiary")
 	public String followBeneficiary(@RequestBody BeneficiaryFollowers benFollowers) throws IOException {
+		System.out.println("Inside user controller");
 		userService.followBeneficiary(benFollowers);
 		return("Beneficiary Followed successfully!!");
 	}
 	
 	@PostMapping(value="/followGiveUp")
 	public String followGiveUp(@RequestBody GiveUpFollowers benFollowers) throws IOException {
+		System.out.println("Inside user controller");
 		userService.followGiveUp(benFollowers);
 		return("GiveUp Followed successfully!!");
+	}
+	
+	@GetMapping("/findUserFollowers/{id}")
+	public long findUserFollowers(@PathVariable String id) throws IOException {
+		System.out.println("Inside user controller");
+		return(userService.findUserFollowers(id));
+	}
+	
+	@GetMapping("/findUserFollowing/{id}")
+	public long findUserFollowing(@PathVariable String id) throws IOException {
+		System.out.println("Inside user controller");
+		return(userService.findUserFollowing(id));
 	}
 }

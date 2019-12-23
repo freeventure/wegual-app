@@ -34,8 +34,29 @@ public class GiveUpController {
 	
 	@GetMapping("/giveUpTotal")
 	public long userTotal() throws IOException {
-		System.out.println("Inside user controller");
+		System.out.println("Inside giveUp controller");
 		return(giveUpService.giveUpTotal());
+	}
+	
+	@GetMapping("pledgesTotalForGiveUp/{id}")
+	public long pledgesTotalForGiveUp(@PathVariable String id) throws IOException {
+		System.out.println("Inside giveUp controller");
+		return(giveUpService.pledgesTotalForGiveUp(id));
+		
+	}
+	
+	@GetMapping("usersTotalForGiveUp/{id}")
+	public long usersTotalForGiveUp(@PathVariable String id) throws IOException {
+		System.out.println("Inside giveUp controller");
+		return(giveUpService.usersTotalForGiveup(id));
+		
+	}
+	
+	@GetMapping("beneficiaryTotalForGiveup/{id}")
+	public long beneficiaryTotalForGiveup(@PathVariable String id) throws IOException {
+		System.out.println("Inside giveUp controller");
+		return(giveUpService.beneficiaryTotalForGiveup(id));
+		
 	}
 
 }

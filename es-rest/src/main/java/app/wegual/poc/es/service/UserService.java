@@ -5,11 +5,16 @@ import java.io.IOException;
 import org.elasticsearch.action.DocWriteRequest;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.index.IndexResponse;
+import org.elasticsearch.action.search.SearchRequest;
+import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.client.core.CountRequest;
 import org.elasticsearch.client.core.CountResponse;
 import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.search.aggregations.AggregationBuilders;
+import org.elasticsearch.search.aggregations.metrics.Cardinality;
+import org.elasticsearch.search.aggregations.metrics.CardinalityAggregationBuilder;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -110,10 +115,50 @@ public class UserService {
 		}
 	}
 
-	public long userTotal() throws IOException {
-		
+	public long findUserFollowers(String userId) throws IOException {
+
 		System.out.println("Inside user service");
-		
+
+		SearchRequest searchRequest = new SearchRequest("userfollowers");
+		SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
+		sourceBuilder.query(QueryBuilders.termQuery("userFolloweeId", userId));
+
+		CardinalityAggregationBuilder aggregation = AggregationBuilders.cardinality("followers")
+				.field("userFollowerId");
+		sourceBuilder.aggregation(aggregation);
+		searchRequest.source(sourceBuilder);
+
+		SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
+		System.out.println("total hits: " + searchResponse.getHits().getTotalHits());
+		Cardinality cardinality = searchResponse.getAggregations().get("followers");
+
+		return (cardinality.getValue());
+	}
+
+	public long findUserFollowing(String userId) throws IOException {
+
+		System.out.println("Inside user service");
+
+		SearchRequest searchRequest = new SearchRequest("userfollowers");
+		SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
+		sourceBuilder.query(QueryBuilders.termQuery("userFollowerId", userId));
+
+		CardinalityAggregationBuilder aggregation = AggregationBuilders.cardinality("following")
+				.field("userFolloweeId");
+		sourceBuilder.aggregation(aggregation);
+		searchRequest.source(sourceBuilder);
+
+		SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
+		System.out.println("total hits: " + searchResponse.getHits().getTotalHits());
+		Cardinality cardinality = searchResponse.getAggregations().get("following");
+
+		return (cardinality.getValue());
+	}
+
+	public long userTotal() throws IOException {
+
+		System.out.println("Inside user service");
+
 		CountRequest countRequest = new CountRequest("user");
 		SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
 		sourceBuilder.query(QueryBuilders.matchAllQuery());
@@ -121,7 +166,7 @@ public class UserService {
 
 		CountResponse countResponse = client.count(countRequest, RequestOptions.DEFAULT);
 		System.out.println(countResponse.getCount());
-		return(countResponse.getCount());
+		return (countResponse.getCount());
 	}
 
 	protected void sendMessageAsynch(Timeline payload) {
