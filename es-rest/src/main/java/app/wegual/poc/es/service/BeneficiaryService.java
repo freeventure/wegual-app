@@ -13,6 +13,7 @@ import org.elasticsearch.client.core.CountRequest;
 import org.elasticsearch.client.core.CountResponse;
 import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.aggregations.Aggregation;
 import org.elasticsearch.search.aggregations.AggregationBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
@@ -21,6 +22,8 @@ import org.elasticsearch.search.aggregations.metrics.Cardinality;
 import org.elasticsearch.search.aggregations.metrics.CardinalityAggregationBuilder;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.core.task.TaskExecutor;
 import org.springframework.stereotype.Service;
 import java.util.Date;
 import java.util.List;
@@ -34,6 +37,7 @@ import app.wegual.poc.es.messaging.MessageSender;
 import app.wegual.poc.es.messaging.SenderRunnable;
 import app.wegual.poc.es.model.Beneficiary;
 import app.wegual.poc.es.model.Timeline;
+import app.wegual.poc.es.model.User;
 
 import org.elasticsearch.client.RequestOptions;
 
@@ -46,8 +50,9 @@ public class BeneficiaryService {
 	@Autowired
 	private BeneficiaryMessageSender bms;
 
-//	@Autowired
-//	private ActionListener<IndexResponse> listener;
+	@Autowired
+	@Qualifier("senderPool")
+	TaskExecutor te;
 
 	public void save(Beneficiary ben) throws IOException {
 		System.out.println("Inside beneficiary service");
@@ -59,11 +64,26 @@ public class BeneficiaryService {
 		IndexResponse response = client.index(request, RequestOptions.DEFAULT);
 		System.out.println(response.getId());
 		if ((response.getResult().name()).equals("CREATED")) {
-			Timeline benTimeline = new Timeline().withActorId(response.getId()).withTargetID(null)
-					.withOperationType(response.getResult().name()).withTimestamp(new Date());
+			Timeline benTimeline = new Timeline().withActor(response.getId(),ben.getName(),"BENEFICIARY")
+					.withActionType(response.getResult().name())
+					.withTimestamp(new Date());
 			sendMessageAsynch(benTimeline);
 		}
 
+	}
+	public Beneficiary getBeneficiaryById(String id) throws IOException {
+		SearchRequest searchRequest = new SearchRequest("beneficiary");
+		SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
+		sourceBuilder.query(QueryBuilders.termQuery("id", id));
+		searchRequest.source(sourceBuilder);
+
+		SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
+		Beneficiary ben=null;
+		for(SearchHit searchHit : searchResponse.getHits().getHits()){
+		Beneficiary beneficiary = new ObjectMapper().readValue(searchHit.getSourceAsString(),Beneficiary.class);
+		ben = beneficiary;
+		}
+		return ben;
 	}
 
 	public long beneficiaryTotal() throws IOException {
@@ -113,8 +133,7 @@ public class BeneficiaryService {
 	}
 
 	protected void sendMessageAsynch(Timeline payload) {
-		Thread th = new Thread(new SenderRunnable<BeneficiaryMessageSender, Timeline>(bms, payload));
-		th.start();
+		te.execute(new SenderRunnable<BeneficiaryMessageSender, Timeline>(bms, payload));
 	}
 
 }

@@ -20,6 +20,6 @@ public class PledgeMessageSender implements MessageSender<Timeline> {
 	@Override
 	public void sendMessage(Timeline timeline) throws AmqpException{
 		System.out.println("Sending message for giveup");
-		rabbitTemplate.convertAndSend(MessagingConstants.directExchange, MessagingConstants.timelineRoutingKey, timeline);
+		rabbitTemplate.convertAndSend(MessagingConstants.fanoutExchange, timeline);
 	}
 }

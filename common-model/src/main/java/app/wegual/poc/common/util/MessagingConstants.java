@@ -18,5 +18,4 @@ public class MessagingConstants {
 	public static final String queueNameUserTimeline = "userTimeline";
     public static final String queueNameBeneficiaryTimeline = "beneficiaryTimeline";
     public static final String queueNameGiveUpTimeline = "giveUpTimeline";
-    public static final String queueNameTimeline = "Timeline";
 }

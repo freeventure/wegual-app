@@ -12,16 +12,20 @@ import org.elasticsearch.client.core.CountRequest;
 import org.elasticsearch.client.core.CountResponse;
 import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.metrics.Cardinality;
 import org.elasticsearch.search.aggregations.metrics.CardinalityAggregationBuilder;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.core.task.TaskExecutor;
 import org.springframework.stereotype.Service;
 import java.util.Date;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.rabbitmq.client.GetResponse;
 
 import app.wegual.poc.es.messaging.SenderRunnable;
 import app.wegual.poc.es.messaging.UserMessageSender;
@@ -41,6 +45,10 @@ public class UserService {
 
 	@Autowired
 	private UserMessageSender ums;
+	
+	@Autowired
+	@Qualifier("senderPool")
+	private TaskExecutor te;
 
 	public void save(User user) throws IOException {
 		System.out.println("Inside user service");
@@ -54,11 +62,27 @@ public class UserService {
 		System.out.println(response.getId());
 
 		if ((response.getResult().name()).equals("CREATED")) {
-			Timeline userTimeline = new Timeline().withActorId(response.getId()).withTargetID(null)
-					.withOperationType(response.getResult().name()).withTimestamp(new Date());
+			Timeline userTimeline = new Timeline().withActor(response.getId(),user.getName(),"USER")
+					.withActionType(response.getResult().name())
+					.withTimestamp(new Date());
 			sendMessageAsynch(userTimeline);
 		}
 
+	}
+	
+	public User getUserById(String id) throws IOException {
+		SearchRequest searchRequest = new SearchRequest("user");
+		SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
+		sourceBuilder.query(QueryBuilders.termQuery("id", id));
+		searchRequest.source(sourceBuilder);
+
+		SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
+		User us=null;
+		for(SearchHit searchHit : searchResponse.getHits().getHits()){
+		User user = new ObjectMapper().readValue(searchHit.getSourceAsString(),User.class);
+		us=user;
+		}
+		return us;
 	}
 
 	public void followUser(UserFollowers userFollowers) throws IOException {
@@ -72,8 +96,9 @@ public class UserService {
 		IndexResponse response = client.index(request, RequestOptions.DEFAULT);
 		System.out.println(response.getId());
 		if ((response.getResult().name()).equals("CREATED")) {
-			Timeline userTimeline = new Timeline().withActorId(userFollowers.getUserFollowerId())
-					.withTargetID(userFollowers.getUserFolloweeId()).withOperationType("FOLLOW")
+			Timeline userTimeline = new Timeline().withActor(userFollowers.getUserFollowerId(),userFollowers.getUserFolloweeName(),"USER")
+					.withTarget(userFollowers.getUserFolloweeId(),userFollowers.getUserFolloweeName(),"USER")
+					.withActionType("FOLLOW")
 					.withTimestamp(new Date());
 			sendMessageAsynch(userTimeline);
 		}
@@ -90,8 +115,9 @@ public class UserService {
 		IndexResponse response = client.index(request, RequestOptions.DEFAULT);
 		System.out.println(response.getId());
 		if ((response.getResult().name()).equals("CREATED")) {
-			Timeline userTimeline = new Timeline().withActorId(benFollowers.getUserFollowerId())
-					.withTargetID(benFollowers.getBeneficiaryFolloweeId()).withOperationType("FOLLOW")
+			Timeline userTimeline = new Timeline().withActor(benFollowers.getUserFollowerId(),benFollowers.getUserFollowerName(),"USER")
+					.withTarget(benFollowers.getBeneficiaryFolloweeId(),benFollowers.getBeneficiaryFolloweeName(),"BENEFICIARY")
+					.withActionType("FOLLOW")
 					.withTimestamp(new Date());
 			sendMessageAsynch(userTimeline);
 		}
@@ -108,8 +134,9 @@ public class UserService {
 		IndexResponse response = client.index(request, RequestOptions.DEFAULT);
 		System.out.println(response.getId());
 		if ((response.getResult().name()).equals("CREATED")) {
-			Timeline userTimeline = new Timeline().withActorId(giveUpFollowers.getUserFollowerId())
-					.withTargetID(giveUpFollowers.getGiveUpFolloweeId()).withOperationType("FOLLOW")
+			Timeline userTimeline = new Timeline().withActor(giveUpFollowers.getUserFollowerId(),giveUpFollowers.getGiveUpFolloweeName(),"USER")
+					.withTarget(giveUpFollowers.getGiveUpFolloweeId(),giveUpFollowers.getGiveUpFolloweeName(),"GIVEUP")
+					.withActionType("FOLLOW")
 					.withTimestamp(new Date());
 			sendMessageAsynch(userTimeline);
 		}
@@ -170,8 +197,7 @@ public class UserService {
 	}
 
 	protected void sendMessageAsynch(Timeline payload) {
-		Thread th = new Thread(new SenderRunnable<UserMessageSender, Timeline>(ums, payload));
-		th.start();
+		te.execute(new SenderRunnable<UserMessageSender, Timeline>(ums, payload));
 	}
 
 }

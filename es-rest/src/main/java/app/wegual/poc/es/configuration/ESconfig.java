@@ -12,7 +12,7 @@ public class ESconfig {
 
 	@Bean
 	public RestHighLevelClient client() {
-	RestClientBuilder builder =RestClient.builder(new HttpHost("192.168.56.101", 9200, "http"));
+	RestClientBuilder builder =RestClient.builder(new HttpHost("192.168.56.103", 9200, "http"));
 	       RestHighLevelClient client = new RestHighLevelClient(builder);
 	       return client;
 	}

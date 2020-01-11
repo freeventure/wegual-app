@@ -13,7 +13,7 @@ import app.wegual.poc.es.model.Pledge;
 import app.wegual.poc.es.service.PledgeService;
 
 @RestController
-@RequestMapping("pledge")
+@RequestMapping("/pledge")
 public class PledgeController {
 	
 	@Autowired

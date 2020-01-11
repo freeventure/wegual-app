@@ -20,6 +20,6 @@ public class UserMessageSender implements MessageSender<Timeline>{
 	@Override
 	public void sendMessage(Timeline userTimeline) throws AmqpException{
 		System.out.println("Sending message for user");
-		rabbitTemplate.convertAndSend(MessagingConstants.directExchange, MessagingConstants.timelineRoutingKey, userTimeline);
+		rabbitTemplate.convertAndSend(MessagingConstants.directExchange, MessagingConstants.userRoutingKey, userTimeline);
 	}
 }

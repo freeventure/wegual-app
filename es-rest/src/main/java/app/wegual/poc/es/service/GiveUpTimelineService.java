@@ -15,13 +15,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import app.wegual.poc.es.model.Timeline;
 
 @Service
-public class TimelineService {
+public class GiveUpTimelineService {
 	@Autowired
 	private RestHighLevelClient client;
 	
 	public void save(Timeline bt) throws IOException {
 		
-		IndexRequest request = new IndexRequest("timeline") 
+		IndexRequest request = new IndexRequest("giveuptimeline") 
 				.source(new ObjectMapper().writeValueAsString(bt), XContentType.JSON);
 		//System.out.println("BeneficiaryTimeline object created");
 		IndexResponse response = client.index(request,RequestOptions.DEFAULT );

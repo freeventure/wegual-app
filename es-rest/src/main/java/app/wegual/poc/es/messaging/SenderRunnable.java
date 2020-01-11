@@ -1,6 +1,6 @@
 package app.wegual.poc.es.messaging;
 
-public class SenderRunnable<T extends MessageSender,O> implements Runnable{
+public class SenderRunnable<T extends MessageSender<O>, O> implements Runnable{
 	
 	private T sender;
 	private O message;

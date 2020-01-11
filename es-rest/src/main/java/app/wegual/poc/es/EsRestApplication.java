@@ -23,26 +23,33 @@ public class EsRestApplication {
 	
     static final String fanoutExchangeName = MessagingConstants.fanoutExchange;
     static final String directExchangeName = MessagingConstants.directExchange;
-    static final String queueNameTimeline = MessagingConstants.queueNameTimeline;
-	
+    
+    static final String queueNameBeneficiaryTimeline = MessagingConstants.queueNameBeneficiaryTimeline;
+    static final String queueNameUserTimeline = MessagingConstants.queueNameUserTimeline;
+    static final String queueNameGiveUpTimeline = MessagingConstants.queueNameGiveUpTimeline;
+    
+    static final String beneficiaryRoutingKey = MessagingConstants.beneficiaryRoutingKey;
+    static final String userRoutingKey = MessagingConstants.userRoutingKey;
+    static final String giveUpRoutingKey = MessagingConstants.giveUpRoutingKey;
+    
 	public static void main(String[] args) {
 		SpringApplication.run(EsRestApplication.class, args);	
 	}
 	
     @Bean
-    Queue queueTimeline() {
-        return new Queue(queueNameTimeline, true);
+    Queue queueUserTimeline() {
+        return new Queue(queueNameUserTimeline, true);
     }
 
-//    @Bean
-//    Queue queueBeneficiaryTimeline() {
-//        return new Queue(queueNameBeneficiaryTimeline, true);
-//    }
-//
-//    @Bean
-//    Queue queueGiveUpTimeline() {
-//        return new Queue(queueNameGiveUpTimeLine, true);
-//    }
+    @Bean
+    Queue queueBeneficiaryTimeline() {
+        return new Queue(queueNameBeneficiaryTimeline, true);
+    }
+
+    @Bean
+    Queue queueGiveUpTimeline() {
+        return new Queue(queueNameGiveUpTimeline, true);
+    }
 
     @Bean
     DirectExchange directExchange() {
@@ -55,36 +62,35 @@ public class EsRestApplication {
     }
 
     @Bean
-    Binding bindingTimeline(DirectExchange exchange) {
-    	return BindingBuilder.bind(queueTimeline()).to(exchange).with(MessagingConstants.timelineRoutingKey);
+    Binding bindingUserTimeline(DirectExchange exchange) {
+    	return BindingBuilder.bind(queueUserTimeline()).to(exchange).with(userRoutingKey);
     }
 
-//    @Bean
-//    Binding bindingBeneficiaryTimeline(DirectExchange exchange) {
-//    	return BindingBuilder.bind(queueBeneficiaryTimeline()).to(exchange).with(MessagingConstants.beneficiaryRoutingKey);
-//        
-//    }
-//    
-//    @Bean
-//    Binding bindingGiveUpTimeline(DirectExchange exchange) {
-//    	return BindingBuilder.bind(queueGiveUpTimeline()).to(exchange).with(MessagingConstants.giveUpRoutingKey);
-//        
-//    }
+    @Bean
+    Binding bindingBeneficiaryTimeline(DirectExchange exchange) {
+    	return BindingBuilder.bind(queueBeneficiaryTimeline()).to(exchange).with(beneficiaryRoutingKey);
+        
+    }
     
-//    @Bean
-//    Binding beneficiaryFanoutBinding(FanoutExchange exchange) {
-//    	return BindingBuilder.bind(queueBeneficiaryTimeline()).to(exchange);
-//    }
-//    
-//    @Bean
-//    Binding userFanoutBinding(FanoutExchange exchange) {
-//    	return BindingBuilder.bind(queueUserTimeline()).to(exchange);
-//    }
-//    
-//    @Bean
-//    Binding giveUpFanoutBinding(FanoutExchange exchange) {
-//    	return BindingBuilder.bind(queueGiveUpTimeline()).to(exchange);
-//    }
+    @Bean
+    Binding bindingGiveUpTimeline(DirectExchange exchange) {
+    	return BindingBuilder.bind(queueGiveUpTimeline()).to(exchange).with(giveUpRoutingKey);       
+    }
+    
+    @Bean
+	Binding beneficiaryFanoutBinding(FanoutExchange exchange) {
+    	return BindingBuilder.bind(queueBeneficiaryTimeline()).to(exchange);
+    }
+    
+    @Bean
+    Binding userFanoutBinding(FanoutExchange exchange) {
+    	return BindingBuilder.bind(queueUserTimeline()).to(exchange);
+    }
+    
+    @Bean
+    Binding giveUpFanoutBinding(FanoutExchange exchange) {
+    	return BindingBuilder.bind(queueGiveUpTimeline()).to(exchange);
+    }
 
 	@Bean
 	public RabbitTemplate rabbitTemplate(ConnectionFactory connectionFactory) {

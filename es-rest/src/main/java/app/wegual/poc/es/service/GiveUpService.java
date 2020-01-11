@@ -14,11 +14,14 @@ import org.elasticsearch.client.core.CountRequest;
 import org.elasticsearch.client.core.CountResponse;
 import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.metrics.Cardinality;
 import org.elasticsearch.search.aggregations.metrics.CardinalityAggregationBuilder;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.core.task.TaskExecutor;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -39,6 +42,10 @@ public class GiveUpService {
 	@Autowired
 	private GiveUpMessageSender gms;
 
+	@Autowired
+	@Qualifier("senderPool")
+	private TaskExecutor te;
+	
 	public void save(GiveUp giveUp) throws IOException {
 		System.out.println("Inside GiveUp service");
 		IndexRequest request = new IndexRequest("giveup").id(giveUp.getName())
@@ -52,8 +59,9 @@ public class GiveUpService {
 		System.out.println(giveUp.getName());
 
 		if ((response.getResult().name()).equals("CREATED")) {
-			Timeline giveUpTimeline = new Timeline().withActorId(giveUp.getName()).withTargetID(null)
-					.withOperationType(response.getResult().name()).withTimestamp(new Date());
+			Timeline giveUpTimeline = new Timeline().withActor(response.getId(),giveUp.getName(),"GIVEUP")
+					.withActionType(response.getResult().name())
+					.withTimestamp(new Date());
 			sendMessageAsynch(giveUpTimeline);
 		}
 
@@ -72,6 +80,22 @@ public class GiveUpService {
 		return (searchResponse.getHits().getTotalHits().value);
 
 	}
+	
+	public GiveUp getGiveUpById(String id) throws IOException {
+		SearchRequest searchRequest = new SearchRequest("giveup");
+		SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
+		sourceBuilder.query(QueryBuilders.termQuery("id", id));
+		searchRequest.source(sourceBuilder);
+
+		SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
+		GiveUp gup = null;
+		for(SearchHit searchHit : searchResponse.getHits().getHits()){
+		GiveUp giveup = new ObjectMapper().readValue(searchHit.getSourceAsString(),GiveUp.class);
+		gup = giveup;
+		}
+		return gup;
+	}
+
 
 	public long usersTotalForGiveup(String giveUpId) throws IOException {
 
@@ -129,8 +153,7 @@ public class GiveUpService {
 	}
 
 	protected void sendMessageAsynch(Timeline payload) {
-		Thread th = new Thread(new SenderRunnable<GiveUpMessageSender, Timeline>(gms, payload));
-		th.start();
+		te.execute(new SenderRunnable<GiveUpMessageSender, Timeline>(gms, payload));
 	}
 
 }

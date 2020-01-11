@@ -20,7 +20,7 @@ public class BeneficiaryMessageSender implements MessageSender<Timeline>{
 	@Override
 	public void sendMessage(Timeline benTimeline) throws AmqpException{
 		System.out.println("Sending message for beneficiary");
-		rabbitTemplate.convertAndSend(MessagingConstants.directExchange, MessagingConstants.timelineRoutingKey, benTimeline);
+		rabbitTemplate.convertAndSend(MessagingConstants.directExchange, MessagingConstants.beneficiaryRoutingKey, benTimeline);
 	}
 	
 }
