@@ -18,8 +18,6 @@ public class UserTimelineReciever {
 	
 	@RabbitListener(queues = MessagingConstants.queueNameUserTimeline)
 	public void receiveMessageForUserTimeline(Timeline timeline) throws IOException {
-		//System.out.print(benTimeline.toString());
-		//benTimeline.setBeneficiaryId("ben"+benTimeline.getBeneficiaryId());
 		System.out.println("received");
 		ts.save(timeline);
 	}

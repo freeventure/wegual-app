@@ -28,4 +28,5 @@ public class UserTimelineService {
 		IndexResponse response = client.index(request,RequestOptions.DEFAULT );
 		System.out.println(response.getResult().name());
 	}
+	
 }

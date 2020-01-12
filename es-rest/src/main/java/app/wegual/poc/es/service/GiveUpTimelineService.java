@@ -16,6 +16,7 @@ import app.wegual.poc.es.model.Timeline;
 
 @Service
 public class GiveUpTimelineService {
+	
 	@Autowired
 	private RestHighLevelClient client;
 	

@@ -5,7 +5,7 @@ import java.time.Instant;
 
 import org.springframework.stereotype.Component;
 
-@Component
+
 public class Timeline {
 	
 	private String actionId;

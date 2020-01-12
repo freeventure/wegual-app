@@ -17,9 +17,7 @@ public class GiveUpTimelineReciever {
 	
 	@RabbitListener(queues = MessagingConstants.queueNameGiveUpTimeline)
 	public void receiveMessageForGiveUpTimeline(Timeline timeline) throws IOException {
-		//System.out.print(benTimeline.toString());
-		//benTimeline.setBeneficiaryId("ben"+benTimeline.getBeneficiaryId());
-		System.out.println("received");
+		System.out.println("received at giveup timeline");
 		ts.save(timeline);
 	}
 }
