@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <style type="text/css">
+body {
+    margin:0;
+    color:#333;
+}
+
+a {
+    text-decoration:none;
+    color:#006699;
+}
+
+p {
+    margin:0px;
+}
+
+img {
+    border:0;
+    margin:0;
+}
+
+/* container */
+#container {
+    width:540px;
+    margin:0 auto;
+}
+
+#content {
+    width:500px;
+    margin:0 20px;
+}
+
+/* header */
+#header {
+    border-bottom:1px solid #eaeaea;
+    padding-top:10px;
+    padding-left:0px;
+    padding-right:0px;
+    padding-bottom:10px;
+}
+
+#title p{
+    font-size:20px;
+    font-family: "arial", "sans-serif";
+}
+
+#amazonLogo{
+    width:107px;
+    height:31px;
+}
+
+/* verification msg */
+#verificationMsg {
+    padding-left:0;
+    padding-top:9px;
+    padding-bottom:9px;
+}
+
+#verificationMsg p {
+    font-size:14px;
+    font-family: "arial", "sans-serif";
+}
+
+#verificationMsg .otp {
+    font-size:18px;
+    font-weight:bold;
+    padding-top:18px;
+}
+
+/* account security */
+#accountSecurity {
+    padding-left:0;
+    padding-top:9px;
+    padding-bottom:9px;
+}
+
+#accountSecurity p {
+    font-size:14px;
+    font-family: "arial", "sans-serif";
+}
+
+/* closing */
+#closing {
+    padding-left:0;
+    padding-top:9px;
+    padding-bottom:9px;
+}
+
+#closing p {
+    font-size:14px;
+    font-family: "arial", "sans-serif";
+}
+
+    </style>
+    <title></title>
+  </head>
+  <body><img width="1" height="1" src="https://www.amazon.com/gp/r.html?C=15CKPC2VPXGHR&M=urn:rtn:msg:20200207005626795f861cb77544579e908933ddd0p0na&R=ZPFRILMPR8SR&T=O&U=https%3A%2F%2Fimages-na.ssl-images-amazon.com%2Fimages%2FG%2F01%2Fnav%2Ftransp.gif&H=G613UEGS7XFCDX6AURBMCZRHXXGA&ref_=pe_3594880_270805940_opens" />
+  <table align="center" cellspacing="0" id="container" cellpadding="0">
+    <tbody>
+    <tr>
+      <td>
+        <table cellspacing="0" id="content" cellpadding="0">
+          <tbody>
+          <tr>
+            <td id="header">
+              <table cellspacing="0" cellpadding="0">
+                <tbody>
+                <tr>
+                  <td width="250" id="logo">
+<img src="https://images-na.ssl-images-amazon.com/images/G/01/x-locale/cs/te/logo._CB152417367_.png" id="amazonLogo"/>                  </td>
+                  <td width="250" id="title" valign="top" align="right"><p>Verify your account</p></td>
+                </tr>
+                </tbody>
+              </table>
+            </td>
+          </tr>
+
+          <tr>
+            <td id="verificationMsg">
+              <p>To authenticate, please use the following One Time Password (OTP):</p>
+              <p class="otp" th:text="${otp}"></p>
+            </td>
+          </tr>
+
+          <tr>
+            <td id="accountSecurity">
+              <p>Do not share this OTP with anyone. Wegual takes your account security very seriously. We will never ask you to disclose or verify your Wgual password or OTP. If you receive a suspicious email with a link to update your account information, do not click on the link&mdash;instead, report the email to Wegual for investigation.
+
+              </p>
+            </td>
+          </tr>
+
+          <tr>
+            <td id="closing">
+              <p>We hope to see you soon.
+              </p>
+            </td>
+          </tr>
+          </tbody>
+        </table>
+      </td>
+    </tr>
+    </tbody>
+  </table>
+  <img width="1" height="1" src="https://www.amazon.com/gp/r.html?C=15CKPC2VPXGHR&M=urn:rtn:msg:20200207005626795f861cb77544579e908933ddd0p0na&R=1UTFKU70GM5S1&T=E&U=https%3A%2F%2Fimages-na.ssl-images-amazon.com%2Fimages%2FG%2F01%2Fnav%2Ftransp.gif&H=6AZCRTBRZASPKBODSV74X3X2OJGA&ref_=pe_3594880_270805940_open" /></body>
+  </html>
