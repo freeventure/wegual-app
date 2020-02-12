@@ -26,7 +26,7 @@ public class MailServiceController {
 	@Qualifier("executorMailSender")
 	TaskExecutor tems;
 	
-	@PostMapping("/beneficiary/email-verify-html")
+	@PostMapping("/mail-service/email-verify-html")
 	ResponseEntity<String> emailVerifyHTML(@RequestBody HashMap<String, String> params) {
 		
 		try {

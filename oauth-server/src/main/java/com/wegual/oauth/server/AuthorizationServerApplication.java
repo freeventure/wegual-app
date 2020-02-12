@@ -1,7 +1,5 @@
 package com.wegual.oauth.server;
 
-import java.security.Principal;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -12,12 +10,9 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.oauth2.config.annotation.web.configuration.EnableResourceServer;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.oauth2.config.annotation.web.configuration.EnableAuthorizationServer;
 
-@RestController
-@EnableResourceServer
+@EnableAuthorizationServer
 @SpringBootApplication
 public class AuthorizationServerApplication  {
 
@@ -25,10 +20,6 @@ public class AuthorizationServerApplication  {
 		SpringApplication.run(AuthorizationServerApplication.class, args);
 	}
 	
-	@RequestMapping("/validateUser")
-	public Principal user(Principal user) {
-		return user;
-	}	
 	
 	@Bean
     public PasswordEncoder passwordEncoder() {
