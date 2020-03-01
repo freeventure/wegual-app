@@ -24,7 +24,8 @@ public class MailController {
 	@PostMapping("/sendLoginVerificationMail")
 	public String sendLoginVerificationMail() throws InvalidKeyException, NoSuchAlgorithmException {
 		System.out.println("Inside Mail Controller");
-		return ms.prepareAndSend("modigofast@gmail.com", otpGenerator.generateOTP(Instant.now()));
+		return ms.prepareAndSendLoginVerifyMail("modigofast@gmail.com", otpGenerator.generateOTP(Instant.now()));
 		
 	}
+	
 }

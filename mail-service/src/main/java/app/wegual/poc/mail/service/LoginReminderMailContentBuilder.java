@@ -7,14 +7,14 @@ import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
 @Service
-public class LoginVerificationMailContentBuilder {
+public class LoginReminderMailContentBuilder {
 	
 	@Autowired
 	private TemplateEngine templateEngine;
  
-    public String build(String recipientName) {
+    public String build(String otp) {
         Context context = new Context();
-        context.setVariable("recipientName", recipientName);
-        return templateEngine.process("reminderLogin", context);
+        context.setVariable("otp", otp);
+        return templateEngine.process("verifyLogin", context);
     }
 }

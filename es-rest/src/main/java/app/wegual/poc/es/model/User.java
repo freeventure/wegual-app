@@ -1,5 +1,7 @@
 package app.wegual.poc.es.model;
 
+import java.security.Timestamp;
+
 import org.springframework.stereotype.Component;
 
 @Component
@@ -8,6 +10,7 @@ public class User {
 	private String id;
 	private String name;
 	private String email;
+	private Timestamp lastLoggedInDate;
 
 	public String getId() {
 		return id;
@@ -31,6 +34,14 @@ public class User {
 
 	public void setEmail(String email) {
 		this.email = email;
+	}
+
+	public Timestamp getLastLoggedInDate() {
+		return lastLoggedInDate;
+	}
+
+	public void setLastLoggedInDate(Timestamp lastLoggedInDate) {
+		this.lastLoggedInDate = lastLoggedInDate;
 	}
 
 }

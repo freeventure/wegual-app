@@ -21,7 +21,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -31,6 +34,7 @@ import app.wegual.poc.es.messaging.SenderRunnable;
 import app.wegual.poc.es.messaging.UserMessageSender;
 import app.wegual.poc.es.model.User;
 import app.wegual.poc.es.model.UserFollowers;
+import app.wegual.poc.es.model.Beneficiary;
 import app.wegual.poc.es.model.BeneficiaryFollowers;
 import app.wegual.poc.es.model.GiveUpFollowers;
 import app.wegual.poc.es.model.Timeline;
@@ -195,7 +199,26 @@ public class UserService {
 		System.out.println(countResponse.getCount());
 		return (countResponse.getCount());
 	}
-
+	
+	public List<User> findInactiveUsers() throws IOException{
+		
+		List<User> inactiveUsers = new ArrayList<User>();
+		System.out.println("Inside user service");
+		SearchRequest searchRequest = new SearchRequest("user");
+		SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
+		sourceBuilder.query(QueryBuilders.rangeQuery("lastLoggedInDate").lt("now-6M"));
+		searchRequest.source(sourceBuilder);
+		
+		SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
+		System.out.println("total hits: " + searchResponse.getHits().getTotalHits());
+		for(SearchHit searchHit : searchResponse.getHits().getHits()){
+			User user = new ObjectMapper().readValue(searchHit.getSourceAsString(),User.class);
+			inactiveUsers.add(user);
+		}
+		return inactiveUsers;
+		
+	}
+	
 	protected void sendMessageAsynch(Timeline payload) {
 		te.execute(new SenderRunnable<UserMessageSender, Timeline>(ums, payload));
 	}

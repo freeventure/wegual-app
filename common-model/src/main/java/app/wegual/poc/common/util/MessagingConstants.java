@@ -14,8 +14,10 @@ public class MessagingConstants {
 	public static final String beneficiaryRoutingKey = "beneficiary";
 	public static final String giveUpRoutingKey = "giveup";
 	public static final String timelineRoutingKey = "timeline";
+	public static final String loginReminderRoutingKey = "loginReminder";
 	
 	public static final String queueNameUserTimeline = "userTimeline";
     public static final String queueNameBeneficiaryTimeline = "beneficiaryTimeline";
     public static final String queueNameGiveUpTimeline = "giveUpTimeline";
+    public static final String queueNameLoginReminderTimeline = "LoginReminder";
 }

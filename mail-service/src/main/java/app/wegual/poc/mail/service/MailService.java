@@ -13,15 +13,34 @@ public class MailService {
 	@Autowired
     private JavaMailSender javaMailSender;
 	@Autowired
-	private MailContentBuilder mcb;
+	private LoginVerificationMailContentBuilder logVermcb;
+	private LoginReminderMailContentBuilder logRemmcb;
  
-    public String prepareAndSend(String recipient, String otp) {
+    public String prepareAndSendLoginVerifyMail(String recipient, String otp) {
     	MimeMessagePreparator messagePreparator = mimeMessage -> {
             MimeMessageHelper messageHelper = new MimeMessageHelper(mimeMessage);
             messageHelper.setFrom("wegual.test@gmail.com");
             messageHelper.setTo(recipient);
             messageHelper.setSubject("Verification Mail");
-            String content = mcb.build(otp);
+            String content = logVermcb.build(otp);
+            messageHelper.setText(content, true);
+        };
+        try {
+            javaMailSender.send(messagePreparator);
+            return "OK";
+        } catch (MailException e) {
+        	e.printStackTrace();
+        	return "Error";
+        }
+    }
+    
+    public String prepareAndSendLoginReminderMail(String recipient, String recipientName) {
+    	MimeMessagePreparator messagePreparator = mimeMessage -> {
+            MimeMessageHelper messageHelper = new MimeMessageHelper(mimeMessage);
+            messageHelper.setFrom("wegual.test@gmail.com");
+            messageHelper.setTo(recipient);
+            messageHelper.setSubject("Login Reminder Mail");
+            String content = logRemmcb.build(recipientName);
             messageHelper.setText(content, true);
         };
         try {
