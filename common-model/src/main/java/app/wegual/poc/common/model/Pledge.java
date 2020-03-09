@@ -1,90 +1,70 @@
 package app.wegual.poc.common.model;
 
-import java.io.Serializable;
-import java.sql.Timestamp;
 import java.util.Currency;
 import java.util.Date;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.OneToOne;
+import org.springframework.stereotype.Component;
 
-import org.hibernate.annotations.CreationTimestamp;
+@Component
+public class Pledge {
 
-@Entity
-public class Pledge implements Serializable {
-    @Id
-    @GeneratedValue(strategy=GenerationType.AUTO)
-    private Long id;
-
-    @OneToOne
-    @JoinColumn(name="PLEDGED_BY", nullable=false, insertable=true, updatable=false)
-	private User pledgedBy;
-    
-    //@Column(nullable=false)
-    @CreationTimestamp
-	private Timestamp pledgedDate;
-    
-    @Column(nullable=false)
-	private Double amount;
-    
-    @Column(nullable=false)
+	private String id;
+	private String userId;
+	private Date pledgedDate;
+	private double amount;
 	private Currency currency;
-	
-    @OneToOne
-    @JoinColumn(name="BENEFICIARY_ID", nullable=false, insertable=true, updatable=false)
-	private Beneficiary beneficiary;
-    
-    @OneToOne
-    @JoinColumn(name="GIVE_UP_ID", nullable=true, insertable=true, updatable=true)
-	private GiveUp giveUp;
-	
-	public Long getId() {
+	private String beneficiaryId;
+	private String giveUpId;
+
+	public String getId() {
 		return id;
 	}
-	public void setId(Long id) {
-		this.id = id;
+
+	public String getUserId() {
+		return userId;
 	}
-	public User getPledgedBy() {
-		return pledgedBy;
+
+	public void setUserId(String userId) {
+		this.userId = userId;
 	}
-	public void setPledgedBy(User pledgedBy) {
-		this.pledgedBy = pledgedBy;
-	}
-	public Timestamp getPledgedDate() {
+
+	public Date getPledgedDate() {
 		return pledgedDate;
 	}
-	public void setPledgedDate(Timestamp pledgedDate) {
+
+	public void setPledgedDate(Date pledgedDate) {
 		this.pledgedDate = pledgedDate;
 	}
-	public Double getAmount() {
+
+	public double getAmount() {
 		return amount;
 	}
-	public void setAmount(Double amount) {
+
+	public void setAmount(double amount) {
 		this.amount = amount;
 	}
+
 	public Currency getCurrency() {
 		return currency;
 	}
+
 	public void setCurrency(Currency currency) {
 		this.currency = currency;
 	}
-	public Beneficiary getBeneficiary() {
-		return beneficiary;
+
+	public String getBeneficiaryId() {
+		return beneficiaryId;
 	}
-	public void setBeneficiary(Beneficiary beneficiary) {
-		this.beneficiary = beneficiary;
+
+	public void setBeneficiaryId(String beneficiaryId) {
+		this.beneficiaryId = beneficiaryId;
 	}
-	public GiveUp getGiveUp() {
-		return giveUp;
+
+	public String getGiveUpId() {
+		return giveUpId;
 	}
-	public void setGiveUp(GiveUp giveUp) {
-		this.giveUp = giveUp;
+
+	public void setGiveUpId(String giveUpId) {
+		this.giveUpId = giveUpId;
 	}
-	
-	
 }

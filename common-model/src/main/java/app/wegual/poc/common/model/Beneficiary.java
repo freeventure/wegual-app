@@ -1,145 +1,80 @@
 package app.wegual.poc.common.model;
 
-import java.io.Serializable;
-//import java.security.Timestamp;
-import java.sql.*;
+import org.springframework.stereotype.Component;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.OneToOne;
-
-import org.hibernate.annotations.CreationTimestamp;
-
-@Entity 
-public class Beneficiary  implements Serializable {
-	@Id
-    @GeneratedValue(strategy=GenerationType.AUTO)
-    private Long id;
-
-    @Column(unique=true, nullable=false) 
-    private String name;
-    
-    private String description;
-    
-    @Column(nullable=false) 
-    @Enumerated(EnumType.STRING)
-    private BeneficiaryType beneficiaryType;
-    
-    @Column(unique=true, nullable=false)
-    private String url;
-    
-    
-    private String facebookPage;
-    private String twitterHandle;
-    
-    private String linkedInPage;
-
-    @OneToOne
-    @JoinColumn(name="OWNER_ID", nullable=false, insertable=true, updatable=true)
-    private User owner;
-    
-    @CreationTimestamp
-	private Timestamp creationDate;
-    
-    @CreationTimestamp
-   	private Timestamp updationDate;
+@Component
+public class Beneficiary {
 	
-    
-	public Long getId() {
+	private String id;
+	private String name;
+	private String description;
+	private String beneficiaryType;
+	private String url;
+	private String facebookPage;
+	private String twitterHandle;
+	private String linkedInPage;
+	private String ownerId;
+	private String ownerName;
+	
+	public String getId() {
 		return id;
 	}
-
-	public void setId(Long id) {
+	public void setId(String id) {
 		this.id = id;
 	}
-
 	public String getName() {
 		return name;
 	}
-
 	public void setName(String name) {
 		this.name = name;
 	}
-
 	public String getDescription() {
 		return description;
 	}
-
 	public void setDescription(String description) {
 		this.description = description;
 	}
-
-	public BeneficiaryType getBeneficiaryType() {
+	public String getBeneficiaryType() {
 		return beneficiaryType;
 	}
-
-	public void setBeneficiaryType(BeneficiaryType beneficiaryType) {
+	public void setBeneficiaryType(String beneficiaryType) {
 		this.beneficiaryType = beneficiaryType;
 	}
-
 	public String getUrl() {
 		return url;
 	}
-
 	public void setUrl(String url) {
 		this.url = url;
 	}
-
 	public String getFacebookPage() {
 		return facebookPage;
 	}
-
 	public void setFacebookPage(String facebookPage) {
 		this.facebookPage = facebookPage;
 	}
-
-	public String getTwitterHandle() {
-		return twitterHandle;
-	}
-
-	public void setTwitterHandle(String twitterHandle) {
-		this.twitterHandle = twitterHandle;
-	}
-
 	public String getLinkedInPage() {
 		return linkedInPage;
 	}
-
 	public void setLinkedInPage(String linkedInPage) {
 		this.linkedInPage = linkedInPage;
 	}
-
-	public User getOwner() {
-		return owner;
+	public String getTwitterHandle() {
+		return twitterHandle;
 	}
-
-	public void setOwner(User owner) {
-		this.owner = owner;
+	public void setTwitterHandle(String twitterHandle) {
+		this.twitterHandle = twitterHandle;
 	}
-
-	public Timestamp getCreationDate() {
-		return creationDate;
+	public String getOwnerId() {
+		return ownerId;
 	}
-
-	public void setCreationDate(Timestamp creationDate) {
-		this.creationDate = creationDate;
+	public void setOwnerId(String ownerId) {
+		this.ownerId = ownerId;
 	}
-
-	public Timestamp getUpdationDate() {
-		return updationDate;
+	public String getOwnerName() {
+		return ownerName;
 	}
-
-	public void setUpdationDate(Timestamp updationDate) {
-		this.updationDate = updationDate;
+	public void setOwnerName(String ownerName) {
+		this.ownerName = ownerName;
 	}
-
 	
-	
-
 }

@@ -14,15 +14,6 @@ import com.eatthepath.otp.TimeBasedOneTimePasswordGenerator;
 
 @Service
 public class OTPGenerator {
-
-	public static void main(String[] args) throws Exception {
-	    Instant now = Instant.now();
-	    Instant later = now.plus(Duration.ofSeconds(30));
-
-	    System.out.println(OTPGenerator.generateOTP(now));
-	    System.out.println(OTPGenerator.generateOTP(later));
-	    
-	}
 	
 	public static String generateOTP(Instant moment) throws NoSuchAlgorithmException, InvalidKeyException {
 		Key key = null;

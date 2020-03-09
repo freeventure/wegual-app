@@ -14,6 +14,7 @@ public class MailService {
     private JavaMailSender javaMailSender;
 	@Autowired
 	private LoginVerificationMailContentBuilder logVermcb;
+	@Autowired
 	private LoginReminderMailContentBuilder logRemmcb;
  
     public String prepareAndSendLoginVerifyMail(String recipient, String otp) {

@@ -1,49 +1,22 @@
 package app.wegual.poc.common.model;
 
-import java.io.Serializable;
-//import java.security.Timestamp;
-import java.sql.*;
+import java.security.Timestamp;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import org.springframework.stereotype.Component;
 
-import org.hibernate.annotations.CreationTimestamp;
+@Component
+public class User {
 
-@Entity 
-public class User  implements Serializable {
-    @Id
-    @GeneratedValue(strategy=GenerationType.AUTO)
-    private Long id;
+	private String id;
+	private String name;
+	private String email;
+	private Timestamp lastLoggedInDate;
 
-    private String name;
-
-    @Column(name="email", unique=true)
-    private String email;
-    
-    //@Column(name="creationDate", columnDefinition="TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
-    @CreationTimestamp
-	private Timestamp creationDate;
-    
-    //@Column(name="updationDate", columnDefinition="TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
-    @CreationTimestamp
-   	private Timestamp updationDate;
-    
-    public User() {}
-    
-	public User(String name, String email) {
-		super();
-		this.name = name;
-		this.email = email;
-	}
-
-	public Long getId() {
+	public String getId() {
 		return id;
 	}
 
-	public void setId(Long id) {
+	public void setId(String id) {
 		this.id = id;
 	}
 
@@ -63,24 +36,12 @@ public class User  implements Serializable {
 		this.email = email;
 	}
 
-	public Timestamp getCreationDate() {
-		return creationDate;
+	public Timestamp getLastLoggedInDate() {
+		return lastLoggedInDate;
 	}
 
-	public void setCreationDate(Timestamp creationDate) {
-		this.creationDate = creationDate;
+	public void setLastLoggedInDate(Timestamp lastLoggedInDate) {
+		this.lastLoggedInDate = lastLoggedInDate;
 	}
-
-	public Timestamp getUpdationDate() {
-		return updationDate;
-	}
-
-	public void setUpdationDate(Timestamp updationDate) {
-		this.updationDate = updationDate;
-	}
-	
-
-
-
 
 }

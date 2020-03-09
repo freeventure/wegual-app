@@ -1,53 +1,13 @@
 package app.wegual.poc.common.model;
 
-import java.io.Serializable;
-//import java.security.Timestamp;
-import java.sql.*;
-import java.util.Currency;
+import org.springframework.stereotype.Component;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.OneToOne;
+@Component
+public class GiveUp {
 
-import org.hibernate.annotations.CreationTimestamp;
-
-@Entity
-public class GiveUp implements Serializable {
-    @Id
-    @GeneratedValue(strategy=GenerationType.AUTO)
-    private Long id;
-
-    @Column(unique=true)
+	private String id;
 	private String name;
 	private String description;
-	
-	@Column(nullable=false)
-	private Double amount;
-    
-    @Column(nullable=false)
-	private Currency currency;
-	
-	@OneToOne
-	@JoinColumn(name="CREATED_BY", nullable=false, insertable=true, updatable=false)
-	private User createdBy;
-	
-	@CreationTimestamp
-	private Timestamp creationDate;
-    
-	@CreationTimestamp
-   	private Timestamp updationDate;
-
-	public Long getId() {
-		return id;
-	}
-
-	public void setId(Long id) {
-		this.id = id;
-	}
 
 	public String getName() {
 		return name;
@@ -65,48 +25,12 @@ public class GiveUp implements Serializable {
 		this.description = description;
 	}
 
-	public User getCreatedBy() {
-		return createdBy;
+	public String getId() {
+		return id;
 	}
 
-	public void setCreatedBy(User createdBy) {
-		this.createdBy = createdBy;
+	public void setId(String id) {
+		this.id = id;
 	}
-
-	public Timestamp getCreationDate() {
-		return creationDate;
-	}
-
-	public void setCreationDate(Timestamp creationDate) {
-		this.creationDate = creationDate;
-	}
-
-	public Timestamp getUpdationDate() {
-		return updationDate;
-	}
-
-	public void setUpdationDate(Timestamp updationDate) {
-		this.updationDate = updationDate;
-	}
-	
-
-	public Currency getCurrency() {
-		return currency;
-	}
-
-	public void setCurrency(Currency currency) {
-		this.currency = currency;
-	}
-
-	public Double getAmount() {
-		return amount;
-	}
-
-	public void setAmount(Double amount) {
-		this.amount = amount;
-	}
-	
-	
-	
 	
 }
