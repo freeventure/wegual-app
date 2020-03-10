@@ -21,7 +21,7 @@ public class QuartzUtils {
 
         SimpleTriggerFactoryBean factoryBean = new SimpleTriggerFactoryBean();
         factoryBean.setJobDetail(jobDetail);
-        factoryBean.setStartDelay(10000L);
+        factoryBean.setStartDelay(60000L);
         factoryBean.setRepeatInterval(pollFrequencyMs);
         factoryBean.setName(triggerName);
         factoryBean.setRepeatCount(repeatCount);
