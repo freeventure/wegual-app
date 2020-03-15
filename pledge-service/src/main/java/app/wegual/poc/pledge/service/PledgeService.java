@@ -43,34 +43,34 @@ public class PledgeService {
 	@Qualifier("senderPool")
 	private TaskExecutor te;
 	
-	@Autowired
-	private UserService us;
-	
-	@Autowired
-	private BeneficiaryService ben;
-	
-	@Autowired
-	private GiveUpService gup;
+//	@Autowired
+//	private UserService us;
+//	
+//	@Autowired
+//	private BeneficiaryService ben;
+//	
+//	@Autowired
+//	private GiveUpService gup;
 
-	public void save(Pledge pledge) throws IOException {
-		System.out.println("Inside Pledge service");
-
-		IndexRequest request = new IndexRequest("pledge").id(pledge.getId())
-				.source(new ObjectMapper().writeValueAsString(pledge), XContentType.JSON)
-				.opType(DocWriteRequest.OpType.CREATE);
-
-		IndexResponse response = client.index(request, RequestOptions.DEFAULT);
-		System.out.println(response.getId());
-		if ((response.getResult().name()).equals("CREATED")) {
-			Timeline timeline = new Timeline().withActionId(pledge.getId())
-					.withActor(pledge.getUserId(),us.getUserById(pledge.getUserId()).getName(), "USER")
-					.withTarget(pledge.getBeneficiaryId(), ben.getBeneficiaryById(pledge.getBeneficiaryId()).getName(), "BENEFICIRY")
-					.withOptionalTarget(pledge.getGiveUpId(),gup.getGiveUpById(pledge.getGiveUpId()).getName() , "GIVEUP")
-					.withActionType("PLEDGE")
-					.withTimestamp(new Date());
-			sendMessageAsynch(timeline);
-		}
-	}
+//	public void save(Pledge pledge) throws IOException {
+//		System.out.println("Inside Pledge service");
+//
+//		IndexRequest request = new IndexRequest("pledge").id(pledge.getId())
+//				.source(new ObjectMapper().writeValueAsString(pledge), XContentType.JSON)
+//				.opType(DocWriteRequest.OpType.CREATE);
+//
+//		IndexResponse response = client.index(request, RequestOptions.DEFAULT);
+//		System.out.println(response.getId());
+//		if ((response.getResult().name()).equals("CREATED")) {
+//			Timeline timeline = new Timeline().withActionId(pledge.getId())
+//					.withActor(pledge.getUserId(),us.getUserById(pledge.getUserId()).getName(), "USER")
+//					.withTarget(pledge.getBeneficiaryId(), ben.getBeneficiaryById(pledge.getBeneficiaryId()).getName(), "BENEFICIRY")
+//					.withOptionalTarget(pledge.getGiveUpId(),gup.getGiveUpById(pledge.getGiveUpId()).getName() , "GIVEUP")
+//					.withActionType("PLEDGE")
+//					.withTimestamp(new Date());
+//			sendMessageAsynch(timeline);
+//		}
+//	}
 	
 
 	public long usersTotalForBeneiciary(String beneficiaryId) throws IOException {
