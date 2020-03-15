@@ -1,11 +1,10 @@
 package app.wegual.poc.common.model;
 
 import java.util.Date;
+import javax.persistence.Entity;
 import java.time.Instant;
 
-import org.springframework.stereotype.Component;
-
-
+@Entity
 public class Timeline {
 	
 	private String actionId;

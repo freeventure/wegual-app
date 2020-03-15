@@ -4,6 +4,8 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
+import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration;
 import org.springframework.amqp.core.Binding;
 import org.springframework.amqp.core.BindingBuilder;
 import org.springframework.amqp.core.DirectExchange;
@@ -17,7 +19,7 @@ import app.wegual.poc.common.util.MessagingConstants;
 
 @EntityScan(basePackages = "app.wegual.poc.common.model")
 @SpringBootApplication
-@EnableAutoConfiguration
+@EnableAutoConfiguration(exclude={DataSourceAutoConfiguration.class,HibernateJpaAutoConfiguration.class})
 public class UserServiceApplication {
 
 	static final String directExchangeName = MessagingConstants.directExchange;
@@ -25,6 +27,8 @@ public class UserServiceApplication {
 	static final String userRoutingKey = MessagingConstants.userRoutingKey;
 	static final String loginReminderRoutingKey = MessagingConstants.loginReminderRoutingKey;
 	static final String queueNameLoginReminderMailService = MessagingConstants.queueNameLoginReminderMailService;
+	static final String queueNameUserLoginReminderScheduler = MessagingConstants.queueNameUserLoginReminderScheduler;
+	static final String userServiceSchedulerRoutingKey = MessagingConstants.userServiceSchedulerRoutingKey;
 	
 	public static void main(String[] args) {
 		SpringApplication.run(UserServiceApplication.class, args);
@@ -51,10 +55,19 @@ public class UserServiceApplication {
     }
 	
 	@Bean
-    Binding bindingLoginReminderMaailService(DirectExchange exchange) {
+    Binding bindingLoginReminderMailService(DirectExchange exchange) {
     	return BindingBuilder.bind(queueLoginReminderMailService()).to(exchange).with(loginReminderRoutingKey);
     }
-	
+	@Bean
+    Queue queueUserLoginReminderScheduler() {
+        return new Queue(queueNameUserLoginReminderScheduler, true);
+    }
+    
+    @Bean
+    Binding bindingUserLoginReminderScheduler(DirectExchange exchange) {
+    	return BindingBuilder.bind(queueUserLoginReminderScheduler()).to(exchange).with(userServiceSchedulerRoutingKey);       
+    }
+    
 	@Bean
 	public RabbitTemplate rabbitTemplate(ConnectionFactory connectionFactory) {
 	    final RabbitTemplate rabbitTemplate = new RabbitTemplate(connectionFactory);

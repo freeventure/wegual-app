@@ -3,9 +3,9 @@ package app.wegual.poc.common.model;
 import java.util.Currency;
 import java.util.Date;
 
-import org.springframework.stereotype.Component;
+import javax.persistence.Entity;
 
-@Component
+@Entity
 public class Pledge {
 
 	private String id;

@@ -200,9 +200,8 @@ public class UserService {
 		return (countResponse.getCount());
 	}
 	
-	public List<User> findInactiveUsers() throws IOException{
+	public User[] findInactiveUsers() throws IOException{
 		
-		List<User> inactiveUsers = new ArrayList<User>();
 		System.out.println("Inside user service");
 		SearchRequest searchRequest = new SearchRequest("user");
 		SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
@@ -210,10 +209,14 @@ public class UserService {
 		searchRequest.source(sourceBuilder);
 		
 		SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
-		System.out.println("total hits: " + searchResponse.getHits().getTotalHits());
+		int total_hits = (int) searchResponse.getHits().getTotalHits().value;
+		System.out.println("total hits: " + total_hits);
+		User[] inactiveUsers = new User[total_hits];
+		int i = 0;
 		for(SearchHit searchHit : searchResponse.getHits().getHits()){
 			User user = new ObjectMapper().readValue(searchHit.getSourceAsString(),User.class);
-			inactiveUsers.add(user);
+			inactiveUsers[i] = user;
+			i ++;
 		}
 		return inactiveUsers;
 		
