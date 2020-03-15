@@ -1,8 +1,8 @@
 package app.wegual.poc.common.model;
 
-import org.springframework.stereotype.Component;
+import javax.persistence.Entity;
 
-@Component
+@Entity
 public class BeneficiaryFollowers {
 	
 	private String beneficiaryFolloweeId;

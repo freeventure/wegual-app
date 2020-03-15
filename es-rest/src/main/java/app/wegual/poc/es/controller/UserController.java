@@ -1,6 +1,7 @@
 package app.wegual.poc.es.controller;
 
 import java.io.IOException;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -72,5 +73,10 @@ public class UserController {
 	public long findUserFollowing(@PathVariable String id) throws IOException {
 		System.out.println("Inside user controller");
 		return(userService.findUserFollowing(id));
+	}
+	@GetMapping("/findInactiveUsers")
+	public User[] findInactiveUsers() throws IOException {
+		System.out.println("Inside user controller");
+		return(userService.findInactiveUsers());
 	}
 }
