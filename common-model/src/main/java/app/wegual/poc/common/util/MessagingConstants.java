@@ -22,4 +22,5 @@ public class MessagingConstants {
     public static final String queueNameGiveUpTimeline = "giveUpTimeline";
     public static final String queueNameUserLoginReminderScheduler = "userLoginReminderScheduler";
     public static final String queueNameLoginReminderMailService = "loginReminderMailService";
+    public static final String queueNameLoginReminderTimeline = "loginReminderTimeline";
 }

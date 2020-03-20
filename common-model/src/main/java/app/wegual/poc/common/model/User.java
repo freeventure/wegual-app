@@ -1,9 +1,8 @@
 package app.wegual.poc.common.model;
 
 import java.util.Date;
-import javax.persistence.Entity;
 
-@Entity
+
 public class User {
 
 	private String id;

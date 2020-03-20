@@ -1,8 +1,6 @@
 package app.wegual.poc.common.model;
 
-import javax.persistence.Entity;
 
-@Entity
 public class GiveUpFollowers {
 	
 	private String userFollowerId;

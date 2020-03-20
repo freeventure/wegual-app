@@ -3,9 +3,7 @@ package app.wegual.poc.common.model;
 import java.util.Currency;
 import java.util.Date;
 
-import javax.persistence.Entity;
 
-@Entity
 public class Pledge {
 
 	private String id;

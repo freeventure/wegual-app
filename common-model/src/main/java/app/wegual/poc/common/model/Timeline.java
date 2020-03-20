@@ -4,7 +4,7 @@ import java.util.Date;
 import javax.persistence.Entity;
 import java.time.Instant;
 
-@Entity
+
 public class Timeline {
 	
 	private String actionId;
