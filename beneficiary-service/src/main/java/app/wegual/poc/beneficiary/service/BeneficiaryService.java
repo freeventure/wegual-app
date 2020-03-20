@@ -33,7 +33,6 @@ import app.wegual.poc.beneficiary.messaging.SenderRunnable;
 import app.wegual.poc.common.model.Beneficiary;
 import app.wegual.poc.common.model.Timeline;
 
-
 @Service
 public class BeneficiaryService {
 	
@@ -116,7 +115,7 @@ public class BeneficiaryService {
 	public Aggregations topBeneficiariesByPledge() throws IOException {
 		System.out.println("Inside beneficiary service");
 
-		SearchRequest searchRequest = new SearchRequest("beneficiaryfollowers");
+		SearchRequest searchRequest = new SearchRequest("pledge");
 		SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
 		AggregationBuilder aggregation = AggregationBuilders.terms("topBeneficiary").field("benenficiaryId")
 				.subAggregation(AggregationBuilders.sum("total").field("amount"));

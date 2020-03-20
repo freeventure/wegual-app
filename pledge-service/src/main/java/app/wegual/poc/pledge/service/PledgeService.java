@@ -52,15 +52,15 @@ public class PledgeService {
 //	@Autowired
 //	private GiveUpService gup;
 
-//	public void save(Pledge pledge) throws IOException {
-//		System.out.println("Inside Pledge service");
-//
-//		IndexRequest request = new IndexRequest("pledge").id(pledge.getId())
-//				.source(new ObjectMapper().writeValueAsString(pledge), XContentType.JSON)
-//				.opType(DocWriteRequest.OpType.CREATE);
-//
-//		IndexResponse response = client.index(request, RequestOptions.DEFAULT);
-//		System.out.println(response.getId());
+	public void save(Pledge pledge) throws IOException {
+		System.out.println("Inside Pledge service");
+
+		IndexRequest request = new IndexRequest("pledge").id(pledge.getId())
+				.source(new ObjectMapper().writeValueAsString(pledge), XContentType.JSON)
+				.opType(DocWriteRequest.OpType.CREATE);
+
+		IndexResponse response = client.index(request, RequestOptions.DEFAULT);
+		System.out.println(response.getId());
 //		if ((response.getResult().name()).equals("CREATED")) {
 //			Timeline timeline = new Timeline().withActionId(pledge.getId())
 //					.withActor(pledge.getUserId(),us.getUserById(pledge.getUserId()).getName(), "USER")
@@ -70,7 +70,7 @@ public class PledgeService {
 //					.withTimestamp(new Date());
 //			sendMessageAsynch(timeline);
 //		}
-//	}
+	}
 	
 
 	public long usersTotalForBeneiciary(String beneficiaryId) throws IOException {
@@ -136,8 +136,9 @@ public class PledgeService {
 		return (countResponse.getCount());
 	}
 
-	public void amountTotalForBeneficiary(String beneficiaryId) {
-
+	public double amountTotalForBeneficiary(String beneficiaryId) {
+		System.out.println("Inside Pledge service");
+		return 0.0;
 	}
 
 	protected void sendMessageAsynch(Timeline payload) {
