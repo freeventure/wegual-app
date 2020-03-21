@@ -30,12 +30,12 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rabbitmq.client.GetResponse;
 
+import app.wegual.poc.common.messaging.SenderRunnable;
 import app.wegual.poc.common.model.BeneficiaryFollowers;
 import app.wegual.poc.common.model.GiveUpFollowers;
 import app.wegual.poc.common.model.Timeline;
 import app.wegual.poc.common.model.User;
 import app.wegual.poc.common.model.UserFollowers;
-import app.wegual.poc.user.messaging.SenderRunnable;
 import app.wegual.poc.user.messaging.UserMessageSender;
 
 import org.elasticsearch.client.RequestOptions;

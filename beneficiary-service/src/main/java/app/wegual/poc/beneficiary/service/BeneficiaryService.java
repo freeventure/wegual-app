@@ -29,7 +29,7 @@ import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import app.wegual.poc.beneficiary.messaging.BeneficiaryMessageSender;
-import app.wegual.poc.beneficiary.messaging.SenderRunnable;
+import app.wegual.poc.common.messaging.SenderRunnable;
 import app.wegual.poc.common.model.Beneficiary;
 import app.wegual.poc.common.model.Timeline;
 
@@ -44,7 +44,7 @@ public class BeneficiaryService {
 
 	@Autowired
 	@Qualifier("senderPool")
-	TaskExecutor te;
+	private TaskExecutor te;
 
 	public void save(Beneficiary ben) throws IOException {
 		System.out.println("Inside beneficiary service");

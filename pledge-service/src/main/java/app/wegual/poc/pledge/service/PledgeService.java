@@ -25,10 +25,10 @@ import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import app.wegual.poc.common.messaging.SenderRunnable;
 import app.wegual.poc.common.model.Pledge;
 import app.wegual.poc.common.model.Timeline;
 import app.wegual.poc.pledge.messaging.PledgeMessageSender;
-import app.wegual.poc.pledge.messaging.SenderRunnable;
 
 @Service
 public class PledgeService {

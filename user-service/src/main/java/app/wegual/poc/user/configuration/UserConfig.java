@@ -13,7 +13,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class UserConfig {
 
-	@Value("${elasticsearchHosts:192.168.111.4}")
+	@Value("${elasticsearchHosts:0}")
 	private String elasticsearchHosts;
 	
 	@Bean

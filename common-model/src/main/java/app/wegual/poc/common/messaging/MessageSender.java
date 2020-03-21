@@ -1,4 +1,4 @@
-package app.wegual.poc.pledge.messaging;
+package app.wegual.poc.common.messaging;
 
 import org.springframework.stereotype.Component;
 

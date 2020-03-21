@@ -26,10 +26,10 @@ import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import app.wegual.poc.common.messaging.SenderRunnable;
 import app.wegual.poc.common.model.GiveUp;
 import app.wegual.poc.common.model.Timeline;
 import app.wegual.poc.giveup.messaging.GiveUpMessageSender;
-import app.wegual.poc.giveup.messaging.SenderRunnable;
 
 @Service
 public class GiveupService {

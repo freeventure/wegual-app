@@ -1,4 +1,4 @@
-package app.wegual.poc.giveup.messaging;
+package app.wegual.poc.common.messaging;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
