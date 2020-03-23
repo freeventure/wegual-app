@@ -6,6 +6,8 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.stereotype.Component;
 
+import com.wegual.scheduler.client.oauth.ExternalServicesOAuthClients;
+
 @Component
 public class ClientBeans implements ApplicationContextAware {
 	
@@ -22,5 +24,9 @@ public class ClientBeans implements ApplicationContextAware {
 
 	public static UserServiceClient getUserServiceClient() {
 		return theContext.getBean(UserServiceClient.class);
-	}	
+	}
+	
+	public static ExternalServicesOAuthClients getExternalServicesOAuthClients() {
+		return theContext.getBean(ExternalServicesOAuthClients.class);
+	}
 }
