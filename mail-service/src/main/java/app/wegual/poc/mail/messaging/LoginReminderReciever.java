@@ -16,10 +16,16 @@ public class LoginReminderReciever {
 	
 	@RabbitListener(queues = MessagingConstants.queueNameLoginReminderMailService)
 	public void receiveMessageForLoginReminder(String message) throws IOException {
-		System.out.println("login reminder msg received");
-		String[] userDetails = message.split(" ");
-		ms.prepareAndSendLoginReminderMail(userDetails[0], userDetails[1]);
-		
+		System.out.println("login reminder msg received" + message);
+		String[] userDetails = message.split("#");
+		try {
+			String recipientEmail =  userDetails[0].substring(1);
+			String recipientName = userDetails[1].substring(0, userDetails[1].length() - 1);
+			ms.prepareAndSendLoginReminderMail(recipientEmail, recipientName);
+		}
+		catch(Exception e) {
+			System.out.println(e);
+		}
 	}
 }
 

@@ -9,10 +9,10 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.wegual</groupId>
-	<artifactId>user-service</artifactId>
+	<artifactId>quartz-scheduler</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>user-service</name>
-	<description>user service for wegual</description>
+	<name>quartz-scheduler</name>
+	<description>quartz-scheduler for wegual</description>
 
 	<properties>
 		<java.version>1.8</java.version>

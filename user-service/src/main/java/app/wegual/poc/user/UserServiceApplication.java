@@ -27,8 +27,7 @@ public class UserServiceApplication {
 	static final String userRoutingKey = MessagingConstants.userRoutingKey;
 	static final String loginReminderRoutingKey = MessagingConstants.loginReminderRoutingKey;
 	static final String queueNameLoginReminderMailService = MessagingConstants.queueNameLoginReminderMailService;
-	static final String queueNameUserLoginReminderScheduler = MessagingConstants.queueNameUserLoginReminderScheduler;
-	static final String userServiceSchedulerRoutingKey = MessagingConstants.userServiceSchedulerRoutingKey;
+
 	
 	public static void main(String[] args) {
 		SpringApplication.run(UserServiceApplication.class, args);
@@ -57,15 +56,6 @@ public class UserServiceApplication {
 	@Bean
     Binding bindingLoginReminderMailService(DirectExchange exchange) {
     	return BindingBuilder.bind(queueLoginReminderMailService()).to(exchange).with(loginReminderRoutingKey);
-    }
-	@Bean
-    Queue queueUserLoginReminderScheduler() {
-        return new Queue(queueNameUserLoginReminderScheduler, true);
-    }
-    
-    @Bean
-    Binding bindingUserLoginReminderScheduler(DirectExchange exchange) {
-    	return BindingBuilder.bind(queueUserLoginReminderScheduler()).to(exchange).with(userServiceSchedulerRoutingKey);       
     }
     
 	@Bean

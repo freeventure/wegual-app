@@ -19,9 +19,9 @@ public class LoginReminderMessageSender {
 		this.rabbitTemplate= rabbitTemplate;
 	}
 	
-	public void sendMessage(String url) throws AmqpException{
-		System.out.println("Sending message for login reminder");
-		rabbitTemplate.convertAndSend(MessagingConstants.directExchange, MessagingConstants.userServiceSchedulerRoutingKey, url);
+	public void sendMessage(String msg) throws AmqpException{
+		System.out.println("Sending message from scheduler service for login reminder " + msg);
+		rabbitTemplate.convertAndSend(MessagingConstants.directExchange, MessagingConstants.userServiceSchedulerRoutingKey, msg);
 	}
 
 }

@@ -32,16 +32,16 @@ import app.wegual.poc.scheduler.jobs.LoginReminderJob;
 public class QuartzSchedulerApplication {
 
 	static final String directExchangeName = MessagingConstants.directExchange;
-	static final String queueNameLoginReminderTimeline = MessagingConstants.queueNameLoginReminderTimeline;
-	static final String loginReminderRoutingKey = MessagingConstants.loginReminderRoutingKey;
+	static final String queueNameUserServiceScheduler = MessagingConstants.queueNameUserServiceScheduler;
+	static final String userServiceSchedulerRoutingKey = MessagingConstants.userServiceSchedulerRoutingKey;
 	
 	public static void main(String[] args){
 		SpringApplication.run(QuartzSchedulerApplication.class, args);
 	}
 	
 	@Bean
-    Queue queueLoginReminderTimeline() {
-        return new Queue(queueNameLoginReminderTimeline, true);
+    Queue queueUserServiceScheduler() {
+        return new Queue(queueNameUserServiceScheduler, true);
     }
 
     @Bean
@@ -51,7 +51,7 @@ public class QuartzSchedulerApplication {
     
     @Bean
     Binding bindingLoginReminderTimeline(DirectExchange exchange) {
-    	return BindingBuilder.bind(queueLoginReminderTimeline()).to(exchange).with(loginReminderRoutingKey);       
+    	return BindingBuilder.bind(queueUserServiceScheduler()).to(exchange).with(userServiceSchedulerRoutingKey);       
     }
     
     @Bean

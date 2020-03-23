@@ -25,7 +25,7 @@ public class QuartzJobsAndTriggers {
 	    trigger.setJobDetail(job);
 	    trigger.setName("Login Reminder Trigger");
 	    trigger.setStartDelay(6000);
-	    trigger.setRepeatInterval(1000);
+	    trigger.setRepeatInterval(60000);
 	    trigger.setRepeatCount(SimpleTrigger.REPEAT_INDEFINITELY);
 	    return trigger;
 	}

@@ -20,14 +20,16 @@ public class LoginReminderReceiver {
 	@Autowired
 	LoginReminderMessageSender lrms;
 	
-	@RabbitListener(queues = MessagingConstants.queueNameUserLoginReminderScheduler)
+	@RabbitListener(queues = MessagingConstants.queueNameUserServiceScheduler)
 	public void receiveMessageForUserSchedulerService(String message) throws IOException {
 		System.out.println("scheduler message received: " + message);
 		ArrayList<User> inactiveUsers =  userService.findInactiveUsers();
-		String msg;
+		System.out.println("total inactive users: " + inactiveUsers.size());
+		String msg = "";
 		for (int i = 0; i < inactiveUsers.size(); i++) {
 			User u = inactiveUsers.get(i);
-			msg = u.getEmail() + " " + u.getName();
+			msg = u.getEmail() + "#" + u.getName();
+			System.out.println(msg);
 			lrms.sendMessage(msg);
 		}
 	}
