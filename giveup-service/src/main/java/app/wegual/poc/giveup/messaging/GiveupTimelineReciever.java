@@ -8,12 +8,12 @@ import org.springframework.stereotype.Service;
 
 import app.wegual.poc.common.model.Timeline;
 import app.wegual.poc.common.util.MessagingConstants;
-import app.wegual.poc.giveup.service.GiveupTimelineService;
+import app.wegual.poc.giveup.service.GiveUpTimelineService;
 
 @Service
 public class GiveupTimelineReciever {
 	@Autowired
-	private GiveupTimelineService ts;
+	private GiveUpTimelineService ts;
 	
 	@RabbitListener(queues = MessagingConstants.queueNameGiveUpTimeline)
 	public void receiveMessageForGiveUpTimeline(Timeline timeline) throws IOException {

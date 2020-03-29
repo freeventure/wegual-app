@@ -7,12 +7,23 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 @Configuration
 public class ThreadPool {
-	@Bean(name = "senderPool")
-	public TaskExecutor messageSender() {
+	
+	@Bean(name = "timelineSenderPool")
+	public TaskExecutor timelineMessageSender() {
 		ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
 		executor.setCorePoolSize(5);
 		executor.setMaxPoolSize(10);
 		executor.setThreadNamePrefix("message_sender_thread");
+		executor.initialize();
+		return executor;
+	}
+	
+	@Bean(name = "loginReminderSenderPool")
+	public TaskExecutor loginReminderMessageSender() {
+		ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+		executor.setCorePoolSize(5);
+		executor.setMaxPoolSize(10);
+		executor.setThreadNamePrefix("login_reminder_message_sender_thread");
 		executor.initialize();
 		return executor;
 	}

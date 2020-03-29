@@ -22,13 +22,9 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.rabbitmq.client.GetResponse;
 
 import app.wegual.poc.common.messaging.SenderRunnable;
 import app.wegual.poc.common.model.BeneficiaryFollowers;
@@ -36,6 +32,7 @@ import app.wegual.poc.common.model.GiveUpFollowers;
 import app.wegual.poc.common.model.Timeline;
 import app.wegual.poc.common.model.User;
 import app.wegual.poc.common.model.UserFollowers;
+import app.wegual.poc.user.messaging.LoginReminderMessageSender;
 import app.wegual.poc.user.messaging.UserMessageSender;
 
 import org.elasticsearch.client.RequestOptions;
@@ -50,9 +47,16 @@ public class UserService {
 	private UserMessageSender ums;
 	
 	@Autowired
-	@Qualifier("senderPool")
-	private TaskExecutor te;
+	private LoginReminderMessageSender lrms;
+	
+	@Autowired
+	@Qualifier("timelineSenderPool")
+	private TaskExecutor timelineTE;
 
+	@Autowired
+	@Qualifier("loginReminderSenderPool")
+	private TaskExecutor loginReminderTE;
+	
 	public void save(User user) throws IOException {
 		System.out.println("Inside user service");
 		IndexRequest request = new IndexRequest("user").id(user.getId())
@@ -199,7 +203,7 @@ public class UserService {
 		return (countResponse.getCount());
 	}
 	
-	public ArrayList<User> findInactiveUsers() throws IOException{
+	public void findInactiveUsers() throws IOException{
 		
 		System.out.println("Inside user service");
 		SearchRequest searchRequest = new SearchRequest("user");
@@ -209,17 +213,20 @@ public class UserService {
 		
 		SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
 		System.out.println("total hits: " + searchResponse.getHits().getTotalHits());
-		ArrayList<User> inactiveUsers = new ArrayList<User>();
+		String msg;
 		for(SearchHit searchHit : searchResponse.getHits().getHits()){
 			User user = new ObjectMapper().readValue(searchHit.getSourceAsString(),User.class);
-			inactiveUsers.add(user);
+			msg = user.getEmail() + "#" + user.getName();
+			sendLoginReminderMessageAsync(msg);
 		}
-		return inactiveUsers;
 		
 	}
 	
+	protected void sendLoginReminderMessageAsync(String message) {
+		loginReminderTE.execute(new SenderRunnable<LoginReminderMessageSender, String>(lrms, message));
+	}
 	protected void sendMessageAsynch(Timeline payload) {
-		te.execute(new SenderRunnable<UserMessageSender, Timeline>(ums, payload));
+		timelineTE.execute(new SenderRunnable<UserMessageSender, Timeline>(ums, payload));
 	}
 
 }

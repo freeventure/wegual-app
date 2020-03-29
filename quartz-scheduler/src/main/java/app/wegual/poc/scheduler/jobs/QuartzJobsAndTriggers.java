@@ -10,6 +10,7 @@ import org.springframework.scheduling.quartz.SimpleTriggerFactoryBean;
 
 @Configuration
 public class QuartzJobsAndTriggers {
+	
 	@Bean("loginReminder")
 	public JobDetailFactoryBean jobDetail() {
 	    JobDetailFactoryBean jobDetailFactory = new JobDetailFactoryBean();

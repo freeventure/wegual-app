@@ -32,7 +32,7 @@ import app.wegual.poc.common.model.Timeline;
 import app.wegual.poc.giveup.messaging.GiveUpMessageSender;
 
 @Service
-public class GiveupService {
+public class GiveUpService {
 	
 	@Autowired
 	private RestHighLevelClient client;
