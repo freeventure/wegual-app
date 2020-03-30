@@ -1,0 +1,22 @@
+package com.wegual.userservice.client.oauth;
+
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.stereotype.Component;
+
+import app.wegual.common.client.oauth.AbstractRestClientConfig;
+
+
+//user-service.client-id=scheduler-service
+//user-service.client-secret=c8d90a0d-335d-4d93-8e7d-6c65b08fee09
+//user-service.scope=user-service-write
+//user-service.grant-type=client_credentials
+
+@Component
+@ConfigurationProperties(prefix = "keycloak")
+public class KeycloakRestClientConfig extends AbstractRestClientConfig {
+
+	@Override
+	public String getServiceId() {
+		return "user-manager";
+	}
+}

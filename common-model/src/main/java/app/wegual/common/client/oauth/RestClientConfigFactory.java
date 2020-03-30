@@ -1,8 +1,11 @@
-package com.wegual.scheduler.client.oauth;
+package app.wegual.common.client.oauth;
 
 import java.util.HashMap;
 import java.util.Map;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class RestClientConfigFactory {
 
 	private static RestClientConfigFactory INSTANCE = new RestClientConfigFactory();
@@ -18,6 +21,8 @@ public class RestClientConfigFactory {
 	
 	public void register(String clientId, AbstractRestClientConfig value) {
 		clientConfigs.put(clientId, value);
+		log.info("Registered oauth2 client id: " + clientId);
+		
 	}
 	
 	public AbstractRestClientConfig getConfigFor(String clientId) {

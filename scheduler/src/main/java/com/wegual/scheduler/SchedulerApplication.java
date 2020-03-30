@@ -7,7 +7,7 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 
 @EnableDiscoveryClient
 @EnableFeignClients
-@SpringBootApplication
+@SpringBootApplication(scanBasePackages={"app.wegual.common.client", "com.wegual.scheduler"})
 public class SchedulerApplication {
 
 	public static void main(String[] args) {

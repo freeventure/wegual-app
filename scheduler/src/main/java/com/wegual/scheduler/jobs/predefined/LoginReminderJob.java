@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 import com.wegual.scheduler.client.ClientBeans;
 import com.wegual.scheduler.client.UserServiceClient;
 
+import app.wegual.common.client.CommonBeans;
 import app.wegual.common.model.User;
 
 @Component
@@ -23,7 +24,7 @@ public class LoginReminderJob implements Job {
 	public void execute(JobExecutionContext context) {
 		OAuth2AccessToken token = null;
 		try {
-		OAuth2RestTemplate ort = ClientBeans.getExternalServicesOAuthClients().restTemplate("user-service");
+		OAuth2RestTemplate ort = CommonBeans.getExternalServicesOAuthClients().restTemplate("user-service");
 		if(ort != null)
 		{
 			token =  ort.getAccessToken();
@@ -35,7 +36,7 @@ public class LoginReminderJob implements Job {
 			ex.printStackTrace();
 		}
 		
-		List<User> users = getUsersNotLoggedIn("Bearer " + token);
+		List<User> users = getUsersNotLoggedIn("Bearer " + token.getValue());
 		if (users != null) {
 			for (User user : users) {
 				System.out.println("Found user id: " + user.getId());
@@ -51,7 +52,7 @@ public class LoginReminderJob implements Job {
 		List<User> users = new ArrayList<User>();
 		for(String userId : usc.getUserLoginReminders(bearerToken)) {
 			user = new User();
-			user.setId(Long.valueOf(userId));
+			user.setId(userId);
 			users.add(user);
 		}
 		return users;

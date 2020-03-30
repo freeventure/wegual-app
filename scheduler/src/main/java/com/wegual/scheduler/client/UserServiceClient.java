@@ -11,6 +11,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 public interface UserServiceClient {
 
 	    @RequestMapping(method = RequestMethod.GET, value = "/users/logins/reminders")
-	    List<String> getUserLoginReminders(@RequestHeader(value = "Authorization", required = true) String language);
+	    List<String> getUserLoginReminders(@RequestHeader(value = "Authorization", required = true) String token);
 
 }
