@@ -34,6 +34,8 @@ public class SecurityConfigurer extends ResourceServerConfigurerAdapter {
 
 	@Override
 	public void configure(final HttpSecurity http) throws Exception {
+		
+		http.authorizeRequests().antMatchers("/test/**").permitAll();
 
 		http.cors().configurationSource(corsConfigurationSource()).and().headers().frameOptions().disable().and().csrf()
 				.disable().authorizeRequests().antMatchers(securityProperties.getApiMatcher()).authenticated();

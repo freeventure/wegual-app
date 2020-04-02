@@ -1,0 +1,15 @@
+{
+	"mappings": {
+		"properties": {
+			"follower_user_id": {
+				"type": "keyword"
+			},
+			"followee_user_id": {
+				"type": "keyword"
+			},
+			"date_stamp": {
+				"type": "long"
+			}
+		}
+	}
+}

@@ -13,8 +13,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.wegual.userservice.analytics.UserAnalyticsService;
 import com.wegual.userservice.service.KeycloakUserService;
+import com.wegual.userservice.service.UserTimelineService;
 
 import app.wegual.common.model.User;
+import app.wegual.common.model.UserTimelineItem;
 import app.wegual.common.rest.model.UserFollowees;
 import app.wegual.common.rest.model.UserFollowers;
 
@@ -27,6 +29,21 @@ public class UserController {
 	
 	@Autowired
 	UserAnalyticsService uas;
+
+	@Autowired
+	UserTimelineService uts;
+	
+	@PreAuthorize("#oauth2.hasScope('user-service')")
+	@GetMapping("/users/timeline/{userid}")
+	ResponseEntity<List<UserTimelineItem>> getUserTimeline(@PathVariable String userid) {
+		try {
+			List<UserTimelineItem> uteList = uts.getTimeline(userid);
+			return new ResponseEntity<List<UserTimelineItem>>(uteList, HttpStatus.OK);
+		} catch (Exception e) {
+			return new ResponseEntity<List<UserTimelineItem>>(new ArrayList<UserTimelineItem>(), HttpStatus.BAD_REQUEST);
+		}
+		
+	}
 	
 	@PreAuthorize("#oauth2.hasScope('user-service')")
 	@GetMapping("/users/followers/{userid}")

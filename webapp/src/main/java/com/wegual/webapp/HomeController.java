@@ -1,5 +1,8 @@
 package com.wegual.webapp;
 
+import java.util.List;
+import java.util.Map;
+
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 
@@ -13,11 +16,13 @@ import org.springframework.web.servlet.ModelAndView;
 
 import com.wegual.webapp.client.ClientBeans;
 import com.wegual.webapp.client.UserServiceClient;
+import com.wegual.webapp.ui.model.UserTimelineUIElement;
 
 import app.wegual.common.client.CommonBeans;
 import app.wegual.common.model.User;
 import app.wegual.common.model.UserProfileCounts;
 import app.wegual.common.model.UserProfileData;
+import app.wegual.common.model.UserTimelineItem;
 import app.wegual.common.rest.model.UserFollowees;
 import app.wegual.common.rest.model.UserFollowers;
 import lombok.extern.slf4j.Slf4j;
@@ -59,27 +64,39 @@ public class HomeController {
 		log.info("Found username principal: " + username);
 
 		OAuth2AccessToken token = null;
+		String bearerToken = null;
 		try {
 			OAuth2RestTemplate ort = CommonBeans.getExternalServicesOAuthClients().restTemplate("user-service");
 			if (ort != null) {
 				token = ort.getAccessToken();
 				log.info("Created token");
 				log.info("Value: " + token.getValue());
+				bearerToken = "Bearer " + token.getValue();
 				User user = null;
 				UserServiceClient usc = ClientBeans.getUserServiceClient();
 				user = usc.getUser("Bearer " + token.getValue(), username);
 				
-				UserFollowees following = usc.getUserFollowing("Bearer " + token.getValue(), user.getId());
-				UserFollowers followers = usc.getUserFollowers("Bearer " + token.getValue(), user.getId());
+				UserFollowees following = usc.getUserFollowing(bearerToken, user.getId());
+				UserFollowers followers = usc.getUserFollowers(bearerToken, user.getId());
 				
 				UserProfileData upd = new UserProfileData();
 				upd.setUser(user);
 				upd.setCounts(new UserProfileCounts(followers.getFollowersCount(), following.getFolloweesCount()));
 				mv.addObject("userProfileData", upd);
+				
+				try {
+					List<UserTimelineItem> timeline = usc.getUserTimeline(bearerToken, user.getId());
+					List<UserTimelineUIElement> uiTimelineElements =  UserTimelineUIElement.build(timeline);
+					Map<String, List<UserTimelineUIElement>> groupedElements
+						= UserTimelineUIElement.groupByDate(uiTimelineElements);
+					mv.addObject("timeline", groupedElements);
+				} catch (Exception ex) {
+					log.error("Error getting timeline", ex);
+				}
 			}
 
 		} catch (Exception ex) {
-			ex.printStackTrace();
+			log.error("Error getting user profilde data", ex);
 		}
 		return mv;
 	}

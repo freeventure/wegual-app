@@ -1,0 +1,42 @@
+{
+	"mappings": {
+		"properties": {
+			"date_stamp": {
+				"type": "long"
+			},
+			"actor_id": { 
+				"type": "keyword"
+			},
+			"verb": {
+				"type": "keyword" 
+			},
+			"detail": {
+				"type": "text"
+			},
+			"detail_actions": {
+				"properties": {
+					"view_detail":  { "type": "boolean", "index": false},
+					"share": {"type": "boolean", "index": false}
+				}
+			},
+			"action_object": { 
+				"properties": {
+					"id":  { "type": "keyword" },
+					"name": {"type": "keyword" },
+					"summary": {"type": "text", "index": false},
+					"action_type": {"type": "keyword"},
+					"permalink": {"type": "text", "index": false}
+				}
+			},
+			"target_object": {  
+				"properties": {
+					"id":  { "type": "keyword" },
+					"name": {"type": "keyword"},
+					"summary": {"type": "text", "index": false},
+					"action_type": {"type": "keyword"},
+					"permalink": {"type": "text", "index": false}
+				}
+			}
+		}
+	}
+}
