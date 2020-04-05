@@ -17,18 +17,18 @@ import lombok.Setter;
 public class TimelineItem<T> implements Serializable {
 	private static final long serialVersionUID = 1L;
 	
-	private T actorId;
+	protected T actorId;
 	
-	private String detail;
+	protected String detail;
 	
-	private TimelineItemDetailActions detailActions;
+	protected TimelineItemDetailActions detailActions;
 
-	private UserActionType userActionType;
+	protected UserActionType userActionType;
 	
-	private Long actionDate;
+	protected Long actionDate;
 	
-	private ActionTarget<T> target;
-	private ActionTarget<T> actionObject;
+	protected ActionTarget<T> target;
+	protected ActionTarget<T> actionObject;
 	
 	public TimelineItem(T actorId, ActionTarget<T> actionObject, ActionTarget<T> actionTarget, UserActionType uat) {
 		this.actorId = actorId;

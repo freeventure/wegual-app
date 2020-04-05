@@ -9,7 +9,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <!-- Font Awesome -->
-  <link href="<c:url value="/resources/css/main.css" />" rel="stylesheet">
   <link rel="stylesheet" href="<c:url value="/plugins/fontawesome-free/css/all.min.css" />">
   <!-- Ionicons -->
   <!-- Theme style -->
@@ -222,95 +221,42 @@
                   <!-- /.tab-pane -->
                   <div class="tab-pane" id="timeline">
                     <!-- The timeline -->
-                    <div class="timeline timeline-inverse">
-                      <!-- timeline time label -->
+					<div class="timeline timeline-inverse">
+                    <c:forEach var="entry" items="${timeline}">
+  					  <!-- Key represents date box -->	
                       <div class="time-label">
-                        <span class="bg-danger">
-                          10 Feb. 2014
+                        <span class="bg-light">
+                          <c:out value="${entry.key}"/>
                         </span>
                       </div>
-                      <!-- /.timeline-label -->
-                      <!-- timeline item -->
+                      <c:forEach var="timelineElement" items="${entry.value}">
+						<div>
+	                        <i class="fas ${timelineElement.iconName} ${timelineElement.iconColor}"></i>
+	
+	                        <div class="timeline-item">
+	                          <span class="time"><i class="far fa-clock"></i>${timelineElement.timeAgo}</span>
+	                          <h3 class="timeline-header">${timelineElement.summary}</h3>
+							  <c:if test="${timelineElement.hasDetail}">
+		                          <div class="timeline-body">
+		                            ${timelineElement.detail}
+		                          </div>
+		                          <div class="timeline-footer">
+		                          	<c:if test="${timelineElement.showView}">
+		                            	<a href="#" class="btn btn-primary btn-sm">View</a>
+		                            </c:if>
+		                            <c:if test="${timelineElement.showShare}">
+		                            	<a href="#" class="btn btn-danger btn-sm">Share</a>
+		                            </c:if>
+		                          </div>
+	                          </c:if>
+	                        </div>
+                      </div>                      
+                      </c:forEach>
+					</c:forEach>
                       <div>
-                        <i class="fas fa-envelope bg-primary"></i>
-
-                        <div class="timeline-item">
-                          <span class="time"><i class="far fa-clock"></i> 12:05</span>
-
-                          <h3 class="timeline-header"><a href="#">Support Team</a> sent you an email</h3>
-
-                          <div class="timeline-body">
-                            Etsy doostang zoodles disqus groupon greplin oooj voxy zoodles,
-                            weebly ning heekya handango imeem plugg dopplr jibjab, movity
-                            jajah plickers sifteo edmodo ifttt zimbra. Babblely odeo kaboodle
-                            quora plaxo ideeli hulu weebly balihoo...
-                          </div>
-                          <div class="timeline-footer">
-                            <a href="#" class="btn btn-primary btn-sm">Read more</a>
-                            <a href="#" class="btn btn-danger btn-sm">Delete</a>
-                          </div>
-                        </div>
-                      </div>
-                      <!-- END timeline item -->
-                      <!-- timeline item -->
-                      <div>
-                        <i class="fas fa-user bg-info"></i>
-
-                        <div class="timeline-item">
-                          <span class="time"><i class="far fa-clock"></i> 5 mins ago</span>
-
-                          <h3 class="timeline-header border-0"><a href="#">Sarah Young</a> accepted your friend request
-                          </h3>
-                        </div>
-                      </div>
-                      <!-- END timeline item -->
-                      <!-- timeline item -->
-                      <div>
-                        <i class="fas fa-comments bg-warning"></i>
-
-                        <div class="timeline-item">
-                          <span class="time"><i class="far fa-clock"></i> 27 mins ago</span>
-
-                          <h3 class="timeline-header"><a href="#">Jay White</a> commented on your post</h3>
-
-                          <div class="timeline-body">
-                            Take me to your leader!
-                            Switzerland is small and neutral!
-                            We are more like Germany, ambitious and misunderstood!
-                          </div>
-                          <div class="timeline-footer">
-                            <a href="#" class="btn btn-warning btn-flat btn-sm">View comment</a>
-                          </div>
-                        </div>
-                      </div>
-                      <!-- END timeline item -->
-                      <!-- timeline time label -->
-                      <div class="time-label">
-                        <span class="bg-success">
-                          3 Jan. 2014
-                        </span>
-                      </div>
-                      <!-- /.timeline-label -->
-                      <!-- timeline item -->
-                      <div>
-                        <i class="fas fa-camera bg-purple"></i>
-
-                        <div class="timeline-item">
-                          <span class="time"><i class="far fa-clock"></i> 2 days ago</span>
-
-                          <h3 class="timeline-header"><a href="#">Mina Lee</a> uploaded new photos</h3>
-
-                          <div class="timeline-body">
-                            <img src="http://placehold.it/150x100" alt="...">
-                            <img src="http://placehold.it/150x100" alt="...">
-                            <img src="http://placehold.it/150x100" alt="...">
-                            <img src="http://placehold.it/150x100" alt="...">
-                          </div>
-                        </div>
-                      </div>
-                      <!-- END timeline item -->
-                      <div>
-                        <i class="far fa-clock bg-gray"></i>
+						<a class="far bg-gray" href="#">
+                        <i class="far fa-clock"></i>
+						</a>
                       </div>
                     </div>
                   </div>
