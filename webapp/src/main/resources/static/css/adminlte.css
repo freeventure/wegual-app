@@ -593,6 +593,7 @@ pre code {
   width: 100%;
   padding-right: 7.5px;
   padding-left: 7.5px;
+  padding-top: 10px;
   margin-right: auto;
   margin-left: auto;
 }
@@ -4638,6 +4639,11 @@ input[type="button"].btn-block {
   padding: 1.25rem;
 }
 
+.card-body-compact {
+  line-height: 0;
+  min-height: 60px;
+}
+
 .card-title {
   margin-bottom: 0.75rem;
 }
@@ -4660,10 +4666,16 @@ input[type="button"].btn-block {
 }
 
 .card-header {
-  padding: 0.75rem 1.25rem;
+  padding: 0.1rem .15rem;
   margin-bottom: 0;
   background-color: rgba(0, 0, 0, 0.03);
   border-bottom: 0 solid rgba(0, 0, 0, 0.125);
+}
+
+.card-header-compact {
+  padding: 0.1rem .15rem;
+  margin-bottom: 0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.125);
 }
 
 .card-header:first-child {
@@ -4676,6 +4688,12 @@ input[type="button"].btn-block {
 
 .card-footer {
   padding: 0.75rem 1.25rem;
+  background-color: rgba(0, 0, 0, 0.03);
+  border-top: 0 solid rgba(0, 0, 0, 0.125);
+}
+
+.card-footer-compact {
+  padding: 0rem 0.5rem;
   background-color: rgba(0, 0, 0, 0.03);
   border-top: 0 solid rgba(0, 0, 0, 0.125);
 }
@@ -17695,10 +17713,20 @@ html.maximized-card {
 .card-comments {
   background: #f8f9fa;
 }
+.card-comments .card-body-compact:hover {
+  background: #e9ecef;
+  cursor: pointer;
+}
+
+.card-comments .card-body-compact:last-child {
+  line-height: 0px;
+  max-height: 40px;
+  min-height: 40px;
+}
 
 .card-comments .card-comment {
   border-bottom: 1px solid #e9ecef;
-  padding: 8px 0;
+  padding: 8px 0 0 0;
 }
 
 .card-comments .card-comment::after {
@@ -17730,6 +17758,13 @@ html.maximized-card {
   color: #495057;
   display: block;
   font-weight: 600;
+}
+
+.card-comments .username-light {
+  color: #495057;
+  display: block;
+  font-weight: 600;
+  font-size: 0.8rem;
 }
 
 .card-comments .text-muted {
