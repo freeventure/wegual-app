@@ -4,17 +4,54 @@
 <head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="_csrf" content="${_csrf.token}"/>
+  <meta name="_csrf_header" content="${_csrf.headerName}"/>
   <title>Wegual | User Profile</title>
   <!-- Tell the browser to be responsive to screen width -->
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <!-- Font Awesome -->
   <link rel="stylesheet" href="<c:url value="/plugins/fontawesome-free/css/all.min.css" />">
-  <!-- Ionicons -->
+  <!-- Croppie for photo cropping -->
+  <link rel='stylesheet' href='https://foliotek.github.io/Croppie/croppie.css'>
+  
   <!-- Theme style -->
-  <link rel="stylesheet" href="<c:url value="/css/adminlte.min.css" />">
+  <link rel="stylesheet" href="<c:url value="/css/adminlte.css" />">
   <!-- Google Font: Source Sans Pro -->
   <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
+  <style>
+	#upload-demo{
+		width: 250px;
+		height: 250px;
+	  padding-bottom:25px;
+	}
+	
+	label.cabinet{
+		display: block;
+		cursor: pointer;
+		line-height: 0;
+	}
+
+	label.cabinet input.file{
+		position: relative;
+		height: 100%;
+		width: auto;
+		opacity: 0;
+		-moz-opacity: 0;
+	  filter:progid:DXImageTransform.Microsoft.Alpha(opacity=0);
+	  margin-top:-55px;
+	  margin-bottom:-30px;
+	}  
+  	figcaption {
+	    bottom: 0;
+	    color: #fff;
+	    padding-left: 0px;
+	    padding-bottom: 5px;
+		margin-top: -25px;
+	    text-shadow: 0 0 10px #000;
+	}
+	
+  </style>
 </head>
 <body class="sidebar-mini sidebar-collapse">
 <div class="wrapper">
@@ -76,7 +113,7 @@
       </li>
 	  <li class="nav-item">
         <a class="nav-link" href="<c:url value="/logout" />">
-          <ion-icon class="far" name="exit-outline"></ion-icon>
+          <i class="fas fa-sign-out-alt"></i>
         </a>
 	  </li>
     </ul>
@@ -86,8 +123,7 @@
   <!-- Main Sidebar Container -->
   <aside class="main-sidebar sidebar-dark-primary elevation-4">
     <!-- Brand Logo -->
-    <a href="../../index3.html" class="brand-link">
-    
+    <a href="#" class="brand-link">
       <img src="<c:url value="/img/AdminLTELogo.png" />"
            alt="AdminLTE Logo"
            class="brand-image img-circle elevation-3"
@@ -112,15 +148,62 @@
         <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
           <!-- Add icons to the links using the .nav-icon class
                with font-awesome or any other icon font library -->
+			   <!--
+			   hand-holding-usd
+			   
+			   
+			   hand-holding-heart
+			   -->
           <li class="nav-item">
             <a href="#" class="nav-link">
-			  <ion-icon class="nav-icon fas" name="home-outline" size="large"></ion-icon>
+			  <i class="nav-icon fas fa-home"></i>
               <p>
                 Home
               </p>
             </a>
           </li>
-        </ul>
+          <li class="nav-item">
+            <a href="#" class="nav-link">
+			  <i class="nav-icon fas fa-address-card"></i>
+              <p>
+                Profile
+              </p>
+            </a>
+          </li>
+
+          <li class="nav-item">
+            <a href="#" class="nav-link">
+			  <i class="nav-icon fas fa-hand-holding-usd"></i>
+              <p>
+                Beneficiaries
+              </p>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="#" class="nav-link">
+			  <i class="nav-icon fas fa-praying-hands"></i>
+              <p>
+                Giveups
+              </p>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="#" class="nav-link">
+			  <i class="nav-icon fas fa-hand-holding-heart"></i>
+              <p>
+                Pledges
+              </p>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="#" class="nav-link">
+			  <i class="nav-icon fas fa-user-friends"></i>
+              <p>
+                People
+              </p>
+            </a>
+          </li>
+		</ul>
       </nav>
       <!-- /.sidebar-menu -->
     </div>
@@ -150,6 +233,29 @@
     <section class="content">
       <div class="container-fluid">
         <div class="row">
+        	<!-- Begin Croppie modal dialog -->
+			<div class="modal fade" id="cropImagePop" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+				<div class="modal-dialog">
+					<div class="modal-content">
+						<div class="modal-header">
+							<h5 class="modal-title float-left" id="myModalLabel">Edit Photo</h5>
+							<button type="button" class="float-right close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+							
+						</div>
+						<div class="modal-body">
+							<div id="upload-demo" class="center-block"></div>
+						</div>
+						<div class="modal-footer">
+							<div id="RotateAntiClockwise" class="btn btn-primary" title="Rotate anti-clockwise"><i class="fas fa-undo"></i></div>
+							<div id="RotateClockwise" class="btn btn-primary" title="Rotate clockwise"><span><i class="fas fa-redo"></i></span></div>
+							<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+							<button type="button" id="cropImageBtn" class="btn btn-primary">Crop</button>
+						</div>
+					</div>
+				</div>
+			</div>
+	
+      	  <!-- End Croppie modal dialog -->
           <div class="col-md-3">
 
             <!-- Profile Image -->
@@ -158,7 +264,11 @@
                 <div class="text-center">
                   <img class="profile-user-img img-fluid img-circle"
                        src="<c:url value="/img/user2-160x160.jpg" />"
-                       alt="User profile picture">
+                       alt="User profile picture" id="item-img-output">
+                  <label class="cabinet center-block">
+	                  <figcaption><i class="fas fa-camera"></i></figcaption>
+	                  <input type="file" class="item-img file center-block" name="file_photo" />
+                  </label>
                 </div>
 
                 <h3 class="profile-username text-center">${userProfileData.user.firstName} ${userProfileData.user.lastName}</h3>
@@ -332,15 +442,95 @@
 </div>
 <!-- ./wrapper -->
 
-<!-- ionic -->
-<script src="https://unpkg.com/ionicons@5.0.0/dist/ionicons.js"></script>
 <!-- jQuery -->
 <script src="<c:url value="/plugins/jquery/jquery.min.js" />"></script>
 <!-- Bootstrap 4 -->
 <script src="<c:url value="/plugins/bootstrap/js/bootstrap.bundle.min.js" />"></script>
+<!-- Croppie JS -->
+<script src="https://foliotek.github.io/Croppie/croppie.js"></script>
 <!-- AdminLTE App -->
 <script src="<c:url value="/js/adminlte.min.js" />"></script>
 <!-- AdminLTE for demo purposes -->
 <script src="<c:url value="/js/demo.js" />"></script>
+<c:url var="piuploadUrl" value="/user/piupload" />
+<script id="rendered-js">
+// Start upload preview image
+	var $uploadCrop,
+	tempFilename,
+	rawImg,
+	imageId;
+	function readFile(input) {
+	  if (input.files && input.files[0]) {
+		var reader = new FileReader();
+		reader.onload = function (e) {
+		  $('.upload-demo').addClass('ready');
+		  $('#cropImagePop').modal('show');
+		  rawImg = e.target.result;
+		};
+		reader.readAsDataURL(input.files[0]);
+	  } else
+	  {
+		swal("Sorry - you're browser doesn't support the FileReader API");
+	  }
+	}
+
+	$uploadCrop = $('#upload-demo').croppie({
+	  viewport: {
+		width: 128,
+		height: 128 },
+
+	  enforceBoundary: true,
+	  enableOrientation: true,
+	  enableExif: true });
+
+	$('#cropImagePop').on('shown.bs.modal', function () {
+	  // alert('Shown pop');
+	  $uploadCrop.croppie('bind', {
+		url: rawImg }).
+	  then(function () {
+		console.log('jQuery bind complete');
+	  });
+	});
+
+	$("#RotateAntiClockwise").on("click", function() {
+	  $uploadCrop.croppie('rotate', 90);
+	});
+	$("#RotateClockwise").on("click", function() {
+	  $uploadCrop.croppie('rotate', -90);
+	});	
+	
+	$('.item-img').on('change', function () {imageId = $(this).data('id');tempFilename = $(this).val();
+	$('#cancelCropBtn').data('id', imageId);readFile(this);});
+	$('#cropImageBtn').on('click', function (ev) {
+	  $uploadCrop.croppie('result', {
+		type: 'blob',
+		format: 'jpeg',
+		size: { width: 128, height: 128 } }).
+	  then(function (resp) {
+			var formData = new FormData();
+			formData.append('filename', 'somefile');
+			formData.append('avatar', resp);
+			var token = $("meta[name='_csrf']").attr("content");
+			var header = $("meta[name='_csrf_header']").attr("content");
+			$.ajax({
+				url: '${piuploadUrl}', 
+				type: "POST", 
+				cache: false,
+				contentType: false,
+				processData: false,
+				data: formData,
+				beforeSend: function(xhr) {
+		            	xhr.setRequestHeader(header, token);
+		        		}
+		        	})
+				.done(function(e){
+						console.log('done!');
+						$('#item-img-output').attr('src', URL.createObjectURL(resp));
+					});	  
+				$('#cropImagePop').modal('hide');
+	  		});
+	  });
+	// End upload preview image
+</script>
 </body>
 </html>

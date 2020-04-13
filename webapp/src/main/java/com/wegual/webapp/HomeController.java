@@ -6,12 +6,17 @@ import java.util.Map;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.client.OAuth2RestTemplate;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.wegual.webapp.client.ClientBeans;
@@ -50,6 +55,19 @@ public class HomeController {
 		}
         return "redirect:/";
     }
+	
+	@RequestMapping(value = "/user/piupload", method = { RequestMethod.POST })
+	public ResponseEntity<String> upload(@RequestParam MultipartFile  avatar) {
+		try {
+			byte[] bytes = avatar.getBytes();
+			if(bytes != null)
+				log.info("Received " + bytes.length + " bytes");
+			return new ResponseEntity<>("got binary data", HttpStatus.OK); 
+		} catch (Exception e) {
+			log.error("error occured receiving file", e);
+			return new ResponseEntity<>("Error occured", HttpStatus.BAD_REQUEST);
+		}	
+	}
 	
 	@RequestMapping("/home/profile")
 	public ModelAndView profile() {
