@@ -452,7 +452,7 @@
 <script src="<c:url value="/js/adminlte.min.js" />"></script>
 <!-- AdminLTE for demo purposes -->
 <script src="<c:url value="/js/demo.js" />"></script>
-<c:url var="piuploadUrl" value="/user/piupload" />
+<c:url var="piuploadUrl" value="/home/piupload" />
 <script id="rendered-js">
 // Start upload preview image
 	var $uploadCrop,

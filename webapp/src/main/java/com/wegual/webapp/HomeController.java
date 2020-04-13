@@ -6,6 +6,7 @@ import java.util.Map;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -24,17 +25,23 @@ import com.wegual.webapp.client.UserServiceClient;
 import com.wegual.webapp.ui.model.UserTimelineUIElement;
 
 import app.wegual.common.client.CommonBeans;
+import app.wegual.common.model.DBFile;
 import app.wegual.common.model.User;
 import app.wegual.common.model.UserProfileCounts;
 import app.wegual.common.model.UserProfileData;
 import app.wegual.common.model.UserTimelineItem;
 import app.wegual.common.rest.model.UserFollowees;
 import app.wegual.common.rest.model.UserFollowers;
+import app.wegual.common.service.DBFileStorageService;
 import lombok.extern.slf4j.Slf4j;
 
 @Controller
 @Slf4j
 public class HomeController {
+	
+	@Autowired
+    private DBFileStorageService dbFileStorageService;
+	
 	@RequestMapping("/")
     public String index(){
         return "welcome";
@@ -56,13 +63,18 @@ public class HomeController {
         return "redirect:/";
     }
 	
-	@RequestMapping(value = "/user/piupload", method = { RequestMethod.POST })
+	@RequestMapping(value = "/home/piupload", method = { RequestMethod.POST })
 	public ResponseEntity<String> upload(@RequestParam MultipartFile  avatar) {
 		try {
 			byte[] bytes = avatar.getBytes();
 			if(bytes != null)
+			{
 				log.info("Received " + bytes.length + " bytes");
-			return new ResponseEntity<>("got binary data", HttpStatus.OK); 
+				DBFile dbFile = dbFileStorageService.storeFile("PROFILE_IMAGE", bytes);
+				return new ResponseEntity<>("Saved file with id: " + dbFile.getId(), HttpStatus.OK);
+			}
+			else
+				throw new IllegalStateException("Attempt to save file with empty content");
 		} catch (Exception e) {
 			log.error("error occured receiving file", e);
 			return new ResponseEntity<>("Error occured", HttpStatus.BAD_REQUEST);

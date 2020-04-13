@@ -2,43 +2,24 @@ package app.wegual.common.model;
 
 import java.io.Serializable;
 //import java.security.Timestamp;
-import java.sql.*;
+import java.sql.Timestamp;
 import java.util.Currency;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.OneToOne;
 
-import org.hibernate.annotations.CreationTimestamp;
-
-@Entity
 public class GiveUp implements Serializable {
-    @Id
-    @GeneratedValue(strategy=GenerationType.AUTO)
     private Long id;
 
-    @Column(unique=true)
 	private String name;
 	private String description;
 	
-	@Column(nullable=false)
 	private Double amount;
     
-    @Column(nullable=false)
 	private Currency currency;
 	
-	@OneToOne
-	@JoinColumn(name="CREATED_BY", nullable=false, insertable=true, updatable=false)
 	private User createdBy;
 	
-	@CreationTimestamp
 	private Timestamp creationDate;
     
-	@CreationTimestamp
    	private Timestamp updationDate;
 
 	public Long getId() {

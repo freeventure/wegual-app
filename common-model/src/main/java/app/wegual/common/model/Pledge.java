@@ -3,7 +3,6 @@ package app.wegual.common.model;
 import java.io.Serializable;
 import java.sql.Timestamp;
 import java.util.Currency;
-import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -15,32 +14,20 @@ import javax.persistence.OneToOne;
 
 import org.hibernate.annotations.CreationTimestamp;
 
-@Entity
+
 public class Pledge implements Serializable {
-    @Id
-    @GeneratedValue(strategy=GenerationType.AUTO)
     private Long id;
 
-    @OneToOne
-    @JoinColumn(name="PLEDGED_BY", nullable=false, insertable=true, updatable=false)
 	private User pledgedBy;
     
-    //@Column(nullable=false)
-    @CreationTimestamp
 	private Timestamp pledgedDate;
     
-    @Column(nullable=false)
 	private Double amount;
     
-    @Column(nullable=false)
 	private Currency currency;
 	
-    @OneToOne
-    @JoinColumn(name="BENEFICIARY_ID", nullable=false, insertable=true, updatable=false)
 	private Beneficiary beneficiary;
     
-    @OneToOne
-    @JoinColumn(name="GIVE_UP_ID", nullable=true, insertable=true, updatable=true)
 	private GiveUp giveUp;
 	
 	public Long getId() {

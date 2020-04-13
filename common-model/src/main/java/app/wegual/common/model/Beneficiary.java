@@ -1,54 +1,44 @@
 package app.wegual.common.model;
 
 import java.io.Serializable;
-//import java.security.Timestamp;
-import java.sql.*;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.OneToOne;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-import org.hibernate.annotations.CreationTimestamp;
-
-@Entity 
 public class Beneficiary  implements Serializable {
-	@Id
-    @GeneratedValue(strategy=GenerationType.AUTO)
-    private Long id;
-
-    @Column(unique=true, nullable=false) 
+	private static final long serialVersionUID = -867409585306111160L;
+	
+	@JsonProperty("beneficiary_id")
+	private Long id;
+	
+	@JsonProperty("beneficiary")
     private String name;
-    
+	
     private String description;
     
-    @Column(nullable=false) 
-    @Enumerated(EnumType.STRING)
+    @JsonProperty("beneficiary_type")
     private BeneficiaryType beneficiaryType;
     
-    @Column(unique=true, nullable=false)
+    @JsonIgnore
     private String url;
     
-    
+    @JsonIgnore
     private String facebookPage;
+    
+    @JsonIgnore
     private String twitterHandle;
     
+    @JsonIgnore
     private String linkedInPage;
 
-    @OneToOne
-    @JoinColumn(name="OWNER_ID", nullable=false, insertable=true, updatable=true)
-    private User owner;
+    @JsonProperty("owner_id")
+    private Long owner;
     
-    @CreationTimestamp
-	private Timestamp creationDate;
+    @JsonProperty("created_date")
+	private Long createdDate;
     
-    @CreationTimestamp
-   	private Timestamp updationDate;
+    @JsonProperty("updated_date")
+   	private Long updatedDate;
 	
     
 	public Long getId() {
@@ -115,31 +105,27 @@ public class Beneficiary  implements Serializable {
 		this.linkedInPage = linkedInPage;
 	}
 
-	public User getOwner() {
+	public Long getOwner() {
 		return owner;
 	}
 
-	public void setOwner(User owner) {
+	public void setOwner(Long owner) {
 		this.owner = owner;
 	}
 
-	public Timestamp getCreationDate() {
-		return creationDate;
+	public Long getCreatedDate() {
+		return createdDate;
 	}
 
-	public void setCreationDate(Timestamp creationDate) {
-		this.creationDate = creationDate;
+	public void setCreatedDate(Long creationDate) {
+		this.createdDate = creationDate;
 	}
 
-	public Timestamp getUpdationDate() {
-		return updationDate;
+	public Long getUpdatedDate() {
+		return updatedDate;
 	}
 
-	public void setUpdationDate(Timestamp updationDate) {
-		this.updationDate = updationDate;
+	public void setUpdatedDate(Long updationDate) {
+		this.updatedDate = updationDate;
 	}
-
-	
-	
-
 }

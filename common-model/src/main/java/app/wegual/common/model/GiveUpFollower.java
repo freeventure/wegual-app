@@ -15,22 +15,14 @@ import javax.persistence.ManyToOne;
 
 import org.hibernate.annotations.CreationTimestamp;
 
-@Entity
 public class GiveUpFollower implements Serializable{
 	
-	@Id
-    @GeneratedValue(strategy=GenerationType.AUTO)
     private Long id;
 
-	@ManyToOne
-    @JoinColumn(name="FOLLOWER_ID", nullable=false, insertable=true, updatable=false)
 	private User follower;
 	
-	@ManyToOne
-    @JoinColumn(name="FOLLOWEE_ID", nullable=false, insertable=true, updatable=false)
 	private GiveUp giveup;
 	
-	@CreationTimestamp
 	private Timestamp follow_date;
 
 	public Long getId() {
