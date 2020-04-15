@@ -136,7 +136,7 @@
       <!-- Sidebar user (optional) -->
       <div class="user-panel mt-3 pb-3 mb-3 d-flex">
         <div class="image">
-          <img src="<c:url value="/img/user2-160x160.jpg" />" class="img-circle elevation-2" alt="User Image">
+          <img src="<c:url value="${userProfileData.user.pictureLink}" />" class="img-circle elevation-2" alt="User Image">
         </div>
         <div class="info">
           <a href="#" class="d-block">${userProfileData.user.firstName} ${userProfileData.user.lastName}</a>
@@ -263,7 +263,7 @@
               <div class="card-body box-profile">
                 <div class="text-center">
                   <img class="profile-user-img img-fluid img-circle"
-                       src="<c:url value="/img/user2-160x160.jpg" />"
+                       src="<c:url value="${userProfileData.user.pictureLink}" />"
                        alt="User profile picture" id="item-img-output">
                   <label class="cabinet center-block">
 	                  <figcaption><i class="fas fa-camera"></i></figcaption>

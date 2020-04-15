@@ -1,0 +1,55 @@
+{
+	"mappings": {
+		"properties": {
+			"creation_stamp": {
+				"type": "long"
+			},
+
+			"last_udate_stamp": {
+				"type": "long"
+			},
+			"updated_by_userid": {
+				"type": "keyword"
+			},
+
+			"account_locked": {
+				"type": "boolean"
+			},
+			"is_active": {
+				"type": "boolean"
+			},
+			"email_verify_pending": {
+				"type": "boolean"
+			},
+			"user_id": {
+				"type": "keyword"
+			},
+			"username": {
+				"type": "keyword"
+			},
+			"email": {
+				"type": "keyword",
+				"fields": {
+					"email_suggest": {
+						"type": "completion"
+					}
+				}
+			},
+			"full_name": {
+				"type": "text",
+				"fields": {
+					"full_name_suggest": {
+						"type": "completion"
+					}
+				}
+			},
+			"picture_link": {
+				"type": "keyword",
+				"index": false
+			},
+			"description": {
+				"type": "text"
+			}
+		}
+	}
+}

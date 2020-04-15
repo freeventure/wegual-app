@@ -23,6 +23,8 @@ public class User implements Serializable {
 	private long createdTimestamp;
     
    	private long updatedTimestamp;
+   	
+   	private String pictureLink;
     
     public User() {}
     

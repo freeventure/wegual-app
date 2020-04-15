@@ -14,6 +14,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.client.OAuth2RestTemplate;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.stereotype.Controller;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -105,6 +106,8 @@ public class HomeController {
 				User user = null;
 				UserServiceClient usc = ClientBeans.getUserServiceClient();
 				user = usc.getUser("Bearer " + token.getValue(), username);
+				if(user != null && StringUtils.isEmpty(user.getPictureLink()))
+					user.setPictureLink("/img/avatar-empty.png");
 				
 				UserFollowees following = usc.getUserFollowing(bearerToken, user.getId());
 				UserFollowers followers = usc.getUserFollowers(bearerToken, user.getId());

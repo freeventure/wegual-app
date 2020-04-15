@@ -5,10 +5,12 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.wegual.userservice.analytics.UserAnalyticsService;
@@ -19,6 +21,7 @@ import app.wegual.common.model.User;
 import app.wegual.common.model.UserTimelineItem;
 import app.wegual.common.rest.model.UserFollowees;
 import app.wegual.common.rest.model.UserFollowers;
+import app.wegual.common.service.DBFileStorageService;
 
 
 @RestController
@@ -33,6 +36,17 @@ public class UserController {
 	@Autowired
 	UserTimelineService uts;
 	
+	@Autowired
+    private DBFileStorageService dbFileStorageService;
+	
+	
+	@GetMapping(value = "/users/public/profile/image/{imageid}", produces = MediaType.IMAGE_JPEG_VALUE)
+	public @ResponseBody byte[] getUserProfileImage(@PathVariable String imageid)  {
+		
+		return dbFileStorageService.getFile(imageid).getFileData();
+
+	}
+
 	@PreAuthorize("#oauth2.hasScope('user-service')")
 	@GetMapping("/users/timeline/{userid}")
 	ResponseEntity<List<UserTimelineItem>> getUserTimeline(@PathVariable String userid) {
