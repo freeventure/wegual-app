@@ -17,9 +17,17 @@
 	<properties>
 		<java.version>1.8</java.version>
 		<spring-cloud.version>Hoxton.SR3</spring-cloud.version>
+  		<elasticsearch.version>7.4.2</elasticsearch.version>
 	</properties>
 
 	<dependencies>
+		<!--  
+		<dependency>
+		    <groupId>org.elasticsearch</groupId>
+		    <artifactId>elasticsearch</artifactId>
+		    <version>7.4.2</version>
+		</dependency>
+		-->
 		<dependency>
 			<groupId> org.elasticsearch.client</groupId>
 			<artifactId>elasticsearch-rest-high-level-client</artifactId>
@@ -67,6 +75,10 @@
 		    <artifactId>lombok</artifactId>
 		    <scope>provided</scope>
 		</dependency>
+		<dependency>
+		    <groupId>org.apache.commons</groupId>
+		    <artifactId>commons-lang3</artifactId>
+		</dependency>		
 		<dependency>
 		    <groupId>org.springframework.boot</groupId>
 		    <artifactId>spring-boot-starter-log4j2</artifactId>

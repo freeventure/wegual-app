@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.wegual.userservice.analytics.UserAnalyticsService;
 import com.wegual.userservice.service.KeycloakUserService;
+import com.wegual.userservice.service.UserActionsService;
 import com.wegual.userservice.service.UserTimelineService;
 
 import app.wegual.common.model.User;
@@ -33,6 +34,9 @@ public class UserController {
 	@Autowired
 	UserAnalyticsService uas;
 
+	@Autowired
+	UserActionsService uactsvc;
+	
 	@Autowired
 	UserTimelineService uts;
 	
@@ -87,13 +91,33 @@ public class UserController {
 	@GetMapping("/users/profile/{username}")
 	ResponseEntity<User> getUserProfile(@PathVariable("username") String username) {
 		try {
-			User user = kus.getUserPrfoileData(username);
+			
+			User user = uactsvc.getUserDocument(username);
+			if(user == null) {
+				user = kus.getUserPrfoileData(username);
+				uactsvc.createUserDocument(user);
+			}
 			return new ResponseEntity<User>(user, HttpStatus.OK);
 		} catch (Exception e) {
 			return new ResponseEntity<User>(new User(), HttpStatus.BAD_REQUEST);
 		}
 		
 	}
+
+//	@GetMapping("/test/users/profile/{username}")
+//	ResponseEntity<User> getUserProfileTest(@PathVariable("username") String username) {
+//		try {
+//			
+//			User user = uactsvc.getUserDocument(username);
+//			if(user == null) {
+//				throw new RuntimeException("User not found with username: " + username);
+//			}
+//			return new ResponseEntity<User>(user, HttpStatus.OK);
+//		} catch (Exception e) {
+//			return new ResponseEntity<User>(new User(), HttpStatus.BAD_REQUEST);
+//		}
+//		
+//	}
 	
 	@PreAuthorize("#oauth2.hasScope('user-service')")
 	@GetMapping("/users/logins/reminders")

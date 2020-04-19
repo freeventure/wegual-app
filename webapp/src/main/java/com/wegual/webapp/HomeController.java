@@ -6,25 +6,31 @@ import java.util.Map;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.core.task.TaskExecutor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.client.OAuth2RestTemplate;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.stereotype.Controller;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 
+import com.netflix.appinfo.InstanceInfo;
+import com.netflix.discovery.EurekaClient;
 import com.wegual.webapp.client.ClientBeans;
 import com.wegual.webapp.client.UserServiceClient;
+import com.wegual.webapp.message.ProfileImageTimelineItemBuilder;
+import com.wegual.webapp.message.UserActionsMessageSender;
 import com.wegual.webapp.ui.model.UserTimelineUIElement;
+import com.wegual.webapp.util.KeycloakAuthenticationFacade;
 
+import app.wegual.common.asynch.SenderRunnable;
 import app.wegual.common.client.CommonBeans;
 import app.wegual.common.model.DBFile;
 import app.wegual.common.model.User;
@@ -40,6 +46,19 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class HomeController {
 	
+	@Autowired
+	@Qualifier("executorMessageSender")
+	TaskExecutor te;
+	
+	@Autowired
+	KeycloakAuthenticationFacade kaf;
+	
+	@Autowired
+	private UserActionsMessageSender uams;	
+	
+	@Autowired
+	private EurekaClient discoveryClient;
+
 	@Autowired
     private DBFileStorageService dbFileStorageService;
 	
@@ -72,6 +91,13 @@ public class HomeController {
 			{
 				log.info("Received " + bytes.length + " bytes");
 				DBFile dbFile = dbFileStorageService.storeFile("PROFILE_IMAGE", bytes);
+				UserTimelineItem uti = new ProfileImageTimelineItemBuilder()
+						.userId(kaf.getUserId())
+						.time(System.currentTimeMillis())
+						.udpateImage(dbFile.getId())
+						.userName(kaf.getUserFullName())
+						.build();
+				te.execute(new SenderRunnable<UserActionsMessageSender, UserTimelineItem>(uams, uti));
 				return new ResponseEntity<>("Saved file with id: " + dbFile.getId(), HttpStatus.OK);
 			}
 			else
@@ -82,16 +108,16 @@ public class HomeController {
 		}	
 	}
 	
+	private String getUserServiceUrl() {
+	    InstanceInfo instance = discoveryClient.getNextServerFromEureka("user-service", false);
+	    return instance.getHomePageUrl();
+	}	
+	
 	@RequestMapping("/home/profile")
 	public ModelAndView profile() {
 		ModelAndView mv = new ModelAndView("user/profile");
-		String username = null;
-		Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		if (principal instanceof UserDetails) {
-			username = ((UserDetails) principal).getUsername();
-		} else {
-			username = principal.toString();
-		}
+		String username = kaf.getUserLoginName();
+		
 		log.info("Found username principal: " + username);
 
 		OAuth2AccessToken token = null;
@@ -108,7 +134,12 @@ public class HomeController {
 				user = usc.getUser("Bearer " + token.getValue(), username);
 				if(user != null && StringUtils.isEmpty(user.getPictureLink()))
 					user.setPictureLink("/img/avatar-empty.png");
-				
+				else
+				{
+					String userServiceUrl = StringUtils.removeEnd(getUserServiceUrl(), "/");
+					log.info("User service URL is: " + userServiceUrl);
+					user.setPictureLink(userServiceUrl + user.getPictureLink());
+				}
 				UserFollowees following = usc.getUserFollowing(bearerToken, user.getId());
 				UserFollowers followers = usc.getUserFollowers(bearerToken, user.getId());
 				

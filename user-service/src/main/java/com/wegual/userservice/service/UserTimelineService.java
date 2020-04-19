@@ -44,7 +44,7 @@ public class UserTimelineService {
 		try {
 			RestHighLevelClient client = esConfig.getElastcsearchClient();
 			SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
-			if(searchResponse.getHits().totalHits > 0)
+			if(searchResponse.getHits().getTotalHits().value > 0L)
 				return parseTimelineSearchHits(searchResponse);
 			return new ArrayList<UserTimelineItem>();
 		} catch (IOException e) {

@@ -39,7 +39,7 @@ public class UserTimelineActions {
 	protected void asynchGenericTimelineInsert(UserTimelineItem uti)
 	{
 		try {
-			IndexRequest indexRequest = new IndexRequest(USER_TIMELINE_INDEX, "_doc")
+			IndexRequest indexRequest = new IndexRequest(USER_TIMELINE_INDEX)
 			        .source(new UserTimelineIndexAdapter().indexJson(uti));
 			esConfig.getElastcsearchClient().index(indexRequest, RequestOptions.DEFAULT);
 		} catch (Exception e) {

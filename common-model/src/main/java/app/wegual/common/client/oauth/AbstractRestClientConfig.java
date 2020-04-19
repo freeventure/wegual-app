@@ -6,9 +6,9 @@ import java.util.List;
 
 import javax.annotation.PostConstruct;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.oauth2.client.token.grant.client.ClientCredentialsResourceDetails;
 
-import io.micrometer.core.instrument.util.StringUtils;
 import lombok.Getter;
 import lombok.Setter;
 

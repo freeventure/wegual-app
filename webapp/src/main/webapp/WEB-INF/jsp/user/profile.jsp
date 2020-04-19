@@ -136,7 +136,7 @@
       <!-- Sidebar user (optional) -->
       <div class="user-panel mt-3 pb-3 mb-3 d-flex">
         <div class="image">
-          <img src="<c:url value="${userProfileData.user.pictureLink}" />" class="img-circle elevation-2" alt="User Image">
+          <img id="image-profile-sidebar" src="<c:url value="${userProfileData.user.pictureLink}" />" class="img-circle elevation-2" alt="User Image">
         </div>
         <div class="info">
           <a href="#" class="d-block">${userProfileData.user.firstName} ${userProfileData.user.lastName}</a>
@@ -526,6 +526,7 @@
 				.done(function(e){
 						console.log('done!');
 						$('#item-img-output').attr('src', URL.createObjectURL(resp));
+						$('#image-profile-sidebar').attr('src', URL.createObjectURL(resp));
 					});	  
 				$('#cropImagePop').modal('hide');
 	  		});

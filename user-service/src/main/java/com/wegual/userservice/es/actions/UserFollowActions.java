@@ -74,7 +74,7 @@ public class UserFollowActions {
 				.must(QueryBuilders.termQuery("followee_user_id", uti.getActorId()));
 				
 		request.setQuery(boolQuery);
-		request.setSize(1);
+		request.setMaxDocs(1);
 		request.setBatchSize(1);
 		request.setRefresh(true);
 		

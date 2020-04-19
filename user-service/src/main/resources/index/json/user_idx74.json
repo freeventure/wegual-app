@@ -47,6 +47,14 @@
 				"type": "keyword",
 				"index": false
 			},
+			"first_name": {
+				"type": "keyword",
+				"index": false
+			},
+			"last_name": {
+				"type": "keyword",
+				"index": false
+			},
 			"description": {
 				"type": "text"
 			}

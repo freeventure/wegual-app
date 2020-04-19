@@ -8,5 +8,6 @@ public enum UserActionTargetType {
 	BENEFICIARY,
 	GIVEUP,
 	PLEDGE,
-	LOGIN
+	LOGIN,
+	IMAGE
 }
