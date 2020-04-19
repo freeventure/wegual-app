@@ -95,6 +95,7 @@ public class UserController {
 			User user = uactsvc.getUserDocument(username);
 			if(user == null) {
 				user = kus.getUserPrfoileData(username);
+				user.setUpdatedTimestamp(System.currentTimeMillis());
 				uactsvc.createUserDocument(user);
 			}
 			return new ResponseEntity<User>(user, HttpStatus.OK);

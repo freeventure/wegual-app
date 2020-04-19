@@ -1,7 +1,12 @@
 package com.wegual.userservice.service;
 
+import java.io.IOException;
 import java.util.Map;
 
+import org.elasticsearch.action.DocWriteRequest;
+import org.elasticsearch.action.DocWriteResponse;
+import org.elasticsearch.action.index.IndexRequest;
+import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.RequestOptions;
@@ -76,7 +81,20 @@ public class UserActionsService {
 
 	// creates a User document in ES with the given User
 	public void createUserDocument(User user) {
-		
+		Map<String, Object> jsonMap = UserUtils.jsonPropertiesFromUser(user);
+		IndexRequest indexRequest = new IndexRequest(USER_INDEX).id(user.getId()).source(jsonMap);
+		indexRequest.opType(DocWriteRequest.OpType.CREATE); 
+		try {
+			IndexResponse indexResponse = esConfig.getElastcsearchClient().index(
+					indexRequest, RequestOptions.DEFAULT);
+			if (indexResponse.getResult() != DocWriteResponse.Result.CREATED)
+				throw new IllegalStateException("User document was not created for id: " + user.getId());
+			else
+				log.info("User document created successfully for id: " + user.getId());
+		} catch (IOException e) {
+			
+			log.error("Unable to create user document in ES", e);
+		}
 	}
 	
 	public void updateProfile() {
