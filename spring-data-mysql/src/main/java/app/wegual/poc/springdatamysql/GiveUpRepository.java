@@ -6,8 +6,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
-import app.wegual.poc.common.model.GiveUp;
-import app.wegual.poc.common.model.User;
+import app.wegual.common.model.GiveUp;
+import app.wegual.common.model.User;
 
 @RepositoryRestResource(collectionResourceRel = "giveup", path = "giveup")
 public interface GiveUpRepository extends PagingAndSortingRepository<GiveUp, Long> {

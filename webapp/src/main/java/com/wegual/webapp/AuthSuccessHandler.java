@@ -14,10 +14,13 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
-import com.wegual.webapp.message.LoginTimelineItemBuilder;
+import com.wegual.webapp.message.BeneficiaryActionsMessageSender;
+import com.wegual.webapp.message.BeneficiaryLoginTimelineItemBuilder;
 import com.wegual.webapp.message.UserActionsMessageSender;
+import com.wegual.webapp.message.UserLoginTimelineItemBuilder;
 
 import app.wegual.common.asynch.SenderRunnable;
+import app.wegual.common.model.BeneficiaryTimelineItem;
 import app.wegual.common.model.UserTimelineItem;
 import lombok.extern.slf4j.Slf4j;
 
@@ -31,6 +34,9 @@ public class AuthSuccessHandler implements ApplicationListener<AuthenticationSuc
 	
 	@Autowired
 	private UserActionsMessageSender uams;
+	
+	@Autowired 
+	private BeneficiaryActionsMessageSender bams;
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -53,13 +59,22 @@ public class AuthSuccessHandler implements ApplicationListener<AuthenticationSuc
 			log.info(request.getRemoteAddr());
 			if(token != null)
 			{
-				UserTimelineItem uti = new LoginTimelineItemBuilder()
-						.userId(kp.getKeycloakSecurityContext().getIdToken().getSubject())
+				
+//				UserTimelineItem uti = new UserLoginTimelineItemBuilder()
+//						.userId(kp.getKeycloakSecurityContext().getIdToken().getSubject())
+//						.time(System.currentTimeMillis())
+//						.fromIp(request.getRemoteAddr())
+//						.userName(token.getName())
+//						.build();
+//				sendMessageAsynch(uti);
+				
+				BeneficiaryTimelineItem bti = new BeneficiaryLoginTimelineItemBuilder()
+						.benId(kp.getKeycloakSecurityContext().getIdToken().getSubject())
 						.time(System.currentTimeMillis())
 						.fromIp(request.getRemoteAddr())
-						.userName(token.getName())
+						.beneficiaryName(token.getName())
 						.build();
-				sendMessageAsynch(uti);
+				sendMessageAsynch(bti);
 			}
 		}
 	}
@@ -68,4 +83,7 @@ public class AuthSuccessHandler implements ApplicationListener<AuthenticationSuc
 		te.execute(new SenderRunnable<UserActionsMessageSender, UserTimelineItem>(uams, uti));
 	}
 
+	protected void sendMessageAsynch(BeneficiaryTimelineItem bti) {
+		te.execute(new SenderRunnable<BeneficiaryActionsMessageSender, BeneficiaryTimelineItem>(bams, bti));
+	}
 }

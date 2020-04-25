@@ -5,7 +5,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import app.wegual.poc.common.model.ObjectCreate;
+import app.wegual.common.model.ObjectCreate;
 
 @RestController
 public class MessageSenderRestController {

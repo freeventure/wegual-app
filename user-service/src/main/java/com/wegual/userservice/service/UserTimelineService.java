@@ -21,6 +21,7 @@ import com.wegual.userservice.ElasticSearchConfig;
 
 import app.wegual.common.model.GenericActionTarget;
 import app.wegual.common.model.TimelineItemDetailActions;
+import app.wegual.common.model.UserActionTarget;
 import app.wegual.common.model.UserActionTargetType;
 import app.wegual.common.model.UserActionType;
 import app.wegual.common.model.UserTimelineItem;
@@ -99,25 +100,25 @@ public class UserTimelineService {
 		return tda;
 	}
 	
-	private GenericActionTarget parseActionTarget(Map<String, Object> values) {
-		GenericActionTarget gat = new GenericActionTarget();
+	private UserActionTarget parseActionTarget(Map<String, Object> values) {
+		UserActionTarget uat = new UserActionTarget();
 		Object object = values.get("id");
 		if(object!= null)
-			gat.setId(object.toString());
+			uat.setId(object.toString());
 		object = values.get("name");
 		if(object!= null)
-			gat.setName(object.toString());
+			uat.setName(object.toString());
 		object = values.get("summary");
 		if(object!= null)
-			gat.setSummary(object.toString());
+			uat.setSummary(object.toString());
 		object = values.get("permalink");
 		if(object!= null)
-			gat.setPermalink(object.toString());
+			uat.setPermalink(object.toString());
 		object = values.get("action_type");
 		if(object!= null)
-			gat.setActionType(UserActionTargetType.valueOf(object.toString()));
+			uat.setActionTargetType(UserActionTargetType.valueOf(object.toString()));
 		
-		return gat;
+		return uat;
 	}
 	
 }

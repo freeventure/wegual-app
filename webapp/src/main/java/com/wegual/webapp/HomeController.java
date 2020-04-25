@@ -21,11 +21,17 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 
+import com.wegual.webapp.client.BeneficiaryServiceClient;
 import com.wegual.webapp.client.ClientBeans;
 import com.wegual.webapp.client.UserServiceClient;
+import com.wegual.webapp.ui.model.BeneficiaryTimelineUIElement;
 import com.wegual.webapp.ui.model.UserTimelineUIElement;
 
 import app.wegual.common.client.CommonBeans;
+import app.wegual.common.model.Beneficiary;
+import app.wegual.common.model.BeneficiaryProfileCounts;
+import app.wegual.common.model.BeneficiaryProfileData;
+import app.wegual.common.model.BeneficiaryTimelineItem;
 import app.wegual.common.model.DBFile;
 import app.wegual.common.model.User;
 import app.wegual.common.model.UserProfileCounts;
@@ -136,9 +142,56 @@ public class HomeController {
 	
 	@RequestMapping("/benadmin")
     public String benadmin(){
-        return "benadmin/benadmin";
+        return "user/home";
     }
 
+	@RequestMapping("/benadmin/profile")
+	public ModelAndView beneficiaryProfile() {
+		ModelAndView mv = new ModelAndView("benadmin/profile");
+		String username = null;
+		Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		if (principal instanceof UserDetails) {
+			username = ((UserDetails) principal).getUsername();
+		} else {
+			username = principal.toString();
+		}
+		log.info("Found username principal: " + username);
+
+		OAuth2AccessToken token = null;
+		String bearerToken = null;
+		try {
+			OAuth2RestTemplate ort = CommonBeans.getExternalServicesOAuthClients().restTemplate("beneficiary-service");
+			if (ort != null) {
+				token = ort.getAccessToken();
+				log.info("Created token");
+				log.info("Value: " + token.getValue());
+				bearerToken = "Bearer " + token.getValue();
+				Beneficiary ben = null;
+				BeneficiaryServiceClient bsc = ClientBeans.getBeneficiaryServiceClient();
+				ben = bsc.getBeneficiary("Bearer " + token.getValue(), username);
+				if(ben != null && StringUtils.isEmpty(ben.getPictureLink()))
+					ben.setPictureLink("/img/avatar-empty.png");
+				BeneficiaryProfileData bpd = new BeneficiaryProfileData();
+				bpd.setBeneficiary(ben);
+				bpd.setCounts(new BeneficiaryProfileCounts());
+				mv.addObject("beneficiaryProfileData", bpd);
+				
+				try {
+					List<BeneficiaryTimelineItem> timeline = bsc.getBeneficiaryTimeline(bearerToken, ben.getId());
+					List<BeneficiaryTimelineUIElement> uiTimelineElements =  BeneficiaryTimelineUIElement.build(timeline);
+					Map<String, List<BeneficiaryTimelineUIElement>> groupedElements
+						= BeneficiaryTimelineUIElement.groupByDate(uiTimelineElements);
+					mv.addObject("timeline", groupedElements);
+				} catch (Exception ex) {
+					log.error("Error getting timeline", ex);
+				}
+			}
+
+		} catch (Exception ex) {
+			log.error("Error getting user profilde data", ex);
+		}
+		return mv;
+	}
 	@RequestMapping("/siteadmin")
     public String siteadmin(){
         return "siteadmin/siteadmin";

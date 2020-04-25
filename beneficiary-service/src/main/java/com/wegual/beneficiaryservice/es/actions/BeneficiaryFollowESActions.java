@@ -16,8 +16,6 @@ import org.springframework.stereotype.Component;
 
 import com.wegual.beneficiaryservice.message.BeneficiaryUserAction;
 
-
-
 @Component
 public class BeneficiaryFollowESActions {
 	

@@ -8,10 +8,11 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
-import app.wegual.poc.common.model.Beneficiary;
-import app.wegual.poc.common.model.BeneficiaryFollowers;
-import app.wegual.poc.common.model.GiveUp;
-import app.wegual.poc.common.model.User;
+import app.wegual.common.model.Beneficiary;
+
+import app.wegual.common.model.GiveUp;
+import app.wegual.common.model.User;
+import app.wegual.common.rest.model.BeneficiaryFollowers;
 import org.springframework.data.repository.query.Param; 
 
 @RepositoryRestResource(collectionResourceRel = "beneficiaryFollowers", path = "beneficiaryFollowers")

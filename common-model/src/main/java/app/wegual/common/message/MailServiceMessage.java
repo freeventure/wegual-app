@@ -1,6 +1,8 @@
 package app.wegual.common.message;
 
-public class MailServiceMessage extends AbstractMessageObject {
+import app.wegual.common.model.UserActionTargetType;
+
+public class MailServiceMessage extends AbstractMessageObject<Long, UserActionTargetType> {
 
 	private static final long serialVersionUID = -2379467793470635779L;
 	
@@ -20,4 +22,11 @@ public class MailServiceMessage extends AbstractMessageObject {
 	public String getType() {
 		return "User";
 	}
+
+	@Override
+	public UserActionTargetType getActionTargetType() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

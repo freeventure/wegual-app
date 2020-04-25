@@ -1,8 +1,12 @@
 package app.wegual.common.message;
 
 import app.wegual.common.model.ActionTarget;
+import lombok.Getter;
+import lombok.Setter;
 
-public abstract class AbstractMessageObject<T> implements ActionTarget<T> {
+@Getter
+@Setter
+public abstract class AbstractMessageObject<T, AT> implements ActionTarget<T, AT> {
 	private static final long serialVersionUID = -2379467793470635779L;
 	protected T id;
 	protected String permalink;
@@ -10,17 +14,4 @@ public abstract class AbstractMessageObject<T> implements ActionTarget<T> {
 	private String summary;
 	private String name;
 	
-	public String getSummary() {
-		return summary;
-	}
-	public void setSummary(String summary) {
-		this.summary = summary;
-	}
-	public String getName() {
-		return name;
-	}
-	public void setName(String name) {
-		this.name = name;
-	}
-
 }

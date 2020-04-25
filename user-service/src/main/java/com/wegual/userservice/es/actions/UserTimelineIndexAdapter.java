@@ -21,7 +21,7 @@ public class UserTimelineIndexAdapter {
 		.startObject()
         .field("actor_id", uti.getActorId())
         .field("date_stamp", uti.getActionDate())
-        .field("verb", uti.getUserActionType().toString())
+        .field("verb", uti.getActionType().toString())
         .field("detail", uti.getDetail());
 
 		getActionTargetObject(xb, "action_object", uti.getActionObject());
@@ -31,13 +31,13 @@ public class UserTimelineIndexAdapter {
         return xb;
 	}
 	
-	private XContentBuilder getActionTargetObject(XContentBuilder source, String objectName, ActionTarget<String> gat) throws IOException {
+	private XContentBuilder getActionTargetObject(XContentBuilder source, String objectName, ActionTarget<String, UserActionTargetType> gat) throws IOException {
 		return source.startObject(objectName)
         .field("id", gat.getId())
         .field("name", gat.getName())
         .field("summary", gat.getSummary())
         .field("permalink", gat.getPermalink())
-        .field("action_type", gat.getActionType().toString())
+        .field("action_type", gat.getActionTargetType().toString())
         .endObject();
 	}
 	
@@ -47,19 +47,19 @@ public class UserTimelineIndexAdapter {
 		tida.setShare(true);
 		tida.setViewDetail(true);
 		
-		GenericActionTarget gat = new GenericActionTarget();
+		GenericActionTarget<String, UserActionTargetType> gat = new GenericActionTarget<String, UserActionTargetType>();
 		gat.setId("pledgeid");
 		gat.setSummary("You made a pledge to ${target_name_link}.");
 		gat.setName("Pledge");
 		gat.setPermalink("/pledges/pledgeid");
-		gat.setActionType(UserActionTargetType.PLEDGE);
+		gat.setActionTargetType(UserActionTargetType.PLEDGE);
 
-		GenericActionTarget gatTarget = new GenericActionTarget();
+		GenericActionTarget<String, UserActionTargetType> gatTarget = new GenericActionTarget<String, UserActionTargetType>();
 		gatTarget.setId("beneficiaryid");
 		gatTarget.setSummary("");
 		gatTarget.setName("OSAAT USA");
 		gatTarget.setPermalink("/beneficiaries/beneficiaryid");
-		gatTarget.setActionType(UserActionTargetType.BENEFICIARY);
+		gatTarget.setActionTargetType(UserActionTargetType.BENEFICIARY);
 		
 		UserTimelineItem uti = new UserTimelineItem("db061a6d-3020-4ba5-998d-c1268959b869",
 				gat,

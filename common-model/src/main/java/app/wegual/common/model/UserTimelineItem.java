@@ -1,8 +1,8 @@
 package app.wegual.common.model;
 
-public class UserTimelineItem extends TimelineItem<String> {
+public class UserTimelineItem extends TimelineItem<String, UserActionTargetType, UserActionType> {
 
-	public UserTimelineItem(String actorId, ActionTarget<String> actionObject, ActionTarget<String> actionTarget,
+	public UserTimelineItem(String actorId, ActionTarget<String, UserActionTargetType> actionObject, ActionTarget<String, UserActionTargetType> actionTarget,
 			UserActionType uat) {
 		super(actorId, actionObject, actionTarget, uat);
 	}

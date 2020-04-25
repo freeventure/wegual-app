@@ -22,7 +22,7 @@ public class BeneficaryAnalyticsController {
 	BeneficaryAnalyticsService bas;
 	
 	@PostMapping("/beneficiary/analytics/followers")
-	ResponseEntity<BeneficiaryFollowers> followersCount(@RequestBody Map<String, Long> params) {
+	ResponseEntity<BeneficiaryFollowers> followersCount(@RequestBody Map<String, String> params) {
 		
 	    return new ResponseEntity<>(bas.followersCount(params.get("beneficiaryId")), HttpStatus.OK);
 	}

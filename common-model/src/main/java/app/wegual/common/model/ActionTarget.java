@@ -9,9 +9,9 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 
 @JsonTypeInfo (use = JsonTypeInfo.Id.CLASS, include = As.PROPERTY, property = "classNameExtenral")
 @JsonSubTypes ({@Type (value = GenericActionTarget.class, name = "genericactiontarget")})
-public interface ActionTarget<T> extends Serializable {
+public interface ActionTarget<T, ATT> extends Serializable {
 
-	UserActionTargetType getActionType();
+	ATT getActionTargetType();
 	String getPermalink();
 	
 	T getId();

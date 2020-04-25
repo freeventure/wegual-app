@@ -13,8 +13,12 @@ import lombok.Setter;
 @Getter
 @Setter
 @JsonTypeInfo (use = JsonTypeInfo.Id.CLASS, include = As.PROPERTY, property = "classNameExtenral")
-@JsonSubTypes ({@Type (value = UserTimelineItem.class, name = "usertimeline")})
-public class TimelineItem<T> implements Serializable {
+@JsonSubTypes({
+    @JsonSubTypes.Type(value = UserTimelineItem.class, name = "usertimeline"),
+    @JsonSubTypes.Type(value = BeneficiaryTimelineItem.class, name = "beneficiarytimeline")
+ })
+
+public class TimelineItem<T, ATT, AT> implements Serializable {
 	private static final long serialVersionUID = 1L;
 	
 	protected T actorId;
@@ -23,17 +27,17 @@ public class TimelineItem<T> implements Serializable {
 	
 	protected TimelineItemDetailActions detailActions;
 
-	protected UserActionType userActionType;
+	protected AT actionType;
 	
 	protected Long actionDate;
 	
-	protected ActionTarget<T> target;
-	protected ActionTarget<T> actionObject;
+	protected ActionTarget<T, ATT> target;
+	protected ActionTarget<T, ATT> actionObject;
 	
-	public TimelineItem(T actorId, ActionTarget<T> actionObject, ActionTarget<T> actionTarget, UserActionType uat) {
+	public TimelineItem(T actorId, ActionTarget<T, ATT> actionObject, ActionTarget<T, ATT> actionTarget, AT actionType) {
 		this.actorId = actorId;
 		this.actionObject = actionObject;
 		this.target = actionTarget;
-		this.userActionType = uat;
+		this.actionType = actionType;
 	}
 }

@@ -8,10 +8,9 @@ import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
-import app.wegual.poc.common.model.Beneficiary;
-import app.wegual.poc.common.model.BeneficiaryFollowers;
-import app.wegual.poc.common.model.User;
-import app.wegual.poc.common.model.UserFollowers;
+import app.wegual.common.model.User;
+import app.wegual.common.rest.model.UserFollowers;
+
 
 @RepositoryRestResource(collectionResourceRel = "userFollowers", path = "userFollowers")
 public interface UserFollowersRepository extends PagingAndSortingRepository<UserFollowers, Long> {

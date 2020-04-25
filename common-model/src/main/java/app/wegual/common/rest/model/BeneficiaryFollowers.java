@@ -5,24 +5,24 @@ import java.util.List;
 
 public class BeneficiaryFollowers {
 	
-	Long beneficiaryId;
+	String beneficiaryId;
 	Long followersCount;
 	
 	public BeneficiaryFollowers() {
 		
 	}
 	
-	public BeneficiaryFollowers(Long beneficiaryId, Long followersCount) {
+	public BeneficiaryFollowers(String beneficiaryId, Long followersCount) {
 		super();
 		this.beneficiaryId = beneficiaryId;
 		this.followersCount = followersCount;
 	}
 
 
-	public Long getBeneficiaryId() {
+	public String getBeneficiaryId() {
 		return beneficiaryId;
 	}
-	public void setBeneficiaryId(Long beneficiaryId) {
+	public void setBeneficiaryId(String beneficiaryId) {
 		this.beneficiaryId = beneficiaryId;
 	}
 	public Long getFollowersCount() {
@@ -33,15 +33,15 @@ public class BeneficiaryFollowers {
 	}
 	
 	public static BeneficiaryFollowers sample() {
-		return new  BeneficiaryFollowers(new Long(14), new Long(2));
+		return new  BeneficiaryFollowers("14", new Long(2));
 	}
 
 	public static List<BeneficiaryFollowers> samplePopular() {
 		
 		List<BeneficiaryFollowers> popular = new ArrayList<>();
-		popular.add(new  BeneficiaryFollowers(new Long(14), new Long(22)));
-		popular.add(new  BeneficiaryFollowers(new Long(53), new Long(18)));
-		popular.add(new  BeneficiaryFollowers(new Long(58), new Long(10)));
+		popular.add(new  BeneficiaryFollowers("14", new Long(22)));
+		popular.add(new  BeneficiaryFollowers("53", new Long(18)));
+		popular.add(new  BeneficiaryFollowers("58", new Long(10)));
 		return popular;
 	}
 

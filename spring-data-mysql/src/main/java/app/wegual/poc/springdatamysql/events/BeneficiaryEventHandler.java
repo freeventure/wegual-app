@@ -6,7 +6,7 @@ import org.springframework.data.rest.core.annotation.HandleAfterDelete;
 import org.springframework.data.rest.core.annotation.HandleAfterSave;
 import org.springframework.data.rest.core.annotation.RepositoryEventHandler;
 
-import app.wegual.poc.common.model.Beneficiary;
+import app.wegual.common.model.Beneficiary;
 import app.wegual.poc.springdatamysql.messaging.BeneficiaryMessageSender;
 
 @RepositoryEventHandler(Beneficiary.class)

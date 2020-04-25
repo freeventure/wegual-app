@@ -5,11 +5,11 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class GenericActionTarget implements ActionTarget<String> {
+public class GenericActionTarget<T, ATT> implements ActionTarget<T, ATT> {
 
 	private static final long serialVersionUID = -4555502540905948391L;
-	private UserActionTargetType actionType;
-	private String id;
+	private ATT actionTargetType;
+	private T id;
 	private String name;
 	private String summary;
 	private String permalink;
@@ -18,15 +18,14 @@ public class GenericActionTarget implements ActionTarget<String> {
 		
 	}
 	
-	public GenericActionTarget(UserActionTargetType actionType, String id, String name, String summary,
+	public GenericActionTarget(ATT actionTargetType, T id, String name, String summary,
 			String permalink) {
 		super();
-		this.actionType = actionType;
+		this.actionTargetType = actionTargetType;
 		this.id = id;
 		this.name = name;
 		this.summary = summary;
 		this.permalink = permalink;
 	}
-	
 	
 }

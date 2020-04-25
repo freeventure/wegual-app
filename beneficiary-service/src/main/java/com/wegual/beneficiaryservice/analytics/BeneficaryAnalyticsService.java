@@ -21,7 +21,9 @@ import org.springframework.stereotype.Service;
 import com.wegual.beneficiaryservice.ElasticSearchConfig;
 
 import app.wegual.common.rest.model.BeneficiaryFollowers;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 public class BeneficaryAnalyticsService {
 
@@ -49,11 +51,11 @@ public class BeneficaryAnalyticsService {
 	}
 		
 	// get follower count for a beneficiary
-	public BeneficiaryFollowers followersCount(Long beneficiaryId) {
+	public BeneficiaryFollowers followersCount(String beneficiaryId) {
 		
 		SearchRequest searchRequest = new SearchRequest("beneficiary_follow_idx");
 		SearchSourceBuilder sourceBuilder = new SearchSourceBuilder(); 
-		sourceBuilder.query(QueryBuilders.termQuery("beneficiary", beneficiaryId.toString())); 
+		sourceBuilder.query(QueryBuilders.termQuery("beneficiary_id", beneficiaryId)); 
 		sourceBuilder.size(0); 		
 		searchRequest.source(sourceBuilder);
 		
@@ -62,7 +64,7 @@ public class BeneficaryAnalyticsService {
 			SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
 			return new BeneficiaryFollowers(beneficiaryId, searchResponse.getHits().getTotalHits());
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
+			log.error("Error getting follower count for beneficiary: " + beneficiaryId , e);
 			e.printStackTrace();
 			return BeneficiaryFollowers.sample();
 		}
@@ -96,7 +98,7 @@ public class BeneficaryAnalyticsService {
 			
 			// user streams here?
 			for(Bucket bucket: byFollowersAggregation.getBuckets()) {
-				top10.add(new BeneficiaryFollowers(Long.valueOf(bucket.getKeyAsString()),
+				top10.add(new BeneficiaryFollowers(bucket.getKeyAsString(),
 						new Long(bucket.getDocCount())));
 			}
 			

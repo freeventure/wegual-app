@@ -21,7 +21,7 @@ import lombok.Setter;
 @Getter
 @Setter
 
-public class UserTimelineUIElement extends TimelineUIElement<String> {
+public class UserTimelineUIElement extends TimelineUIElement<String, UserActionTargetType, UserActionType> {
 	
 	
 	public static List<UserTimelineUIElement> build(List<UserTimelineItem> items)
@@ -59,7 +59,7 @@ public class UserTimelineUIElement extends TimelineUIElement<String> {
 	}
 	
 	@Override
-	protected void processSummary(TimelineItem<String> timelineItem) {
+	protected void processSummary(TimelineItem<String, UserActionTargetType, UserActionType> timelineItem) {
 		
 		this.summary = timelineItem.getActionObject().getSummary();
 		if(summary.contains("${target_name_link}")) {
@@ -68,10 +68,10 @@ public class UserTimelineUIElement extends TimelineUIElement<String> {
 		}
 	}
 	
-	private String buildTargetNameReference(String source, TimelineItem<String> timelineItem) {
+	private String buildTargetNameReference(String source, TimelineItem<String, UserActionTargetType, UserActionType> timelineItem) {
 		
 		String targetRef = "<a href=\"${link}\">${target}</a>";
-		ActionTarget<String> actionTarget = timelineItem.getTarget();
+		ActionTarget<String, UserActionTargetType> actionTarget = timelineItem.getTarget();
 		if(actionTarget != null && actionTarget.getName() != null && actionTarget.getPermalink() != null)
 		{
 			targetRef = targetRef.replace("${target}", actionTarget.getName());
@@ -83,7 +83,7 @@ public class UserTimelineUIElement extends TimelineUIElement<String> {
 	}
 	
 	@Override
-	protected void processDetail(TimelineItem<String> timelineItem) {
+	protected void processDetail(TimelineItem<String, UserActionTargetType, UserActionType> timelineItem) {
 		
 		if(StringUtils.isEmpty(timelineItem.getDetail()))
 			return;
@@ -93,13 +93,13 @@ public class UserTimelineUIElement extends TimelineUIElement<String> {
 	}
 	
 	@Override
-	protected void processIconAndColor(TimelineItem<String> timelineItem) {
+	protected void processIconAndColor(TimelineItem<String, UserActionTargetType, UserActionType> timelineItem) {
 		
 		// user pledge
-		if(UserActionType.PLEDGE.equals(timelineItem.getUserActionType())) {
+		if(UserActionType.PLEDGE.equals(timelineItem.getActionType())) {
 			
 			if (timelineItem.getTarget() != null
-					&& UserActionTargetType.BENEFICIARY.equals(timelineItem.getTarget().getActionType())) {
+					&& UserActionTargetType.BENEFICIARY.equals(timelineItem.getTarget().getActionTargetType())) {
 				this.iconColor = "bg-success";
 				this.iconName = "fa-hand-holding-usd";
 				return;
@@ -109,10 +109,10 @@ public class UserTimelineUIElement extends TimelineUIElement<String> {
 		}
 
 		// user follow
-		if(UserActionType.FOLLOW.equals(timelineItem.getUserActionType())) {
+		if(UserActionType.FOLLOW.equals(timelineItem.getActionType())) {
 			
 			if (timelineItem.getTarget() != null
-					&& UserActionTargetType.USER.equals(timelineItem.getTarget().getActionType())) {
+					&& UserActionTargetType.USER.equals(timelineItem.getTarget().getActionTargetType())) {
 				this.iconColor = "bg-info";
 				this.iconName = "fa-user-friends";
 				return;
@@ -120,10 +120,10 @@ public class UserTimelineUIElement extends TimelineUIElement<String> {
 		}
 		
 		// user login
-		if(UserActionType.LOGIN.equals(timelineItem.getUserActionType())) {
+		if(UserActionType.LOGIN.equals(timelineItem.getActionType())) {
 			
 			if (timelineItem.getTarget() != null
-					&& UserActionTargetType.USER.equals(timelineItem.getTarget().getActionType())) {
+					&& UserActionTargetType.USER.equals(timelineItem.getTarget().getActionTargetType())) {
 				this.iconColor = "bg-warning";
 				this.iconName = "fa-chalkboard-teacher";
 				return;
@@ -131,10 +131,10 @@ public class UserTimelineUIElement extends TimelineUIElement<String> {
 		}
 		
 		// user update profile
-		if(UserActionType.UPDATE.equals(timelineItem.getUserActionType())) {
+		if(UserActionType.UPDATE.equals(timelineItem.getActionType())) {
 			
 			if (timelineItem.getTarget() != null
-					&& UserActionTargetType.PROFILE.equals(timelineItem.getTarget().getActionType())) {
+					&& UserActionTargetType.PROFILE.equals(timelineItem.getTarget().getActionTargetType())) {
 				this.iconColor = "bg-purple";
 				this.iconName = "fa-address-card";
 				return;
@@ -142,10 +142,10 @@ public class UserTimelineUIElement extends TimelineUIElement<String> {
 		}
 		
 		// account create
-		if (UserActionType.CREATE.equals(timelineItem.getUserActionType())) {
+		if (UserActionType.CREATE.equals(timelineItem.getActionType())) {
 
 			if (timelineItem.getTarget() != null
-					&& UserActionTargetType.ACCOUNT.equals(timelineItem.getTarget().getActionType())) {
+					&& UserActionTargetType.ACCOUNT.equals(timelineItem.getTarget().getActionTargetType())) {
 				 
 				this.iconColor = "bg-purple";
 				this.iconName = "fa-user-check";
@@ -158,14 +158,14 @@ public class UserTimelineUIElement extends TimelineUIElement<String> {
 	}
 	
 	@Override
-	protected void processDateStamp(TimelineItem<String> timelineItem) {
+	protected void processDateStamp(TimelineItem<String, UserActionTargetType, UserActionType> timelineItem) {
 		this.timeAgo = PrettyTimeUtil.prettyTime().format(
 				new Date(timelineItem.getActionDate().longValue()));
 		this.dateTime = timelineItem.getActionDate().longValue();
 	}
 
 	@Override
-	protected void processDetailActions(TimelineItem<String> timelineItem) {
+	protected void processDetailActions(TimelineItem<String, UserActionTargetType, UserActionType> timelineItem) {
 		if(timelineItem.getDetailActions() != null) {
 			this.showView = timelineItem.getDetailActions().isViewDetail();
 			this.showShare = timelineItem.getDetailActions().isShare();
