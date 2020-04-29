@@ -34,9 +34,11 @@ import app.wegual.common.asynch.SenderRunnable;
 import app.wegual.common.client.CommonBeans;
 import app.wegual.common.model.DBFile;
 import app.wegual.common.model.User;
+import app.wegual.common.model.UserHomePageData;
 import app.wegual.common.model.UserProfileCounts;
 import app.wegual.common.model.UserProfileData;
 import app.wegual.common.model.UserTimelineItem;
+import app.wegual.common.model.PledgeAnalyticsForUser;
 import app.wegual.common.rest.model.UserFollowees;
 import app.wegual.common.rest.model.UserFollowers;
 import app.wegual.common.service.DBFileStorageService;
@@ -68,8 +70,48 @@ public class HomeController {
     }
 
 	@RequestMapping("/home")
-    public String home(){
-        return "user/home";
+    public ModelAndView home(){
+		ModelAndView mv = new ModelAndView("user/home");
+		String username = kaf.getUserLoginName();
+		
+		log.info("Found username principal: " + username);
+		OAuth2AccessToken token = null;
+		String bearerToken = null;
+		try {
+			OAuth2RestTemplate ort = CommonBeans.getExternalServicesOAuthClients().restTemplate("user-service");
+			if (ort != null) {
+				token = ort.getAccessToken();
+				log.info("Created token");
+				log.info("Value: " + token.getValue());
+				bearerToken = "Bearer " + token.getValue();
+				User user = null;
+				UserServiceClient usc = ClientBeans.getUserServiceClient();
+				user = usc.getUser("Bearer " + token.getValue(), username);
+				log.info("Got user object");
+				if(user != null && StringUtils.isEmpty(user.getPictureLink()))
+					user.setPictureLink("/img/avatar-empty.png");
+				else
+				{
+					String userServiceUrl = StringUtils.removeEnd(getUserServiceUrl(), "/");
+					log.info("User service URL is: " + userServiceUrl);
+					user.setPictureLink(userServiceUrl + user.getPictureLink());
+				}
+				PledgeAnalyticsForUser counts = usc.getPledgeCounts(bearerToken, user.getId());
+				System.out.println(counts.getGiveup());
+				System.out.println(counts.getPledge());
+				System.out.println(counts.getBeneficiary());
+				UserHomePageData uhd = new UserHomePageData();
+				uhd.setUser(user);
+				uhd.setCounts(counts);
+				
+				mv.addObject("homePageData", uhd);
+				
+			}
+
+		} catch (Exception ex) {
+			log.error("Error getting user profilde data", ex);
+		}
+		return mv;
     }
 
 	@RequestMapping(path = "/logout")

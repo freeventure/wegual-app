@@ -101,10 +101,10 @@
       <!-- Sidebar user (optional) -->
       <div class="user-panel mt-3 pb-3 mb-3 d-flex">
         <div class="image">
-          <img src="<c:url value="/img/user2-160x160.jpg" />" class="img-circle elevation-2" alt="User Image">
+          <img src="<c:url value="${homePageData.user.pictureLink}" />" class="img-circle elevation-2" alt="User Image">
         </div>
         <div class="info">
-          <a href="#" class="d-block">Alexander Pierce</a>
+          <a href="#" class="d-block">${homePageData.user.firstName} ${homePageData.user.lastName}</a>
         </div>
       </div>
 
@@ -131,7 +131,7 @@
             </a>
           </li>
           <li class="nav-item">
-            <a href="#" class="nav-link">
+            <a href="home/profile" class="nav-link">
 			  <i class="nav-icon fas fa-address-card"></i>
 			  <!--
 			  <ion-icon class="nav-icon fas" name="home-outline" size="large"></ion-icon>
@@ -205,7 +205,7 @@
 						  <span class="info-box-icon bg-info"><i class="fas fa-hand-holding-heart"></i></span>
 						  <div class="info-box-content">
 							<span class="info-box-text ">Pledges</span>
-							<span class="info-box-number">6</span>
+							<span class="info-box-number">${homePageData.counts.pledge}</span>
 						  </div>
 						  <!-- /.info-box-content -->
 						</div>
@@ -218,7 +218,7 @@
 
 						  <div class="info-box-content">
 							<span class="info-box-text">Beneficiaries</span>
-							<span class="info-box-number">3</span>
+							<span class="info-box-number">${homePageData.counts.beneficiary}</span>
 						  </div>
 						  <!-- /.info-box-content -->
 						</div>
@@ -231,7 +231,7 @@
 
 						  <div class="info-box-content">
 							<span class="info-box-text">Give Ups</span>
-							<span class="info-box-number">13</span>
+							<span class="info-box-number">${homePageData.counts.giveup}</span>
 						  </div>
 						  <!-- /.info-box-content -->
 						</div>

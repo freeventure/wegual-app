@@ -22,5 +22,11 @@ public abstract class AbstractMessageObject<T> implements ActionTarget<T> {
 	public void setName(String name) {
 		this.name = name;
 	}
-
+	public T getId() {
+		return id;
+	}
+	public void setId(T id) {
+		this.id = id;
+	}
+	
 }

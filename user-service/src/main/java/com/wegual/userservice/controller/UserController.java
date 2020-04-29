@@ -15,9 +15,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.wegual.userservice.analytics.UserAnalyticsService;
 import com.wegual.userservice.service.KeycloakUserService;
+import com.wegual.userservice.service.PledgeAnalyticsService;
 import com.wegual.userservice.service.UserActionsService;
 import com.wegual.userservice.service.UserTimelineService;
 
+import app.wegual.common.model.PledgeAnalyticsForUser;
 import app.wegual.common.model.User;
 import app.wegual.common.model.UserTimelineItem;
 import app.wegual.common.rest.model.UserFollowees;
@@ -43,6 +45,8 @@ public class UserController {
 	@Autowired
     private DBFileStorageService dbFileStorageService;
 	
+	@Autowired
+	private PledgeAnalyticsService pledgeAnalytics;
 	
 	@GetMapping(value = "/users/public/profile/image/{imageid}", produces = MediaType.IMAGE_JPEG_VALUE)
 	public @ResponseBody byte[] getUserProfileImage(@PathVariable String imageid)  {
@@ -74,7 +78,19 @@ public class UserController {
 		}
 		
 	}
-
+	
+	@PreAuthorize("#oauth2.hasScope('user-service')")
+	@GetMapping("/users/pledges/{userid}")
+	ResponseEntity<PledgeAnalyticsForUser> getPledgeCounts(@PathVariable String userid) {
+		try {
+			PledgeAnalyticsForUser counts = pledgeAnalytics.getCounts(userid);
+			return new ResponseEntity<PledgeAnalyticsForUser>(counts, HttpStatus.OK);
+		} catch (Exception e) {
+			return new ResponseEntity<PledgeAnalyticsForUser>(new PledgeAnalyticsForUser(), HttpStatus.BAD_REQUEST);
+		}
+		
+	}
+	
 	@PreAuthorize("#oauth2.hasScope('user-service')")
 	@GetMapping("/users/following/{userid}")
 	ResponseEntity<UserFollowees> getUserFollowees(@PathVariable String userid) {
