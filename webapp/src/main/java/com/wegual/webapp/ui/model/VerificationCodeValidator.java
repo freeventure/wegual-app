@@ -18,15 +18,16 @@ public class VerificationCodeValidator implements Validator {
 	@Override
 	public void validate(Object target, Errors err) {
 		ValidationUtils.rejectIfEmpty(err, "token", "user.verify.token.empty");
+		
 
 		VerifyCode vc = (VerifyCode) target;
 
 		if(vc.getToken().length() != 6)
-			err.rejectValue("token", "user.verify.token.invalid");
+			err.rejectValue("token", "user.verify.token.length");
 		
 		Pattern pattern = Pattern.compile("\\d+", Pattern.CASE_INSENSITIVE);
 		if (!(pattern.matcher(vc.getToken()).matches())) {
-			err.rejectValue("token", "user.verify.token.invalid");
+			err.rejectValue("token", "user.verify.token.numbers");
 		}
 	}
 

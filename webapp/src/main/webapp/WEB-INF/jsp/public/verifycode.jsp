@@ -100,8 +100,8 @@
 		<p class="hint-text">Enter the six digit code we sent you by email</p>
         <div class="form-group">
         	<form:input type="text" class="form-control input-lg" path="token" placeholder="Six Digit Code" required="required" />
+        	<form:errors path="token" cssClass="text-danger" />
         	<form:input type="hidden" path="tokenId"/>
-        	<form:input type="hidden" path="tokenEntity"/>
         </div>
         <div class="col-6 form-group">
             <button type="submit" class="btn btn-primary btn-lg btn-block signup-btn">Verify</button>
