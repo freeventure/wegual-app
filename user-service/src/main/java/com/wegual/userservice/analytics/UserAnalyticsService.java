@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 
 import com.wegual.userservice.ElasticSearchConfig;
 
+import app.wegual.common.model.Beneficiary;
 import app.wegual.common.model.User;
 import app.wegual.common.rest.model.UserFollowees;
 import app.wegual.common.rest.model.UserFollowers;
@@ -95,5 +96,4 @@ public class UserAnalyticsService {
 			return new UserFollowees(userId, 0L);
 		}
 	}
-	
 }

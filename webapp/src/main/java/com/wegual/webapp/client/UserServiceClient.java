@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestHeader;
 
+import app.wegual.common.model.GenericItem;
 import app.wegual.common.model.PledgeAnalyticsForUser;
 import app.wegual.common.model.User;
 import app.wegual.common.model.UserTimelineItem;
@@ -33,5 +34,9 @@ public interface UserServiceClient {
 	    
 	    @GetMapping("/users/pledges/{userid}")
 	    PledgeAnalyticsForUser getPledgeCounts(@RequestHeader(value = "Authorization", required = true) String token,
+	    		 @PathVariable String userid);
+	    
+	    @GetMapping("/users/beneficiaryFollowee/{userid}")
+	    List<GenericItem<Long>> getBeneficiaryFollowees(@RequestHeader(value = "Authorization", required = true) String token,
 	    		 @PathVariable String userid);
 }

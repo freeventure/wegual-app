@@ -20,4 +20,8 @@ public class ClientBeans implements ApplicationContextAware {
 		return theContext.getBean(UserServiceClient.class);
 	}
 	
+	public static BeneficiaryServiceClient getBeneficiaryServiceClient() {
+		return theContext.getBean(BeneficiaryServiceClient.class);
+	}
+	
 }

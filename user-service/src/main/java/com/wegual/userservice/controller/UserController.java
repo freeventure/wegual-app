@@ -17,8 +17,10 @@ import com.wegual.userservice.analytics.UserAnalyticsService;
 import com.wegual.userservice.service.KeycloakUserService;
 import com.wegual.userservice.service.PledgeAnalyticsService;
 import com.wegual.userservice.service.UserActionsService;
+import com.wegual.userservice.service.UserBeneficiaryService;
 import com.wegual.userservice.service.UserTimelineService;
 
+import app.wegual.common.model.GenericItem;
 import app.wegual.common.model.PledgeAnalyticsForUser;
 import app.wegual.common.model.User;
 import app.wegual.common.model.UserTimelineItem;
@@ -47,6 +49,9 @@ public class UserController {
 	
 	@Autowired
 	private PledgeAnalyticsService pledgeAnalytics;
+	
+	@Autowired 
+	private UserBeneficiaryService ubs;
 	
 	@GetMapping(value = "/users/public/profile/image/{imageid}", produces = MediaType.IMAGE_JPEG_VALUE)
 	public @ResponseBody byte[] getUserProfileImage(@PathVariable String imageid)  {
@@ -119,6 +124,18 @@ public class UserController {
 			return new ResponseEntity<User>(new User(), HttpStatus.BAD_REQUEST);
 		}
 		
+	}
+	
+	@PreAuthorize("#oauth2.hasScope('user-service')")
+	@GetMapping("/users/beneficiaryFollowee/{userid}")
+	ResponseEntity<List<GenericItem<Long>>> getBeneficiaryFollowees(@PathVariable("userid")  String userId) {
+		try {
+			List<GenericItem<Long>> benFolloweeList = ubs.getBeneficiaryFollowees(userId);
+			return new ResponseEntity<List<GenericItem<Long>>>(benFolloweeList, HttpStatus.OK);
+		}
+		catch(Exception e) {
+			return new ResponseEntity<List<GenericItem<Long>>>(new ArrayList<GenericItem<Long>>(), HttpStatus.BAD_REQUEST);
+		}
 	}
 
 //	@GetMapping("/test/users/profile/{username}")
