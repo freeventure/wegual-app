@@ -59,9 +59,8 @@
   <nav class="main-header navbar navbar-expand navbar-white navbar-light">
     <!-- Left navbar links -->
     <ul class="navbar-nav">
-      
       <li class="nav-item d-none d-sm-inline-block">
-        <a href="../../index3.html" class="nav-link">Home</a>
+        <a href="<c:url value="/home" />" class="nav-link">Home</a>
       </li>
     </ul>
 
@@ -146,16 +145,8 @@
       <!-- Sidebar Menu -->
       <nav class="mt-2">
         <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
-          <!-- Add icons to the links using the .nav-icon class
-               with font-awesome or any other icon font library -->
-			   <!--
-			   hand-holding-usd
-			   
-			   
-			   hand-holding-heart
-			   -->
           <li class="nav-item">
-            <a href="#" class="nav-link">
+            <a href="<c:url value="/home" />" class="nav-link">
 			  <i class="nav-icon fas fa-home"></i>
               <p>
                 Home
@@ -163,16 +154,7 @@
             </a>
           </li>
           <li class="nav-item">
-            <a href="#" class="nav-link">
-			  <i class="nav-icon fas fa-address-card"></i>
-              <p>
-                Profile
-              </p>
-            </a>
-          </li>
-
-          <li class="nav-item">
-            <a href="#" class="nav-link">
+            <a href="<c:url value="/home/beneficiaries" />" class="nav-link">
 			  <i class="nav-icon fas fa-hand-holding-usd"></i>
               <p>
                 Beneficiaries
@@ -180,7 +162,7 @@
             </a>
           </li>
           <li class="nav-item">
-            <a href="#" class="nav-link">
+            <a href="<c:url value="/home/giveups" />" class="nav-link">
 			  <i class="nav-icon fas fa-praying-hands"></i>
               <p>
                 Giveups
@@ -188,7 +170,7 @@
             </a>
           </li>
           <li class="nav-item">
-            <a href="#" class="nav-link">
+            <a href="<c:url value="/home/pledges" />" class="nav-link">
 			  <i class="nav-icon fas fa-hand-holding-heart"></i>
               <p>
                 Pledges
@@ -196,7 +178,7 @@
             </a>
           </li>
           <li class="nav-item">
-            <a href="#" class="nav-link">
+            <a href="<c:url value="/home/followings" />" class="nav-link">
 			  <i class="nav-icon fas fa-user-friends"></i>
               <p>
                 People
