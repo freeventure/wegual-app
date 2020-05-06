@@ -2,6 +2,7 @@ package com.wegual.userservice.controller;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -14,13 +15,16 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.wegual.userservice.analytics.UserAnalyticsService;
+import com.wegual.userservice.service.GiveupService;
 import com.wegual.userservice.service.KeycloakUserService;
 import com.wegual.userservice.service.PledgeAnalyticsService;
+import com.wegual.userservice.service.PledgeService;
 import com.wegual.userservice.service.UserActionsService;
 import com.wegual.userservice.service.UserBeneficiaryService;
 import com.wegual.userservice.service.UserTimelineService;
 
 import app.wegual.common.model.GenericItem;
+import app.wegual.common.model.Pledge;
 import app.wegual.common.model.PledgeAnalyticsForUser;
 import app.wegual.common.model.User;
 import app.wegual.common.model.UserTimelineItem;
@@ -43,6 +47,12 @@ public class UserController {
 	
 	@Autowired
 	UserTimelineService uts;
+	
+	@Autowired
+	PledgeService ps;
+	
+	@Autowired
+	GiveupService gs;
 	
 	@Autowired
     private DBFileStorageService dbFileStorageService;
@@ -85,7 +95,7 @@ public class UserController {
 	}
 	
 	@PreAuthorize("#oauth2.hasScope('user-service')")
-	@GetMapping("/users/pledges/{userid}")
+	@GetMapping("/users/pledges/count/{userid}")
 	ResponseEntity<PledgeAnalyticsForUser> getPledgeCounts(@PathVariable String userid) {
 		try {
 			PledgeAnalyticsForUser counts = pledgeAnalytics.getCounts(userid);
@@ -94,6 +104,29 @@ public class UserController {
 			return new ResponseEntity<PledgeAnalyticsForUser>(new PledgeAnalyticsForUser(), HttpStatus.BAD_REQUEST);
 		}
 		
+	}
+	
+	@PreAuthorize("#oauth2.hasScope('user-service')")
+	@GetMapping("/users/pledges/{userid}")
+	ResponseEntity<List<Map<String, Object>>> getAllPledgesForUser(@PathVariable String userid) {
+		try {
+			List<Map<String, Object>> pledges = ps.getAllPledgeForUser(userid);
+			return new ResponseEntity<List<Map<String, Object>>>(pledges, HttpStatus.OK);
+		} catch (Exception e) {
+			return new ResponseEntity<List<Map<String, Object>>>(new ArrayList<Map<String, Object>>(), HttpStatus.BAD_REQUEST);
+		}
+		
+	}
+	
+	@PreAuthorize("#oauth2.hasScope('user-service')")
+	@GetMapping("/users/pledges/giveup/{userid}")
+	ResponseEntity<List<Object>> getAllGiveupUserPledgedFor(@PathVariable String userid) {
+		try {
+			List<Object> giveup = (List<Object>) gs.getAllGiveupUserPledgedFor(userid);
+			return new ResponseEntity<List<Object>>(giveup, HttpStatus.OK);
+		} catch (Exception e) {
+			return new ResponseEntity<List<Object>>(new ArrayList<Object>(), HttpStatus.BAD_REQUEST);
+		}
 	}
 	
 	@PreAuthorize("#oauth2.hasScope('user-service')")

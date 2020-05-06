@@ -1,0 +1,44 @@
+{
+	"mappings" : {
+		"properties": {
+			"beneficiary_id" : {
+				"type" : "long"
+			},
+			"beneficiary_name" : {
+				"type" : "text",
+				"fields": {
+					"full_name_suggest": {
+						"type": "completion"
+					}
+				}
+			},
+			"description" : {
+				"type" : "text"
+			},
+			"beneficiary_type" : {
+				"type" : "keyword"
+			},
+			"url" : {
+				"type" : "text"
+			},
+			"facebook_page" : {
+				"type" : "keyword"
+			},
+			"twitter_handle" : {
+				"type" : "keyword"
+			},
+			"linkedin_page" : {
+				"type" : "keyword"
+			},
+			"owner_id" : {
+				"type" : "keyword"
+			},
+			"created_date" : {
+				"type" : "long"
+			},
+			"updated_date" : {
+				"type" : "long"
+			}
+		}
+	}
+}

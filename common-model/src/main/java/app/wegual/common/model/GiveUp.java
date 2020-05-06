@@ -5,89 +5,30 @@ import java.io.Serializable;
 import java.sql.Timestamp;
 import java.util.Currency;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
 public class GiveUp implements Serializable {
+	
+	@JsonProperty("giveup_id")
     private Long id;
-
+	
+	@JsonProperty("giveup_name")
 	private String name;
+	
 	private String description;
 	
-	private Double amount;
-    
-	private Currency currency;
-	
+	@JsonProperty("created_by")
 	private User createdBy;
 	
-	private Timestamp creationDate;
+	@JsonProperty("created_date")
+	private long creationDate;
     
-   	private Timestamp updationDate;
+	@JsonProperty("updation_date")
+   	private long updationDate;
 
-	public Long getId() {
-		return id;
-	}
-
-	public void setId(Long id) {
-		this.id = id;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public String getDescription() {
-		return description;
-	}
-
-	public void setDescription(String description) {
-		this.description = description;
-	}
-
-	public User getCreatedBy() {
-		return createdBy;
-	}
-
-	public void setCreatedBy(User createdBy) {
-		this.createdBy = createdBy;
-	}
-
-	public Timestamp getCreationDate() {
-		return creationDate;
-	}
-
-	public void setCreationDate(Timestamp creationDate) {
-		this.creationDate = creationDate;
-	}
-
-	public Timestamp getUpdationDate() {
-		return updationDate;
-	}
-
-	public void setUpdationDate(Timestamp updationDate) {
-		this.updationDate = updationDate;
-	}
-	
-
-	public Currency getCurrency() {
-		return currency;
-	}
-
-	public void setCurrency(Currency currency) {
-		this.currency = currency;
-	}
-
-	public Double getAmount() {
-		return amount;
-	}
-
-	public void setAmount(Double amount) {
-		this.amount = amount;
-	}
-	
-	
-	
-	
 }

@@ -9,6 +9,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
 
+
 @Getter
 @Setter
 public class Pledge implements Serializable {
@@ -24,7 +25,7 @@ public class Pledge implements Serializable {
     
     @JsonProperty("give_up")
 	private GenericItem<Long> giveUp;
-    
+
     @JsonProperty("pledged_date")
 	private Timestamp pledgedDate;
     
