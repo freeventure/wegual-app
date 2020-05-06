@@ -14,64 +14,33 @@ import javax.persistence.OneToOne;
 
 import org.hibernate.annotations.CreationTimestamp;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
 public class Pledge implements Serializable {
-    private Long id;
+	
+	private static final long serialVersionUID = 1L;
 
-	private User pledgedBy;
+	private Long id;
     
+    @JsonProperty("pledged_by")
+    private GenericItem<String> pledgedBy;
+    
+    private GenericItem<Long> beneficiary;
+    
+    @JsonProperty("give_up")
+	private GenericItem<Long> giveUp;
+    
+    @JsonProperty("pledged_date")
 	private Timestamp pledgedDate;
     
 	private Double amount;
     
 	private Currency currency;
-	
-	private Beneficiary beneficiary;
-    
-	private GiveUp giveUp;
-	
-	public Long getId() {
-		return id;
-	}
-	public void setId(Long id) {
-		this.id = id;
-	}
-	public User getPledgedBy() {
-		return pledgedBy;
-	}
-	public void setPledgedBy(User pledgedBy) {
-		this.pledgedBy = pledgedBy;
-	}
-	public Timestamp getPledgedDate() {
-		return pledgedDate;
-	}
-	public void setPledgedDate(Timestamp pledgedDate) {
-		this.pledgedDate = pledgedDate;
-	}
-	public Double getAmount() {
-		return amount;
-	}
-	public void setAmount(Double amount) {
-		this.amount = amount;
-	}
-	public Currency getCurrency() {
-		return currency;
-	}
-	public void setCurrency(Currency currency) {
-		this.currency = currency;
-	}
-	public Beneficiary getBeneficiary() {
-		return beneficiary;
-	}
-	public void setBeneficiary(Beneficiary beneficiary) {
-		this.beneficiary = beneficiary;
-	}
-	public GiveUp getGiveUp() {
-		return giveUp;
-	}
-	public void setGiveUp(GiveUp giveUp) {
-		this.giveUp = giveUp;
-	}
 	
 	
 }

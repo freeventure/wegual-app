@@ -31,10 +31,10 @@ public class PledgeAnalyticsService {
 		public PledgeAnalyticsForUser getCounts(String userId) {
 		log.info("Inside pledge analytics service");
 		try {
-		SearchRequest searchRequest = new SearchRequest("pledge_idx");
-		SearchSourceBuilder sourceBuilder = new SearchSourceBuilder(); 
-		sourceBuilder.query(QueryBuilders.nestedQuery("pledgedBy",QueryBuilders.boolQuery().must(QueryBuilders.termQuery("pledgedBy.user_id", userId)), ScoreMode.None));
-		searchRequest.source(sourceBuilder);
+			SearchRequest searchRequest = new SearchRequest("pledge_idx");
+			SearchSourceBuilder sourceBuilder = new SearchSourceBuilder(); 
+			sourceBuilder.query(QueryBuilders.nestedQuery("pledged_by",QueryBuilders.boolQuery().must(QueryBuilders.termQuery("pledged_by.id", userId)), ScoreMode.None));
+			searchRequest.source(sourceBuilder);
 		
 			RestHighLevelClient client = esConfig.getElastcsearchClient();
 			SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
@@ -53,15 +53,15 @@ public class PledgeAnalyticsService {
 			Map<String, Object> src = null;
 			Map<String, Object> beneficiary = null;
 			Map<String, Object> giveup = null;
-			HashSet<String> beneficiaryset = new HashSet<String>();
-			HashSet<String> giveupset = new HashSet<String>();
+			HashSet<Integer> beneficiaryset = new HashSet<Integer>();
+			HashSet<Integer> giveupset = new HashSet<Integer>();
 			for (SearchHit hit: searchResponse.getHits()) {
 				src = hit.getSourceAsMap();
 				beneficiary = (Map<String, Object>)src.get("beneficiary");
-				giveup = (Map<String, Object>)src.get("giveup");
+				giveup = (Map<String, Object>)src.get("give_up");
 				log.info(src.toString());
-				String benstr = (String)beneficiary.get("beneficiary_id");
-				String giveupstr = (String)giveup.get("giveup_id");
+				int benstr = (int)beneficiary.get("id");
+				int giveupstr = (int)giveup.get("id");
 				beneficiaryset.add(benstr);
 				giveupset.add(giveupstr);
 			}

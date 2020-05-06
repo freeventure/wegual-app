@@ -20,6 +20,11 @@ public class BeneficiarySnapshot {
 		return new BeneficiarySnapshot();
 	}
 	
+	public BeneficiarySnapshot withBeneficiaryId(Long beneficiaryId) {
+		this.beneficiaryId = beneficiaryId;
+		return this;
+	}
+	
 	public BeneficiarySnapshot(Long beneficiaryId, Long userCount, Long giveUpCount, Long pledgesCount,
 			Double totalPledged, Map<String, Double> amountByCurrency) {
 		super();

@@ -2,6 +2,7 @@ package com.wegual.webapp;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -38,6 +39,7 @@ import app.wegual.common.model.Beneficiary;
 import app.wegual.common.model.BeneficiaryProfileData;
 import app.wegual.common.model.DBFile;
 import app.wegual.common.model.GenericItem;
+import app.wegual.common.model.Pledge;
 import app.wegual.common.model.User;
 import app.wegual.common.model.UserHomePageData;
 import app.wegual.common.model.UserProfileCounts;
@@ -282,6 +284,64 @@ public class HomeController {
 		}
 		catch (Exception ex) {
 			log.error("Error getting beneficiary profile", ex);
+		}
+		return mv;
+	}
+
+	@RequestMapping("/home/pledge")
+	public ModelAndView pledge() {
+		ModelAndView mv = new ModelAndView("user/pledge");
+		String userId = kaf.getUserId();
+		
+		log.info("Found username principal: " + userId);
+
+		OAuth2AccessToken token = null;
+		String bearerToken = null;
+		try {
+			OAuth2RestTemplate ort = CommonBeans.getExternalServicesOAuthClients().restTemplate("user-service");
+			if(ort != null) {
+				token = ort.getAccessToken();
+				log.info("Created token");
+				log.info("Value: " + token.getValue());
+				bearerToken = "Bearer " + token.getValue();
+				UserServiceClient usc = ClientBeans.getUserServiceClient();
+				
+				try {
+					List<Map<String, Object>> pledges = usc.getAllPledgesForUser(bearerToken, userId);
+					System.out.println(pledges.size());
+					mv.addObject("pledges", pledges);
+				} catch (Exception ex) {
+					log.error("Error getting pledges taken by user", ex);
+				}
+				
+			}
+		} catch (Exception ex) {
+			log.error("Error getting user pledge data", ex);
+		}
+		return mv;
+	}
+	
+	@RequestMapping("/home/giveup")
+	public ModelAndView giveup() {
+		ModelAndView mv = new ModelAndView("user/giveup");
+		String userId = kaf.getUserId();
+		
+		log.info("Found username principal: " + userId);
+
+		String bearerToken = null;
+		try {
+			bearerToken = HomeController.getBearerToken();
+			UserServiceClient usc = ClientBeans.getUserServiceClient();
+			
+			try {
+				List<Object> giveups = usc.getAllGiveupUserPledgedFor(bearerToken, userId);
+				System.out.println(giveups.size());
+				mv.addObject("giveups", giveups);
+			} catch (Exception ex) {
+				log.error("Error getting unique giveups user pledged for", ex);
+			}
+		} catch (Exception ex) {
+			log.error("Error getting user pledge data", ex);
 		}
 		return mv;
 	}

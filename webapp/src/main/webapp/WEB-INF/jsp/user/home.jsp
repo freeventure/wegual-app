@@ -154,7 +154,7 @@
             </a>
           </li>
           <li class="nav-item">
-            <a href="#" class="nav-link">
+            <a href="/home/giveup" class="nav-link">
 			  <i class="nav-icon fas fa-praying-hands"></i>
 			  <!--
 			  <ion-icon class="nav-icon fas" name="home-outline" size="large"></ion-icon>
@@ -165,7 +165,7 @@
             </a>
           </li>
           <li class="nav-item">
-            <a href="#" class="nav-link">
+            <a href="/home/pledge" class="nav-link">
 			  <i class="nav-icon fas fa-hand-holding-heart"></i>
 			  <!--
 			  <ion-icon class="nav-icon fas" name="home-outline" size="large"></ion-icon>
