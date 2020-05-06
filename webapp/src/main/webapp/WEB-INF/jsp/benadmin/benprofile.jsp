@@ -28,8 +28,39 @@
  </head>
 
 <body style="background-color: mintcream">
+ <div class = "row">
+  <div class = "col-md-3">
+   <div class="card card-primary card-outline">
+    <div class="card-body box-profile">
+     <h3 class="profile-username text-center">${beneficiaryProfileData.beneficiary.name}</h3>
+     <p class="text-muted text-center">${beneficiaryProfileData.beneficiary.beneficiaryType}</p>
+     <ul class="list-group list-group-unbordered mb-3">
+       <li class="list-group-item">
+         <b>Followers</b> <a class="float-right">${beneficiaryProfileData.beneficiarySnapshot.userCount}</a>
+       </li>
+       <li class="list-group-item">
+         <b>Pledges</b> <a class="float-right">${beneficiaryProfileData.beneficiarySnapshot.pledgesCount}</a>
+       </li>
+       <li class="list-group-item">
+         <b>Give Ups</b> <a class="float-right">${beneficiaryProfileData.beneficiarySnapshot.giveUpCount}</a>
+       </li>
+       <li class="list-group-item">
+         <b>Amount Pledged</b>
+           <ul class="list-group">
+             <c:forEach var="currency" items="${beneficiaryProfileData.beneficiarySnapshot.amountByCurrency.keySet()}">
+             <li class="list-group-item">
+             	${currency} : ${beneficiaryProfileData.beneficiarySnapshot.amountByCurrency.get(currency)} 
+             </li>
+             </c:forEach>
+           </ul>
+          <a class="float-right"></a>
+       </li>
+	 </ul>
+    </div>
+   </div>          
+  </div>
+  <div class = "col-md-9">
     <div class="container-fluid">
-        <div class="col-md-6 feed">
             <div class="row" style="margin-top: -5%; margin-bottom: 1%">
                 <div id="carouselExampleIndicators" class="carousel slide" data-ride="carousel">
                     <div class="carousel-inner">
@@ -52,51 +83,6 @@
                         <span class="sr-only">Next</span>
                     </a>
                 </div>
-            </div>
-           <div class="row">
-      			<h1>${beneficiaryProfileData.beneficiary.name}</h1>
-           </div>
-           </div>
-            <div class="row">
-                <div class="col-md-4">
-                    <div class="info-box">
-                        <span class="info-box-icon bg-info"><i class="fas fa-hand-holding-usd"></i></span>
-                        <div class="info-box-content">
-                            <span class="info-box-text ">Pledges</span>
-                            <span class="info-box-number">${beneficiaryProfileData.beneficiarySnapshot.pledgesCount}</span>
-                        </div>
-                        <!-- /.info-box-content -->
-                    </div>
-                    <!-- /.info-box -->
-                </div>
-                <!-- /.col -->
-                <div class="col-md-4">
-                    <div class="info-box">
-                        <span class="info-box-icon bg-success"><i class="fas fa-user-friends"></i></span>
-
-                        <div class="info-box-content">
-                            <span class="info-box-text">Followers</span>
-                            <span class="info-box-number">${beneficiaryProfileData.beneficiarySnapshot.userCount}</span>
-                        </div>
-                        <!-- /.info-box-content -->
-                    </div>
-                    <!-- /.info-box -->
-                </div>
-                <!-- /.col -->
-                <div class="col-md-4">
-                    <div class="info-box">
-                        <span class="info-box-icon bg-gray"><i class="fas fa-praying-hands"></i></span>
-
-                        <div class="info-box-content">
-                            <span class="info-box-text">Give Ups</span>
-                            <span class="info-box-number">${beneficiaryProfileData.beneficiarySnapshot.giveUpCount}</span>
-                        </div>
-                        <!-- /.info-box-content -->
-                    </div>
-                    <!-- /.info-box -->
-                </div>
-                <!-- /.col -->
-
             </div>
             <div class="card card-footer card-comments">
                 <div class="card-comment">
@@ -242,11 +228,8 @@
                 </div>
             </div>
         </div>
-
-    </div>
-    </div>
-    </div>
-
+	</div>
+ </div>
     <script src="https://unpkg.com/ionicons@5.0.0/dist/ionicons.js"></script>
     <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
             integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n"

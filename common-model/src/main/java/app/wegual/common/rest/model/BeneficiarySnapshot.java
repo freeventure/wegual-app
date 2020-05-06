@@ -35,4 +35,8 @@ public class BeneficiarySnapshot {
 		super();
 	}
 	
+	public BeneficiarySnapshot withBeneficiaryId(Long id) {
+		this.beneficiaryId = id;
+		return this;
+	}
 }

@@ -142,7 +142,7 @@
 			   hand-holding-heart
 			   -->
           <li class="nav-item">
-            <a href="/" class="nav-link">
+            <a href="/home" class="nav-link">
 			  <i class="nav-icon fas fa-home"></i>
               <p>
                 Home

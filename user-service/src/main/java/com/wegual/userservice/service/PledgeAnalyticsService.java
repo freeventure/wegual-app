@@ -33,7 +33,7 @@ public class PledgeAnalyticsService {
 		try {
 		SearchRequest searchRequest = new SearchRequest("pledge_idx");
 		SearchSourceBuilder sourceBuilder = new SearchSourceBuilder(); 
-		sourceBuilder.query(QueryBuilders.nestedQuery("pledgedBy",QueryBuilders.boolQuery().must(QueryBuilders.termQuery("pledgedBy.user_id", userId)), ScoreMode.None));
+		sourceBuilder.query(QueryBuilders.nestedQuery("pledged_by",QueryBuilders.boolQuery().must(QueryBuilders.termQuery("pledged_by.id", userId)), ScoreMode.None));
 		searchRequest.source(sourceBuilder);
 		
 			RestHighLevelClient client = esConfig.getElastcsearchClient();
@@ -58,10 +58,10 @@ public class PledgeAnalyticsService {
 			for (SearchHit hit: searchResponse.getHits()) {
 				src = hit.getSourceAsMap();
 				beneficiary = (Map<String, Object>)src.get("beneficiary");
-				giveup = (Map<String, Object>)src.get("giveup");
+				giveup = (Map<String, Object>)src.get("give_up");
 				log.info(src.toString());
-				String benstr = (String)beneficiary.get("beneficiary_id");
-				String giveupstr = (String)giveup.get("giveup_id");
+				String benstr = (String)beneficiary.get("id");
+				String giveupstr = (String)giveup.get("id");
 				beneficiaryset.add(benstr);
 				giveupset.add(giveupstr);
 			}

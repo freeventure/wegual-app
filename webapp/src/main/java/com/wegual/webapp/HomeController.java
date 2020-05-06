@@ -2,6 +2,7 @@ package com.wegual.webapp;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -202,15 +203,15 @@ public class HomeController {
 			upd.setCounts(new UserProfileCounts(followers.getFollowersCount(), following.getFolloweesCount()));
 			mv.addObject("userProfileData", upd);
 			
-//				try {
-//					List<UserTimelineItem> timeline = usc.getUserTimeline(bearerToken, user.getId());
-//					List<UserTimelineUIElement> uiTimelineElements =  UserTimelineUIElement.build(timeline);
-//					Map<String, List<UserTimelineUIElement>> groupedElements
-//						= UserTimelineUIElement.groupByDate(uiTimelineElements);
-//					mv.addObject("timeline", groupedElements);
-//				} catch (Exception ex) {
-//					log.error("Error getting timeline", ex);
-//				}
+				try {
+					List<UserTimelineItem> timeline = usc.getUserTimeline(bearerToken, user.getId());
+					List<UserTimelineUIElement> uiTimelineElements =  UserTimelineUIElement.build(timeline);
+					Map<String, List<UserTimelineUIElement>> groupedElements
+						= UserTimelineUIElement.groupByDate(uiTimelineElements);
+					mv.addObject("timeline", groupedElements);
+				} catch (Exception ex) {
+					log.error("Error getting timeline", ex);
+				}
 			mv.addObject("timeline", new ArrayList<UserTimelineItem>());
 
 		} catch (Exception ex) {

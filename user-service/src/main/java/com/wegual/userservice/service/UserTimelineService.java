@@ -83,6 +83,7 @@ public class UserTimelineService {
 				timelineItem.setDetailActions(tda);
 			timeline.add(timelineItem);
 		}
+		log.info("Parsed timeline items, total items: " + timeline.size());
 		return timeline;
 	}
 	
