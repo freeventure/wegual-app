@@ -50,15 +50,15 @@ public class PledgeAnalyticsService {
 			Map<String, Object> src = null;
 			Map<String, Object> beneficiary = null;
 			Map<String, Object> giveup = null;
-			HashSet<Long> beneficiaryset = new HashSet<Long>();
-			HashSet<Long> giveupset = new HashSet<Long>();
+			HashSet<String> beneficiaryset = new HashSet<String>();
+			HashSet<String> giveupset = new HashSet<String>();
 			for (SearchHit hit: searchResponse.getHits()) {
 				src = hit.getSourceAsMap();
 				beneficiary = (Map<String, Object>)src.get("beneficiary");
 				giveup = (Map<String, Object>)src.get("give_up");
 				log.info(src.toString());
-				long benstr = (long)beneficiary.get("id");
-				long giveupstr = (long)giveup.get("id");
+				String benstr = (String)beneficiary.get("id");
+				String giveupstr = (String)giveup.get("id");
 
 				beneficiaryset.add(benstr);
 				giveupset.add(giveupstr);

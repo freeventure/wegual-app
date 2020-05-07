@@ -1,5 +1,19 @@
 package com.wegual.userservice.service;
 
+import java.util.Arrays;
+
+import javax.ws.rs.core.Response;
+
+import org.keycloak.OAuth2Constants;
+import org.keycloak.admin.client.CreatedResponseUtil;
+import org.keycloak.admin.client.Keycloak;
+import org.keycloak.admin.client.KeycloakBuilder;
+import org.keycloak.admin.client.resource.RealmResource;
+import org.keycloak.admin.client.resource.UserResource;
+import org.keycloak.admin.client.resource.UsersResource;
+import org.keycloak.representations.idm.CredentialRepresentation;
+import org.keycloak.representations.idm.RoleRepresentation;
+import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.HttpEntity;
@@ -21,8 +35,102 @@ public class KeycloakUserService {
 
 	@Value("${rest.security.issuer-uri}")
     private String keycloakBaseUrl;
-	
+
+	@Value("${keycloak.realm}")
+    private String realm;
+
+	@Value("${keycloak.client-id}")
+    private String clientId;
+
+	@Value("${keycloak.client-secret}")
+    private String clientSecret;
+
 	private RestTemplate template;
+	
+	public void activateAccount(String userId) {
+		try {
+			
+			Keycloak keycloak = KeycloakBuilder.builder() //
+	                .serverUrl(keycloakBaseUrl) //
+	                .realm(realm) //
+	                .grantType(OAuth2Constants.CLIENT_CREDENTIALS) //
+	                .clientId(clientId) //
+	                .clientSecret(clientSecret) //
+	                .build();
+	        // Get realm
+	        RealmResource realmResource = keycloak.realm(realm);
+	        UsersResource usersResource = realmResource.users();
+	        UserResource ures = usersResource.get(userId);
+	        if(ures != null) {
+	        	log.info("Found user account with id: " + userId);
+	        	UserRepresentation ur = ures.toRepresentation();
+	        	ur.setEnabled(true);
+	        	ures.update(ur);
+	        	log.info("User account activated with id: " + userId);
+	        }
+			
+		} catch (Exception ex) {
+			log.error("User account is not activated: " + userId);
+		}
+		
+	}
+	
+	public String createInactiveUserAccount(User user, String password) {
+		try {
+			
+			Keycloak keycloak = KeycloakBuilder.builder() //
+	                .serverUrl(keycloakBaseUrl) //
+	                .realm(realm) //
+	                .grantType(OAuth2Constants.CLIENT_CREDENTIALS) //
+	                .clientId(clientId) //
+	                .clientSecret(clientSecret) //
+	                .build();			
+			
+			// Define user
+	        UserRepresentation userRep = new UserRepresentation();
+	        userRep.setEnabled(false);
+	        userRep.setUsername(user.getUsername());
+	        userRep.setFirstName(user.getFirstName());
+	        userRep.setLastName(user.getLastName());
+	        userRep.setEmail(user.getEmail());
+	        
+
+	        // Get realm
+	        RealmResource realmResource = keycloak.realm(realm);
+	        UsersResource usersResource = realmResource.users();
+
+	        // Create user (requires manage-users role)
+	        Response response = usersResource.create(userRep);
+	        log.info("Repsonse: " + response.getStatus());
+	        log.info("Response status info: " + response.getStatusInfo());
+	        
+	        log.info(response.getLocation().toString());
+	        
+	        String userId = CreatedResponseUtil.getCreatedId(response);
+
+	        log.info("User created with userId: " + userId);
+
+	        // Define password credential
+	        CredentialRepresentation passwordCred = new CredentialRepresentation();
+	        passwordCred.setTemporary(false);
+	        passwordCred.setType(CredentialRepresentation.PASSWORD);
+	        passwordCred.setValue(password);
+
+	        UserResource userResource = usersResource.get(userId);
+
+	        // Set password credential
+	        userResource.resetPassword(passwordCred);
+	        
+	        // Get realm role "tester" (requires view-realm role)
+	        RoleRepresentation testerRealmRole = realmResource.roles().get("wegual_user").toRepresentation();
+	        // Assign realm role to user
+	        userResource.roles().realmLevel().add(Arrays.asList(testerRealmRole));
+	        return userId;
+		} catch (Exception ex) {
+			log.error("Error creating Keycloak user account for username: ", ex);
+			return "Unknown";
+		}		
+	}
 	
 	public User getUserPrfoileData(String username) {
 		User user = null;
@@ -36,6 +144,7 @@ public class KeycloakUserService {
 			log.info("Value: " + token.getValue());
 			
 			user = this.getUserFromKeycloak(token.getValue(), username);
+			log.info("Getting user from keycloak with id: " + user.getId());
 			if(user == null)
 				throw new IllegalStateException("Unable to get user from identity store");
 			return user;
@@ -59,8 +168,10 @@ public class KeycloakUserService {
 		String keycloakUrl = keycloakBaseUrl + "/admin/realms/wegual/users?username=" + username;
 		ResponseEntity<User[]> response = template.exchange(keycloakUrl, HttpMethod.GET, entity, User[].class);
 		User[] usersFound = response.getBody();
-		if(usersFound != null && usersFound.length > 0)
+		if(usersFound != null && usersFound.length > 0) {
+			log.info("User id fetched from keycloak:" + usersFound[0].getId());
 			return usersFound[0];
+		}
 		return null;
 	}
 

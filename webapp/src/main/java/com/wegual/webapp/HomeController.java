@@ -1,6 +1,7 @@
 package com.wegual.webapp;
 
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 
@@ -16,7 +17,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.client.OAuth2RestTemplate;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.stereotype.Controller;
+
 import org.springframework.web.bind.annotation.PathVariable;
+
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -30,7 +38,11 @@ import com.wegual.webapp.client.ClientBeans;
 import com.wegual.webapp.client.UserServiceClient;
 import com.wegual.webapp.message.ProfileImageTimelineItemBuilder;
 import com.wegual.webapp.message.UserActionsMessageSender;
+import com.wegual.webapp.ui.model.RegisterAccount;
+import com.wegual.webapp.ui.model.UserRegistrationValidator;
 import com.wegual.webapp.ui.model.UserTimelineUIElement;
+import com.wegual.webapp.ui.model.VerificationCodeValidator;
+import com.wegual.webapp.ui.model.VerifyCode;
 import com.wegual.webapp.util.KeycloakAuthenticationFacade;
 
 import app.wegual.common.asynch.SenderRunnable;
@@ -38,8 +50,12 @@ import app.wegual.common.client.CommonBeans;
 import app.wegual.common.model.Beneficiary;
 import app.wegual.common.model.BeneficiaryProfileData;
 import app.wegual.common.model.DBFile;
+
 import app.wegual.common.model.GenericItem;
 import app.wegual.common.model.Pledge;
+
+import app.wegual.common.model.TokenStatus;
+
 import app.wegual.common.model.User;
 import app.wegual.common.model.UserHomePageData;
 import app.wegual.common.model.UserProfileCounts;
@@ -55,6 +71,12 @@ import lombok.extern.slf4j.Slf4j;
 @Controller
 @Slf4j
 public class HomeController {
+	
+	@Autowired
+	private UserRegistrationValidator userValidator;
+
+	@Autowired
+	private VerificationCodeValidator vcValidator;
 	
 	@Autowired
 	@Qualifier("executorMessageSender")
@@ -97,8 +119,71 @@ public class HomeController {
         return "welcome";
     }
 
+	@GetMapping("/public/login")
+    public String loginForm(){
+        return "login";
+    }
+
+	@PostMapping("/public/authenticate")
+    public String loginVerify(@RequestParam("username") String username, @RequestParam("password") String password){
+        return "public/verifySuccess";
+    }
+	
+	@GetMapping("/public/signup")
+    public ModelAndView signupForm(){
+        return new ModelAndView("public/register", "registerAccount", new RegisterAccount());
+    }
+
+	@PostMapping("/public/signup")
+    public ModelAndView signupFormSubmit(@ModelAttribute("registerAccount") @Validated RegisterAccount ra, BindingResult result) {
+
+		this.userValidator.validate(ra, result);
+		if (result.hasErrors()) {
+	         return new ModelAndView("public/register");
+	    }
+		
+		// generate a temporary (no user id) record with OTP
+		UserServiceClient usc = ClientBeans.getUserServiceClient();
+		String encodedSecret = Base64.getEncoder().encodeToString(ra.getPassword().getBytes());
+		String tokenId = usc.getUserEmailVerifyToken(encodedSecret, ra.userFrom());
+		VerifyCode code = new VerifyCode();
+		code.setTokenId(tokenId);
+		
+		// send to user with token and tokenId (tokenId is _id of ES document)
+        return new ModelAndView("public/verifycode", "verifyCode", code) ;
+    }
+
+	@PostMapping("/public/verify/token")
+    public String verifyTokenSubmit(@ModelAttribute VerifyCode vc, BindingResult result) {
+		// verify token is six digits and all numeric
+		this.vcValidator.validate(vc, result);
+		
+		if (result.hasErrors()) {
+	         return "public/verifycode";
+	    }
+		UserServiceClient usc = ClientBeans.getUserServiceClient();
+		TokenStatus ts =  usc.verifyUserToken(vc.getToken(), vc.getTokenId());
+		
+		switch (ts) {
+			case TOKEN_EXPIRED : result.rejectValue("token", "user.verify.token.expired");
+				break;
+			case ATTEMPTS_EXCEEDED : result.rejectValue("token", "user.verify.token.attempts");
+				break;
+			case NOT_FOUND : result.rejectValue("token", "user.verify.token.invalid");
+				break;
+			case ERROR : result.rejectValue("token", "user.verify.token.error");
+				break;
+			case BAD_REQUEST : result.rejectValue("token", "user.verify.token.invalid.data");
+			break;
+
+			case VERIFIED:
+				return "public/verifySuccess";
+		}
+		return "public/verifycode";
+    }
+	
 	@RequestMapping("/home")
-    public ModelAndView home(){
+    public ModelAndView home() {
 		ModelAndView mv = new ModelAndView("user/home");
 		String username = kaf.getUserLoginName();
 		
@@ -125,7 +210,6 @@ public class HomeController {
 			UserHomePageData uhd = new UserHomePageData();
 			uhd.setUser(user);
 			uhd.setCounts(counts);
-			
 			mv.addObject("homePageData", uhd);
 
 		} catch (Exception ex) {
@@ -213,7 +297,6 @@ public class HomeController {
 				} catch (Exception ex) {
 					log.error("Error getting timeline", ex);
 				}
-			mv.addObject("timeline", new ArrayList<UserTimelineItem>());
 
 		} catch (Exception ex) {
 			log.error("Error getting user profilde data", ex);
@@ -288,7 +371,7 @@ public class HomeController {
 		return mv;
 	}
 
-	@RequestMapping("/home/pledge")
+	@RequestMapping("/home/pledges")
 	public ModelAndView pledge() {
 		ModelAndView mv = new ModelAndView("user/pledge");
 		String userId = kaf.getUserId();
@@ -312,7 +395,7 @@ public class HomeController {
 		return mv;
 	}
 	
-	@RequestMapping("/home/giveup")
+	@RequestMapping("/home/giveups")
 	public ModelAndView giveup() {
 		ModelAndView mv = new ModelAndView("user/giveup");
 		String userId = kaf.getUserId();

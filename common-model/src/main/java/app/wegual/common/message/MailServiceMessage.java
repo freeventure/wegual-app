@@ -1,8 +1,12 @@
 package app.wegual.common.message;
 
 import app.wegual.common.model.UserActionTargetType;
+import lombok.Getter;
+import lombok.Setter;
 
-public class MailServiceMessage extends AbstractMessageObject {
+@Getter
+@Setter
+public class MailServiceMessage extends AbstractMessageObject<Long> {
 
 	private static final long serialVersionUID = -2379467793470635779L;
 	
@@ -11,7 +15,7 @@ public class MailServiceMessage extends AbstractMessageObject {
 	}
 	
 	public MailServiceMessage(Long id, String name) {
-		this.setId(id);
+		this.id = id;
 		this.setName(name);
 	}
 
@@ -19,13 +23,8 @@ public class MailServiceMessage extends AbstractMessageObject {
 		return "/user/" + getId();
 	}
 
-	public String getType() {
-		return "User";
+	public UserActionTargetType getActionType() {
+		return UserActionTargetType.USER;
 	}
 
-	@Override
-	public UserActionTargetType getActionType() {
-		// TODO Auto-generated method stub
-		return null;
-	}
 }

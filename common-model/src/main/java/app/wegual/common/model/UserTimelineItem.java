@@ -10,5 +10,8 @@ public class UserTimelineItem extends TimelineItem<String> {
 	public UserTimelineItem(String actorId) {
 		super(actorId, null, null, null);
 	}
+	public UserTimelineItem() {
+		super();
+	}
 	private static final long serialVersionUID = 1L;
 }

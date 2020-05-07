@@ -44,4 +44,8 @@ public class TimelineItem<T> implements Serializable {
 		this.target = actionTarget;
 		this.userActionType = uat;
 	}
+
+	public TimelineItem() {
+		super();
+	}
 }

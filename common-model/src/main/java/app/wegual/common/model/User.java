@@ -2,8 +2,6 @@ package app.wegual.common.model;
 
 import java.io.Serializable;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 import lombok.Getter;
 import lombok.Setter;
 
@@ -22,14 +20,18 @@ public class User implements Serializable {
     
     private String email;
     
-    @JsonProperty("creation_stamp")
 	private long createdTimestamp;
     
-    @JsonProperty("last_udate_stamp")
    	private long updatedTimestamp;
    	
    	private String pictureLink;
-    
+   	
+   	private Boolean accountLocked;
+
+   	private Boolean active;
+
+   	private Boolean emailVerifyPending;
+   	
     public User() {}
     
 	public User(String username, String email) {
@@ -37,4 +39,5 @@ public class User implements Serializable {
 		this.username = username;
 		this.email = email;
 	}
+
 }

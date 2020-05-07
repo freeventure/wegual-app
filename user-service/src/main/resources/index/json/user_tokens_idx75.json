@@ -1,0 +1,30 @@
+{
+	"mappings": {
+		"properties": {
+			"creation_stamp": {
+				"type": "long"
+			},
+			"validity": {
+				"type": "long"
+			},
+			"token": {
+				"type": "keyword"
+			},
+			"attempts": {
+				"type": "integer"
+			},
+			"email": {
+				"type": "keyword"
+			},
+			"user_id": {
+				"type": "keyword"
+			},
+			"not_before": {
+				"type": "long"
+			},
+			"secret": {
+				"type": "keyword"
+			}
+		}
+	}
+}

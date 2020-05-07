@@ -5,6 +5,7 @@ import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.stereotype.Component;
 
 import app.wegual.common.asynch.MessageSender;
+import app.wegual.common.model.UserEmailVerifyToken;
 import app.wegual.common.model.UserTimelineItem;
 import app.wegual.common.util.MessagingConstants;
 import lombok.extern.slf4j.Slf4j;
@@ -19,16 +20,24 @@ public class UserActionsAsynchMessageSender implements MessageSender {
 		this.rabbitTemplate = template;
 	}
 	
-	protected void sendMessage(UserTimelineItem uti) {
+	protected void sendUserTimelineMessage(UserTimelineItem uti) {
 		 log.info("Sending message for user timeline action...");
 		 rabbitTemplate.convertAndSend(MessagingConstants.USERACTIONS_FANOUT_EXCHANGE_NAME, "user-action", uti);
 	}
 
+	protected void sendVerificationToken(UserEmailVerifyToken uevt) {
+		 log.info("Sending message for user email verification token");
+		 rabbitTemplate.convertAndSend(MessagingConstants.MAILSERVICE_EXCHANGE_NAME, MessagingConstants.EMAIL_VERIFY_ROUTING_KEY, uevt);
+	}
+	
 	@Override
 	public void sendMessage(Object object) {
 		if(object != null) {
 			if(object instanceof UserTimelineItem)
-				this.sendMessage((UserTimelineItem)object);
+				sendUserTimelineMessage((UserTimelineItem)object);
+			if(object instanceof UserEmailVerifyToken)
+				sendVerificationToken((UserEmailVerifyToken)object);
+
 		}
 	}
 

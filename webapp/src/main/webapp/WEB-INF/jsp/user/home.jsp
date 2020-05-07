@@ -101,7 +101,7 @@
       <!-- Sidebar user (optional) -->
       <div class="user-panel mt-3 pb-3 mb-3 d-flex">
         <div class="image">
-          <img src="<c:url value="${homePageData.user.pictureLink}" />" class="img-circle elevation-2" alt="User Image">
+          <img id="image-profile-sidebar" src="<c:url value="${homePageData.user.pictureLink}" />" class="img-circle elevation-2" alt="User Image">
         </div>
         <div class="info">
           <a href="#" class="d-block">${homePageData.user.firstName} ${homePageData.user.lastName}</a>
@@ -109,78 +109,43 @@
       </div>
 
       <!-- Sidebar Menu -->
-      <nav class="mt-2">
+            <nav class="mt-2">
         <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
-          <!-- Add icons to the links using the .nav-icon class
-               with font-awesome or any other icon font library -->
-			   <!--
-			   hand-holding-usd
-			   
-			   
-			   hand-holding-heart
-			   -->
           <li class="nav-item">
-            <a href="#" class="nav-link">
+            <a href="<c:url value="/home" />" class="nav-link">
 			  <i class="nav-icon fas fa-home"></i>
-			  <!--
-			  <ion-icon class="nav-icon fas" name="home-outline" size="large"></ion-icon>
-			  -->
               <p>
                 Home
               </p>
             </a>
           </li>
           <li class="nav-item">
-            <a href="home/profile" class="nav-link">
-			  <i class="nav-icon fas fa-address-card"></i>
-			  <!--
-			  <ion-icon class="nav-icon fas" name="home-outline" size="large"></ion-icon>
-			  -->
-              <p>
-                Profile
-              </p>
-            </a>
-          </li>
-
-          <li class="nav-item">
-            <a href="#" class="nav-link">
+            <a href="<c:url value="/home/beneficiaries" />" class="nav-link">
 			  <i class="nav-icon fas fa-hand-holding-usd"></i>
-			  <!--
-			  <ion-icon class="nav-icon fas" name="home-outline" size="large"></ion-icon>
-			  -->
               <p>
                 Beneficiaries
               </p>
             </a>
           </li>
           <li class="nav-item">
-            <a href="/home/giveup" class="nav-link">
+            <a href="<c:url value="/home/giveups" />" class="nav-link">
 			  <i class="nav-icon fas fa-praying-hands"></i>
-			  <!--
-			  <ion-icon class="nav-icon fas" name="home-outline" size="large"></ion-icon>
-			  -->
               <p>
                 Giveups
               </p>
             </a>
           </li>
           <li class="nav-item">
-            <a href="/home/pledge" class="nav-link">
+            <a href="<c:url value="/home/pledges" />" class="nav-link">
 			  <i class="nav-icon fas fa-hand-holding-heart"></i>
-			  <!--
-			  <ion-icon class="nav-icon fas" name="home-outline" size="large"></ion-icon>
-			  -->
               <p>
                 Pledges
               </p>
             </a>
           </li>
           <li class="nav-item">
-            <a href="#" class="nav-link">
+            <a href="<c:url value="/home/followings" />" class="nav-link">
 			  <i class="nav-icon fas fa-user-friends"></i>
-			  <!--
-			  <ion-icon class="nav-icon fas" name="home-outline" size="large"></ion-icon>
-			  -->
               <p>
                 People
               </p>

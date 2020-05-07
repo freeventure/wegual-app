@@ -117,87 +117,51 @@
                     </div>
                 </div>
 
-                <!-- Sidebar Menu -->
-                <nav class="mt-2">
-                    <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu"
-                        data-accordion="false">
-                        <!-- Add icons to the links using the .nav-icon class
-               with font-awesome or any other icon font library -->
-                        <!--
-			   hand-holding-usd
-			   
-			   
-			   hand-holding-heart
-			   -->
-                        <li class="nav-item">
-                            <a href="#" class="nav-link">
-                                <i class="nav-icon fas fa-home"></i>
-                                <!--
-			  <ion-icon class="nav-icon fas" name="home-outline" size="large"></ion-icon>
-			  -->
-                                <p>
-                                    Home
-                                </p>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="home/profile" class="nav-link">
-                                <i class="nav-icon fas fa-address-card"></i>
-                                <!--
-			  <ion-icon class="nav-icon fas" name="home-outline" size="large"></ion-icon>
-			  -->
-                                <p>
-                                    Profile
-                                </p>
-                            </a>
-                        </li>
-
-                        <li class="nav-item">
-                            <a href="#" class="nav-link">
-                                <i class="nav-icon fas fa-hand-holding-usd"></i>
-                                <!--
-			  <ion-icon class="nav-icon fas" name="home-outline" size="large"></ion-icon>
-			  -->
-                                <p>
-                                    Beneficiaries
-                                </p>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="/home/giveup" class="nav-link">
-                                <i class="nav-icon fas fa-praying-hands"></i>
-                                <!--
-			  <ion-icon class="nav-icon fas" name="home-outline" size="large"></ion-icon>
-			  -->
-                                <p>
-                                    Giveups
-                                </p>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="/home/pledge" class="nav-link">
-                                <i class="nav-icon fas fa-hand-holding-heart"></i>
-                                <!--
-			  <ion-icon class="nav-icon fas" name="home-outline" size="large"></ion-icon>
-			  -->
-                                <p>
-                                    Pledges
-                                </p>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="#" class="nav-link">
-                                <i class="nav-icon fas fa-user-friends"></i>
-                                <!--
-			  <ion-icon class="nav-icon fas" name="home-outline" size="large"></ion-icon>
-			  -->
-                                <p>
-                                    People
-                                </p>
-                            </a>
-                        </li>
-                    </ul>
-                </nav>
+		   <!-- Sidebar Menu -->
+		       <nav class="mt-2">
+		        <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
+		          <li class="nav-item">
+		            <a href="<c:url value="/home" />" class="nav-link">
+					  <i class="nav-icon fas fa-home"></i>
+		              <p>
+		                Home
+		              </p>
+		            </a>
+		          </li>
+		          <li class="nav-item">
+		            <a href="<c:url value="/home/beneficiaries" />" class="nav-link">
+					  <i class="nav-icon fas fa-hand-holding-usd"></i>
+		              <p>
+		                Beneficiaries
+		              </p>
+		            </a>
+		          </li>
+		          <li class="nav-item">
+		            <a href="<c:url value="/home/giveups" />" class="nav-link">
+					  <i class="nav-icon fas fa-praying-hands"></i>
+		              <p>
+		                Giveups
+		              </p>
+		            </a>
+		          </li>
+		          <li class="nav-item">
+		            <a href="<c:url value="/home/pledges" />" class="nav-link">
+					  <i class="nav-icon fas fa-hand-holding-heart"></i>
+		              <p>
+		                Pledges
+		              </p>
+		            </a>
+		          </li>
+		          <li class="nav-item">
+		            <a href="<c:url value="/home/followings" />" class="nav-link">
+					  <i class="nav-icon fas fa-user-friends"></i>
+		              <p>
+		                People
+		              </p>
+		            </a>
+		          </li>
+				</ul>
+		      </nav>
                 <!-- /.sidebar-menu -->
             </div>
             <!-- /.sidebar -->

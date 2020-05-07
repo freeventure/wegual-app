@@ -1,11 +1,11 @@
 {
 	"mappings": {
 		"properties": {
-			"creation_stamp": {
+			"createdTimestamp": {
 				"type": "long"
 			},
 
-			"last_udate_stamp": {
+			"updatedTimestamp": {
 				"type": "long"
 			},
 			"updated_by_userid": {
@@ -47,11 +47,11 @@
 				"type": "keyword",
 				"index": false
 			},
-			"first_name": {
+			"firstName": {
 				"type": "keyword",
 				"index": false
 			},
-			"last_name": {
+			"lastName": {
 				"type": "keyword",
 				"index": false
 			},
