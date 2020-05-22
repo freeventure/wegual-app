@@ -15,7 +15,7 @@ import lombok.Setter;
 public class GiveUp implements Serializable {
 	
 	@JsonProperty("giveup_id")
-    private Long id;
+    private String id;
 	
 	@JsonProperty("giveup_name")
 	private String name;
@@ -23,7 +23,7 @@ public class GiveUp implements Serializable {
 	private String description;
 	
 	@JsonProperty("created_by")
-	private User createdBy;
+	private GenericItem createdBy;
 	
 	@JsonProperty("created_date")
 	private long creationDate;

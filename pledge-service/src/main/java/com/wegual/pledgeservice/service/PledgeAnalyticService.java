@@ -1,4 +1,4 @@
-package com.wegual.userservice.service;
+package com.wegual.pledgeservice.service;
 
 import java.util.HashSet;
 import java.util.Map;
@@ -14,13 +14,15 @@ import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import com.wegual.userservice.ElasticSearchConfig;
+
+import com.wegual.pledgeservice.ElasticSearchConfig;
+
 import app.wegual.common.model.PledgeAnalyticsForUser;
 import lombok.extern.slf4j.Slf4j;
 
 @Service
 @Slf4j
-public class PledgeAnalyticsService {
+public class PledgeAnalyticService {
 		
 	@Autowired
 	private ElasticSearchConfig esConfig;

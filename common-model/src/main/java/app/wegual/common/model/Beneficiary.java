@@ -14,7 +14,7 @@ public class Beneficiary  implements Serializable {
 	private static final long serialVersionUID = -867409585306111160L;
 
 	@JsonProperty("beneficiary_id")
-	private Long id;
+	private String id;
 
 	@JsonProperty("beneficiary_name")
 	private String name;

@@ -9,10 +9,10 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class GenericItem<T> implements Serializable{
+public class GenericItem implements Serializable{
 	
 	private static final long serialVersionUID = 1L;
-	private T id;
+	private String id;
 	private String name;
 	private String permalink;
 	
@@ -23,7 +23,7 @@ public class GenericItem<T> implements Serializable{
 		super();
 	}
 	
-	public GenericItem(T id, String name, String permalink, String pictureLink) {
+	public GenericItem(String id, String name, String permalink, String pictureLink) {
 		super();
 		this.id = id;
 		this.name = name;

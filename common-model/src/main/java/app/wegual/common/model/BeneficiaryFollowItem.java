@@ -12,10 +12,10 @@ import lombok.Setter;
 public class BeneficiaryFollowItem{
 
 	@JsonProperty("user_follower")
-	private GenericItem<String> userFollower;
+	private GenericItem userFollower;
 		
 	@JsonProperty("beneficiary_followee")
-	private GenericItem<Long> beneficiaryFollowee;
+	private GenericItem beneficiaryFollowee;
 		
 	@JsonProperty("follow_date")
 	private Timestamp followDate;
@@ -24,7 +24,7 @@ public class BeneficiaryFollowItem{
 		super();
 	}	
 
-	public BeneficiaryFollowItem(GenericItem<String> userFollower, GenericItem<Long> beneficiaryFollowee,
+	public BeneficiaryFollowItem(GenericItem userFollower, GenericItem beneficiaryFollowee,
 			Timestamp followDate) {
 		super();
 		this.userFollower = userFollower;

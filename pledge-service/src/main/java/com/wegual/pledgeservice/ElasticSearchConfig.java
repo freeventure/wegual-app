@@ -13,8 +13,8 @@ import org.springframework.context.annotation.Configuration;
 @RefreshScope
 @Configuration
 public class ElasticSearchConfig {
-	@Value("${elasticsearch.host}")
-    private String elasticsearchHost;
+	@Value("${elasticsearch.hosts}")
+    private String elasticsearchHosts;
 
 	
 	private RestHighLevelClient client;
@@ -31,10 +31,17 @@ public class ElasticSearchConfig {
 	}
     
     public RestHighLevelClient getElastcsearchClient() {
-
+    	
+    	
     	if(client == null) {
+    		String[] hosts = elasticsearchHosts.split(":");
+    		HttpHost[] httpHosts = new HttpHost[hosts.length];
+    		for(int i=0; i < hosts.length; i++)
+    			httpHosts[i] = new HttpHost(hosts[i], 9200);
     		client = new RestHighLevelClient(
-                RestClient.builder(new HttpHost(elasticsearchHost, 9200)));
+                //RestClient.builder(new HttpHost(elasticsearchHost, 9200))
+                RestClient.builder(httpHosts)
+                );
     	}
 
         return client;

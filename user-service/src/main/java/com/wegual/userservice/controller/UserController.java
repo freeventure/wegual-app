@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,15 +23,16 @@ import org.springframework.web.bind.annotation.RestController;
 import com.wegual.userservice.analytics.UserAnalyticsService;
 import com.wegual.userservice.service.GiveupService;
 import com.wegual.userservice.service.KeycloakUserService;
-import com.wegual.userservice.service.PledgeAnalyticsService;
-import com.wegual.userservice.service.PledgeService;
 import com.wegual.userservice.service.UserActionsService;
 import com.wegual.userservice.service.UserBeneficiaryService;
 import com.wegual.userservice.service.UserTimelineService;
 
+import app.wegual.common.model.Beneficiary;
 import app.wegual.common.model.GenericItem;
+import app.wegual.common.model.GiveUp;
 import app.wegual.common.model.Pledge;
 import app.wegual.common.model.PledgeAnalyticsForUser;
+import app.wegual.common.model.RegisterPledge;
 import app.wegual.common.model.TokenStatus;
 import app.wegual.common.model.User;
 import app.wegual.common.model.UserTimelineItem;
@@ -56,9 +58,6 @@ public class UserController {
 	UserTimelineService uts;
 	
 	@Autowired
-	PledgeService ps;
-	
-	@Autowired
 	GiveupService gs;
 	
 	@Autowired
@@ -76,9 +75,6 @@ public class UserController {
 		}
 	}
 	
-
-	@Autowired
-	private PledgeAnalyticsService pledgeAnalytics;
 	
 	@Autowired 
 	private UserBeneficiaryService ubs;
@@ -145,30 +141,6 @@ public class UserController {
 	}
 	
 	@PreAuthorize("#oauth2.hasScope('user-service')")
-	@GetMapping("/users/pledges/count/{userid}")
-	ResponseEntity<PledgeAnalyticsForUser> getPledgeCounts(@PathVariable String userid) {
-		try {
-			PledgeAnalyticsForUser counts = pledgeAnalytics.getCounts(userid);
-			return new ResponseEntity<PledgeAnalyticsForUser>(counts, HttpStatus.OK);
-		} catch (Exception e) {
-			return new ResponseEntity<PledgeAnalyticsForUser>(new PledgeAnalyticsForUser(), HttpStatus.BAD_REQUEST);
-		}
-		
-	}
-	
-	@PreAuthorize("#oauth2.hasScope('user-service')")
-	@GetMapping("/users/pledges/{userid}")
-	ResponseEntity<List<Map<String, Object>>> getAllPledgesForUser(@PathVariable String userid) {
-		try {
-			List<Map<String, Object>> pledges = ps.getAllPledgeForUser(userid);
-			return new ResponseEntity<List<Map<String, Object>>>(pledges, HttpStatus.OK);
-		} catch (Exception e) {
-			return new ResponseEntity<List<Map<String, Object>>>(new ArrayList<Map<String, Object>>(), HttpStatus.BAD_REQUEST);
-		}
-		
-	}
-	
-	@PreAuthorize("#oauth2.hasScope('user-service')")
 	@GetMapping("/users/pledges/giveup/{userid}")
 	ResponseEntity<List<Object>> getAllGiveupUserPledgedFor(@PathVariable String userid) {
 		try {
@@ -209,13 +181,35 @@ public class UserController {
 	
 	@PreAuthorize("#oauth2.hasScope('user-service')")
 	@GetMapping("/users/beneficiaryFollowee/{userid}")
-	ResponseEntity<List<GenericItem<Long>>> getBeneficiaryFollowees(@PathVariable("userid")  String userId) {
+	ResponseEntity<List<GenericItem>> getBeneficiaryFollowees(@PathVariable("userid")  String userId) {
 		try {
-			List<GenericItem<Long>> benFolloweeList = ubs.getBeneficiaryFollowees(userId);
-			return new ResponseEntity<List<GenericItem<Long>>>(benFolloweeList, HttpStatus.OK);
+			List<GenericItem> benFolloweeList = ubs.getBeneficiaryFollowees(userId);
+			return new ResponseEntity<List<GenericItem>>(benFolloweeList, HttpStatus.OK);
 		}
 		catch(Exception e) {
-			return new ResponseEntity<List<GenericItem<Long>>>(new ArrayList<GenericItem<Long>>(), HttpStatus.BAD_REQUEST);
+			return new ResponseEntity<List<GenericItem>>(new ArrayList<GenericItem>(), HttpStatus.BAD_REQUEST);
+		}
+	}
+	@PreAuthorize("#oauth2.hasScope('user-service')")
+	@GetMapping("/users/beneficiary/all")
+	ResponseEntity<List<Beneficiary>> getAllBeneficiary() {
+		try {
+			List<Beneficiary> bens = ubs.getAllBeneficiary();
+			return new ResponseEntity<List<Beneficiary>>(bens, HttpStatus.OK);
+		}
+		catch(Exception e) {
+			return new ResponseEntity<List<Beneficiary>>(new ArrayList<Beneficiary>(), HttpStatus.BAD_REQUEST);
+		}
+	}
+	@PreAuthorize("#oauth2.hasScope('user-service')")
+	@GetMapping("/users/giveup/all")
+	ResponseEntity<List<GiveUp>> getAllGiveUp() {
+		try {
+			List<GiveUp> giveups = gs.getAllGiveup();
+			return new ResponseEntity<List<GiveUp>>(giveups, HttpStatus.OK);
+		}
+		catch(Exception e) {
+			return new ResponseEntity<List<GiveUp>>(new ArrayList<GiveUp>(), HttpStatus.BAD_REQUEST);
 		}
 	}
 

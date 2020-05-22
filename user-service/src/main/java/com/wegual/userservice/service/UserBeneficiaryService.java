@@ -21,8 +21,10 @@ import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wegual.userservice.ElasticSearchConfig;
 
+import app.wegual.common.model.Beneficiary;
 import app.wegual.common.model.BeneficiaryFollowItem;
 import app.wegual.common.model.GenericItem;
+import app.wegual.common.model.GiveUp;
 import lombok.extern.slf4j.Slf4j;
 
 @Service
@@ -32,7 +34,7 @@ public class UserBeneficiaryService {
 	@Autowired
 	private ElasticSearchConfig esConfig;
 	
-	public  List<GenericItem<Long>> getBeneficiaryFollowees(String userId) {
+	public  List<GenericItem> getBeneficiaryFollowees(String userId) {
 		
 		SearchRequest searchRequest = new SearchRequest("beneficiary_follow_idx");
 		SearchSourceBuilder sourceBuilder = new SearchSourceBuilder(); 
@@ -46,16 +48,16 @@ public class UserBeneficiaryService {
 			SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
 			if(searchResponse.getHits().getTotalHits().value > 0L)
 				return parseBeneficiarySearchHits(searchResponse);
-			return new ArrayList<GenericItem<Long>>();
+			return new ArrayList<GenericItem>();
 		} catch (IOException e) {
 			log.error("Error getting beneficiary followees for user: " + userId , e);
-			return new ArrayList<GenericItem<Long>>();
+			return new ArrayList<GenericItem>();
 		}
 	}
 	
-	private List<GenericItem<Long>> parseBeneficiarySearchHits(SearchResponse searchResponse){
+	private List<GenericItem> parseBeneficiarySearchHits(SearchResponse searchResponse){
 		
-		List<GenericItem<Long>> benFolloweeList = new ArrayList<GenericItem<Long>>();
+		List<GenericItem> benFolloweeList = new ArrayList<GenericItem>();
 		BeneficiaryFollowItem benFolloweeItem;
 		SearchHit[] searchHits = searchResponse.getHits().getHits();
 		for (SearchHit searchHit : searchHits) {
@@ -65,11 +67,38 @@ public class UserBeneficiaryService {
 			}
 			catch(Exception e) {
 				log.info("Json Parsing Exception" + e);
-				return new ArrayList<GenericItem<Long>>();
+				return new ArrayList<GenericItem>();
 			}
 		}
 		
 		return benFolloweeList;
+	}
+	
+	public List<Beneficiary> getAllBeneficiary(){
+		SearchRequest searchRequest = new SearchRequest("beneficiary_idx");
+		SearchSourceBuilder sourceBuilder = new SearchSourceBuilder(); 
+		sourceBuilder.query(QueryBuilders.matchAllQuery());
+		searchRequest.source(sourceBuilder);
+		
+		RestHighLevelClient client = esConfig.getElastcsearchClient();
+		
+		try {
+			SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
+			List<Beneficiary> bens = new ArrayList<Beneficiary>();
+			if(searchResponse.getHits().getTotalHits().value>0L) {
+				for (SearchHit hit: searchResponse.getHits()) {
+					Beneficiary beneficiary = new ObjectMapper().readValue(hit.getSourceAsString(), Beneficiary.class);
+					bens.add(beneficiary);
+				}
+				
+				return bens;
+			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return new ArrayList<Beneficiary>();
 	}
 
 }

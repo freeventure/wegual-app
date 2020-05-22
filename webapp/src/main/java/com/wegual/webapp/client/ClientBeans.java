@@ -24,4 +24,7 @@ public class ClientBeans implements ApplicationContextAware {
 		return theContext.getBean(BeneficiaryServiceClient.class);
 	}
 	
+	public static PledgeServiceClient getPledgeServiceClient() {
+		return theContext.getBean(PledgeServiceClient.class);
+	}
 }

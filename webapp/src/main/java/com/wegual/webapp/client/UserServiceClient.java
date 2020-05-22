@@ -1,6 +1,5 @@
 package com.wegual.webapp.client;
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -9,10 +8,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
 
-
+import app.wegual.common.model.Beneficiary;
 import app.wegual.common.model.GenericItem;
-import app.wegual.common.model.PledgeAnalyticsForUser;
-
+import app.wegual.common.model.GiveUp;
 import app.wegual.common.model.TokenStatus;
 import app.wegual.common.model.User;
 import app.wegual.common.model.UserTimelineItem;
@@ -28,7 +26,7 @@ public interface UserServiceClient {
     @PostMapping(value = "/users/public/email/token", consumes = "application/json")
     String getUserEmailVerifyToken(@RequestHeader(value = "X-aux", required = true) String secret,
     		User user);
-
+    
     @GetMapping("/users/profile/{username}")
     User getUser(@RequestHeader(value = "Authorization", required = true) String token,
     		 @PathVariable String username);
@@ -45,20 +43,17 @@ public interface UserServiceClient {
 	List<UserTimelineItem> getUserTimeline(@RequestHeader(value = "Authorization", required = true) String token,
 			@PathVariable String userid);
 
-	@GetMapping("/users/pledges/count/{userid}")
-	PledgeAnalyticsForUser getPledgeCounts(@RequestHeader(value = "Authorization", required = true) String token,
-			@PathVariable String userid);
-
 	@GetMapping("/users/beneficiaryFollowee/{userid}")
-	List<GenericItem<Long>> getBeneficiaryFollowees(@RequestHeader(value = "Authorization", required = true) String token, 
-			@PathVariable String userid);
-
-	@GetMapping("/users/pledges/{userid}")
-	List<Map<String, Object>> getAllPledgesForUser(@RequestHeader(value = "Authorization", required = true) String token, 
+	List<GenericItem> getBeneficiaryFollowees(@RequestHeader(value = "Authorization", required = true) String token, 
 			@PathVariable String userid);
 	
 	@GetMapping("/users/pledges/giveup/{userid}")
 	List<Object> getAllGiveupUserPledgedFor(@RequestHeader(value = "Authorization", required = true) String token, 
 			@PathVariable String userid);
 	
+	@GetMapping("/users/beneficiary/all")
+	List<Beneficiary> getAllBeneficiary(@RequestHeader(value = "Authorization", required = true) String token);
+	
+	@GetMapping("/users/giveup/all")
+	List<GiveUp> getAllGiveup(@RequestHeader(value = "Authorization", required = true) String token);
 }

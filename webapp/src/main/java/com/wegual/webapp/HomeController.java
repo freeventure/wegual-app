@@ -35,6 +35,7 @@ import com.netflix.appinfo.InstanceInfo;
 import com.netflix.discovery.EurekaClient;
 import com.wegual.webapp.client.BeneficiaryServiceClient;
 import com.wegual.webapp.client.ClientBeans;
+import com.wegual.webapp.client.PledgeServiceClient;
 import com.wegual.webapp.client.UserServiceClient;
 import com.wegual.webapp.message.ProfileImageTimelineItemBuilder;
 import com.wegual.webapp.message.UserActionsMessageSender;
@@ -52,16 +53,16 @@ import app.wegual.common.model.BeneficiaryProfileData;
 import app.wegual.common.model.DBFile;
 
 import app.wegual.common.model.GenericItem;
-import app.wegual.common.model.Pledge;
+import app.wegual.common.model.GiveUp;
 
 import app.wegual.common.model.TokenStatus;
-
 import app.wegual.common.model.User;
 import app.wegual.common.model.UserHomePageData;
 import app.wegual.common.model.UserProfileCounts;
 import app.wegual.common.model.UserProfileData;
 import app.wegual.common.model.UserTimelineItem;
 import app.wegual.common.model.PledgeAnalyticsForUser;
+import app.wegual.common.model.RegisterPledge;
 import app.wegual.common.rest.model.BeneficiarySnapshot;
 import app.wegual.common.rest.model.UserFollowees;
 import app.wegual.common.rest.model.UserFollowers;
@@ -74,7 +75,7 @@ public class HomeController {
 	
 	@Autowired
 	private UserRegistrationValidator userValidator;
-
+	
 	@Autowired
 	private VerificationCodeValidator vcValidator;
 	
@@ -99,6 +100,26 @@ public class HomeController {
 		OAuth2AccessToken token = null;
 		try {
 			OAuth2RestTemplate ort = CommonBeans.getExternalServicesOAuthClients().restTemplate("user-service");
+			if (ort != null) {
+				token = ort.getAccessToken();
+				log.info("Created token");
+				log.info("Value: " + token.getValue());
+				bearerToken = "Bearer " + token.getValue();
+				return bearerToken;
+			}
+		}
+		catch(Exception e) {
+			log.info("Error getting access token" + e);
+			return bearerToken;
+		}
+		return bearerToken;	
+	}
+	
+	private static String getBearerTokenForPledge() {
+		String bearerToken = null;
+		OAuth2AccessToken token = null;
+		try {
+			OAuth2RestTemplate ort = CommonBeans.getExternalServicesOAuthClients().restTemplate("pledge-service");
 			if (ort != null) {
 				token = ort.getAccessToken();
 				log.info("Created token");
@@ -152,6 +173,21 @@ public class HomeController {
 		// send to user with token and tokenId (tokenId is _id of ES document)
         return new ModelAndView("public/verifycode", "verifyCode", code) ;
     }
+	
+	@RequestMapping(value ="/home/pledge/submit",method = RequestMethod.POST)
+    public ModelAndView submitPledge(RegisterPledge ra) {
+		String bearerToken = null;
+		
+		try {
+			bearerToken = HomeController.getBearerTokenForPledge();
+			PledgeServiceClient usc = ClientBeans.getPledgeServiceClient();			
+			usc.savePledge(bearerToken, ra);
+			}
+		catch (Exception ex) {
+			log.error("Error getting user profilde data", ex);
+		}
+        return new ModelAndView("user/home");
+    }
 
 	@PostMapping("/public/verify/token")
     public String verifyTokenSubmit(@ModelAttribute VerifyCode vc, BindingResult result) {
@@ -189,10 +225,13 @@ public class HomeController {
 		
 		log.info("Found username principal: " + username);
 		String bearerToken = null;
+		String bearerTokenForPledge = null;
 		try {
 			bearerToken = HomeController.getBearerToken();
+			bearerTokenForPledge = HomeController.getBearerTokenForPledge();
 			User user = null;
 			UserServiceClient usc = ClientBeans.getUserServiceClient();
+			PledgeServiceClient psc = ClientBeans.getPledgeServiceClient();
 			user = usc.getUser(bearerToken, username);
 			log.info("Got user object");
 			if(user != null && StringUtils.isEmpty(user.getPictureLink()))
@@ -203,10 +242,7 @@ public class HomeController {
 				log.info("User service URL is: " + userServiceUrl);
 				user.setPictureLink(userServiceUrl + user.getPictureLink());
 			}
-			PledgeAnalyticsForUser counts = usc.getPledgeCounts(bearerToken, user.getId());
-			System.out.println(counts.getGiveup());
-			System.out.println(counts.getPledge());
-			System.out.println(counts.getBeneficiary());
+			PledgeAnalyticsForUser counts = psc.getPledgeCounts(bearerTokenForPledge, user.getId());
 			UserHomePageData uhd = new UserHomePageData();
 			uhd.setUser(user);
 			uhd.setCounts(counts);
@@ -217,8 +253,37 @@ public class HomeController {
 		}
 		return mv;
     }
+	@RequestMapping(path ="/beneficiary/all", method = RequestMethod.GET )
+	public ResponseEntity<List<Beneficiary>> getAllBeneficiary(){
+		String bearerToken = null;
+		try {
+			bearerToken = HomeController.getBearerToken();
+			UserServiceClient usc = ClientBeans.getUserServiceClient();
+			
+			List<Beneficiary> beneficiary= usc.getAllBeneficiary(bearerToken);
+			return new ResponseEntity<List<Beneficiary>>(beneficiary, HttpStatus.OK);
 
-	@RequestMapping(path = "/logout")
+		} catch (Exception ex) {
+			log.error("Error getting user profilde data", ex);
+			return new ResponseEntity<List<Beneficiary>>(new ArrayList<Beneficiary>(), HttpStatus.BAD_REQUEST);
+		}
+	}
+	@RequestMapping(path ="/giveup/all", method = RequestMethod.GET )
+	public ResponseEntity<List<GiveUp>> getAllGiveUp(){
+		String bearerToken = null;
+		try {
+			bearerToken = HomeController.getBearerToken();
+			UserServiceClient usc = ClientBeans.getUserServiceClient();
+			
+			List<GiveUp> giveup = usc.getAllGiveup(bearerToken);
+			return new ResponseEntity<List<GiveUp>>(giveup,HttpStatus.OK);
+
+		} catch (Exception ex) {
+			log.error("Error getting user profilde data", ex);
+			return new ResponseEntity<List<GiveUp>>(new ArrayList<GiveUp>(),HttpStatus.BAD_REQUEST);
+		}
+	}
+	@RequestMapping(path = "/logout" )
     public String logout(HttpServletRequest request){
 		try {
 			request.logout();
@@ -323,7 +388,7 @@ public class HomeController {
 			{
 				user.setPictureLink(userServiceUrl + user.getPictureLink());
 			}
-			List<GenericItem<Long>> benFollowees = usc.getBeneficiaryFollowees(bearerToken, user.getId());
+			List<GenericItem> benFollowees = usc.getBeneficiaryFollowees(bearerToken, user.getId());
 			log.info("User service URL is: " + userServiceUrl);
 			mv.addObject("user", user);
 			mv.addObject("userServiceUrl", userServiceUrl);
@@ -379,11 +444,11 @@ public class HomeController {
 		log.info("Found username principal: " + userId);
 		String bearerToken = null;
 		try {
-			bearerToken = HomeController.getBearerToken();
-			UserServiceClient usc = ClientBeans.getUserServiceClient();
+			bearerToken = HomeController.getBearerTokenForPledge();
+			PledgeServiceClient psc = ClientBeans.getPledgeServiceClient();
 			
 			try {
-				List<Map<String, Object>> pledges = usc.getAllPledgesForUser(bearerToken, userId);
+				List<Map<String, Object>> pledges = psc.getAllPledgesForUser(bearerToken, userId);
 				System.out.println(pledges.size());
 				mv.addObject("pledges", pledges);
 			} catch (Exception ex) {

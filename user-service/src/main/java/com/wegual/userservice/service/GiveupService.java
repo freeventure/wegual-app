@@ -1,5 +1,6 @@
 package com.wegual.userservice.service;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -17,9 +18,11 @@ import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wegual.userservice.ElasticSearchConfig;
 
 import app.wegual.common.model.GenericItem;
+import app.wegual.common.model.GiveUp;
 import lombok.extern.slf4j.Slf4j;
 
 
@@ -62,5 +65,31 @@ public class GiveupService {
 			log.error("Error getting gveups user pledged for: " + userId , e);
 		}
 		return giveup;
+	}
+	
+	public List<GiveUp> getAllGiveup(){
+		SearchRequest searchRequest = new SearchRequest("giveup_idx");
+		SearchSourceBuilder sourceBuilder = new SearchSourceBuilder(); 
+		sourceBuilder.query(QueryBuilders.matchAllQuery());
+		searchRequest.source(sourceBuilder);
+		
+		RestHighLevelClient client = esConfig.getElastcsearchClient();
+		
+		try {
+			SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
+			List<GiveUp> giveups = new ArrayList<GiveUp>();
+			if(searchResponse.getHits().getTotalHits().value>0L) {
+				for (SearchHit hit: searchResponse.getHits()) {
+					GiveUp giveup = new ObjectMapper().readValue(hit.getSourceAsString(), GiveUp.class);
+					giveups.add(giveup);
+				}
+				
+				return giveups;
+			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return new ArrayList<GiveUp>();
 	}
 }

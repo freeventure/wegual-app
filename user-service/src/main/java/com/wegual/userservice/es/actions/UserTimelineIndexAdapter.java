@@ -26,11 +26,20 @@ public class UserTimelineIndexAdapter {
 
 		getActionTargetObject(xb, "action_object", uti.getActionObject());
 		getActionTargetObject(xb, "target_object", uti.getTarget());
+		if(uti.getDetailActions()!=null)
+			getDetailActionObject(xb, "detail_actions", uti.getDetailActions());
         xb.endObject();
 
         return xb;
 	}
 	
+	private XContentBuilder getDetailActionObject(XContentBuilder source, String objectName, TimelineItemDetailActions da) throws IOException {
+		return source.startObject(objectName)
+		        .field("view_detail", da.isViewDetail())
+		        .field("share", da.isShare())
+		        .endObject();
+	}
+
 	private XContentBuilder getActionTargetObject(XContentBuilder source, String objectName, ActionTarget<String> gat) throws IOException {
 		return source.startObject(objectName)
         .field("id", gat.getId())

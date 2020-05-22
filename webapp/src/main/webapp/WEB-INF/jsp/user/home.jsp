@@ -1,9 +1,12 @@
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <!DOCTYPE html>
 <html>
 <head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="_csrf" content="${_csrf.token}"/>
+  <meta name="_csrf_header" content="${_csrf.headerName}"/>
   <title>Wegual | Home</title>
   <!-- Tell the browser to be responsive to screen width -->
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -41,9 +44,10 @@
         </div>
       </div>
     </form>
-
+	
     <!-- Right navbar links -->
     <ul class="navbar-nav ml-auto">
+    <a href="#" class="btn btn-primary" onclick="renderdropdown()" data-toggle="modal" data-target="#myModal">Pledge</a>
       <!-- Messages Dropdown Menu -->
       <!-- Notifications Dropdown Menu -->
       <li class="nav-item dropdown">
@@ -84,6 +88,54 @@
     </ul>
   </nav>
   <!-- /.navbar -->
+  
+   <div class="modal fade" id="myModal">
+        <div class="modal-dialog modal-dialog-centered">
+          <div class="modal-content">
+
+            <!-- Modal Header -->
+            <div class="modal-header">
+              <h5 class="modal-title">Enter Details</h5>
+              <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+			<form action="/home/pledge/submit" method="post" id="pledgeForm">
+            <!-- Modal body -->
+            <div class="modal-body">
+            	
+              	<div class="form-group">
+    				<label for="exampleInputEmail1">Beneficiary</label>
+    				<select name = "beneficiaryId" class="custom-select" id="beneficiarySelect">
+  					</select>
+  				</div>
+  				<div class="form-group">
+    				<label for="exampleInputEmail1">Giveup</label>
+    				<select name="giveupId" class="custom-select" id="giveupSelect">
+   					</select>
+  				</div>
+  				<div class="form-group">
+    				<label for="exampleInputEmail1">Currency</label>
+    				<select name="currency" class="custom-select" id="currencySelect">
+    					<option  value="INR">INR</option>
+    					<option  value="USD">USD</option>
+  					</select>
+  				</div>
+  				<div class="form-group">
+    				<label for="exampleInputEmail1">Amount</label>
+    				<input name="amount" type="number" class="form-control"  placeholder="Amount" />
+  				</div>
+  				<div>
+  				 	<input type="hidden" name="userId" value="${homePageData.user.id}" />
+  				</div>
+            </div>
+
+            <!-- Modal footer -->
+            <div class="modal-footer">
+              <button type="submit"  class="btn btn-success" value="submit">Submit</button>
+            </div>
+			</form>
+          </div>
+        </div>
+      </div>
 
   <!-- Main Sidebar Container -->
   <aside class="main-sidebar sidebar-dark-primary elevation-4">
@@ -104,7 +156,7 @@
           <img id="image-profile-sidebar" src="<c:url value="${homePageData.user.pictureLink}" />" class="img-circle elevation-2" alt="User Image">
         </div>
         <div class="info">
-          <a href="#" class="d-block">${homePageData.user.firstName} ${homePageData.user.lastName}</a>
+          <a href="<c:url value="/home/profile" />" class="d-block">${homePageData.user.firstName} ${homePageData.user.lastName}</a>
         </div>
       </div>
 
@@ -365,5 +417,70 @@
 <script src="<c:url value="/js/adminlte.min.js" />"></script>
 <!-- AdminLTE for demo purposes -->
 <script src="<c:url value="/js/demo.js" />"></script>
+<script src="https://code.jquery.com/jquery-3.5.1.js"
+integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc="
+crossorigin="anonymous"></script>
+<script>
+function renderdropdown(){
+    var token = $("meta[name='_csrf']").attr("content");
+    var header = $("meta[name='_csrf_header']").attr("content");
+    $.ajax({
+        url:'/beneficiary/all',
+        type: "GET",
+        cache: false,
+        contentType: false,
+        processData: false,
+        beforeSend: function(xhr){
+            xhr.setRequestHeader(header, token);
+            },
+           success : function (data, status, xhr){
+			var bens ="";
+	        data.map((ben) => {
+	    	        bens = bens+"<option  value="+ben.beneficiary_id+">"+ben.beneficiary_name+"</option>";
+	    	        })
+	    	        document.getElementById("beneficiarySelect").innerHTML= bens;
+               }
+       });
+    $.ajax({
+        url:'/giveup/all',
+        type: "GET",
+        cache: false,
+        contentType: false,
+        processData: false,
+        beforeSend: function(xhr){
+            xhr.setRequestHeader(header, token);
+            },
+           success : function (data, status, xhr){
+			var giveups ="";
+	        data.map((giveup) => {
+	    	        giveups = giveups+"<option  value="+giveup.giveup_id+">"+giveup.giveup_name+"</option>";
+	    	        })
+	    	        document.getElementById("giveupSelect").innerHTML= giveups;
+           }
+       });
+   };
+   $("#pledgeForm").submit(function(event){
+		event.preventDefault();
+		var token = $("meta[name='_csrf']").attr("content");
+		var header = $("meta[name='_csrf_header']").attr("content");
+	    var post_url = $(this).attr("action");
+	    var request_method = $(this).attr("method");
+	    var form_data = $(this).serialize();
+	    $.ajax({
+				url: post_url,
+				type: request_method,
+				data: form_data,
+				cache: false,
+				beforeSend: function(xhr){
+					xhr.setRequestHeader(header, token);
+					}
+	        })
+	        .done(function(e){
+				console.log("pledge saved");
+				setInterval('location.reload()', 3000);
+	        });
+	});
+</script>
+
 </body>
 </html>

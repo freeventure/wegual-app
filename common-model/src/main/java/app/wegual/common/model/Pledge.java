@@ -1,8 +1,8 @@
 package app.wegual.common.model;
 
 import java.io.Serializable;
-import java.sql.Timestamp;
 import java.util.Currency;
+
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -16,18 +16,19 @@ public class Pledge implements Serializable {
 	
 	private static final long serialVersionUID = 1L;
 
-	private Long id;
+	
+	private String id;
     
     @JsonProperty("pledged_by")
-    private GenericItem<String> pledgedBy;
+    private GenericItem pledgedBy;
     
-    private GenericItem<Long> beneficiary;
+    private GenericItem beneficiary;
     
     @JsonProperty("give_up")
-	private GenericItem<Long> giveUp;
+	private GenericItem giveUp;
 
     @JsonProperty("pledged_date")
-	private Timestamp pledgedDate;
+	private Long pledgedDate;
     
 	private Double amount;
     
