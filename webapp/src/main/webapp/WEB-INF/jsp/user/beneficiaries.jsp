@@ -187,24 +187,128 @@
     <section class="content">
       <div class="container-fluid">
        <div class="row">
-        <div class ="col-md-6 col-sm-12">
-         <center><h1> Following</h1></center>
-         <br>
-          <c:forEach var="followee" items="${benFollowees}">
-           <div class="row">
-            <div class="col-sm-3">
-             <img id="followeePic" src="<c:url value="${userServiceUrl}${followee.pictureLink}" />" class="img-circle elevation-2" alt="User Image">
-            </div>
-            <div class="col-sm-7">
-             <a href="/beneficiary/profile/${followee.id}" ><h3> ${followee.name}</h3></a>
-            </div>
-            <div class="col-sm-2">
-             <p>Unfollow</p>
-            </div>
-           </div>
-           <hr>
-          </c:forEach>
-        </div>
+       <div class="col-md-3">
+                        <div class="d-none d-lg-block card card-footer-compact card-comments ">
+                            <div class="card-header-compact">
+                                <h5><b>Trends For You</b></h5>
+                            </div>
+                            <!-- /.card-header -->
+                            <div class="card-comment card-body-compact">
+                                <p class="text-muted">Beneficiaries - Trending</p>
+                                <p class="username-light">OSAAT USA</p>
+                                <p class="text-muted">24 Followers, $1200 Pledged</p>
+                            </div>
+                            <!-- /.card-body -->
+                            <div class="card-comment card-body-compact">
+                                <p class="text-muted">Users - Trending</p>
+                                <p class="username-light">Wegual UserTwo</p>
+                                <p class="text-muted">24 Followers, 6 pledges</p>
+                            </div>
+                            <div class="card-comment card-body-compact">
+                                <p class="text-muted">Locations - Trending</p>
+                                <p class="username-light">California, USA</p>
+                                <p class="text-muted">24 Pledges, 6 Beneficiaries</p>
+                            </div>
+                            <div class="card-comment card-body-compact">
+                                <p class="text-muted">Give Ups - Trending</p>
+                                <p class="username-light">Birthday party gifts give up</p>
+                                <p class="text-muted">224 Followers, 89 Beneficiaries</p>
+                            </div>
+                            <div class="card-comment center card-body-compact">
+                                <p class="text-primary">Show more</p>
+                            </div>
+                        </div>
+                    </div>
+        <div class="col-md-6">
+			            <div class="card">
+			              <div class="card-header p-2">
+			                <ul class="nav nav-pills">
+			                  <li class="nav-item"><a class="nav-link active" href="#followed" data-toggle="tab">Following</a></li>
+							  <li class="nav-item"><a class="nav-link" href="#pledged" data-toggle="tab">Pledged For</a></li>
+			                </ul>
+			              </div><!-- /.card-header -->
+			              <div class="card-body">
+			                <div class="tab-content">
+			                  <!-- /.tab-pane -->
+			                  <div class="tab-pane" id="pledged">
+		                        <div class="row" style="padding: 1%;">
+									<h1>Beneficiary used for Pledges</h1>
+										<div class="col-md-12">
+											<c:forEach var="ben" items="${benpledged}">
+		                                    	<div class="row elevation-1" style="padding: 1%;">
+													<div class="col-md-4">
+														<img id="followeePic" src="/img/user4-128x128.jpg"
+		                                                	class="img-circle elevation-2" alt="User Image">
+													</div>
+														<div class="col-md-6">
+		                                            	<a href="/beneficiary/profile/${ben.id}">
+		                                                	<h3>${ben.name}</h3>
+		                                            	</a>
+													</div>
+													<!-- <div class="col-md-2">
+														<button type="button" onclick="unlike(${giveup.id})" class=" float-right follow-button btn btn-outline-primary btn-xs">Unlike</button>
+													</div> -->
+												</div>
+		                                		</c:forEach>
+										</div>
+								</div>
+                    		</div>
+                    		<div class="tab-pane active" id="followed">
+		                        <div class="row" style="padding: 1%;">
+		                                <h1>Beneficiary followed by User</h1>
+			                            <div id="followedBen" class="col-md-12">
+			                                <c:forEach var="ben" items="${followedBen}">
+			                                    <div id="followedBen${ben.id}" class="row elevation-1" style="padding: 1%;">
+			                                        <div class="col-md-4">
+			                                            <img id="followeeBen${ben.id}Pic" src="/img/user4-128x128.jpg"
+			                                                class="img-circle elevation-2" alt="User Image">
+			                                        </div>
+			                                        <div class="col-md-6">
+			                                            <a>
+			                                                <h3>${ben.name}</h3>
+			                                            </a>
+			                                        </div>
+			                                        <div class="col-md-2">
+			                                            <button type="button" onclick="unfollow(${ben.id})" class=" float-right follow-button btn btn-outline-primary btn-xs">Unfollow</button>
+			                                        </div>
+			                                    </div>
+			                                </c:forEach>
+			                            </div>
+		                        </div>
+                    		</div>
+                   		</div>
+                	</div>
+                    		</div>
+                    		</div>
+                    		<div class="col-md-3">
+                        <div class="d-none d-lg-block card card-footer-compact card-comments ">
+                            <div class="card-header-compact">
+                                <h5><b>Beneficiaries You May Like</b></h5>
+                            </div>
+                            <!-- /.card-header -->
+                            <c:forEach var="ben" items="${suggestedBen}">
+	                            <div id="suggestedBen${ben.id}" class="card-comment">
+	                                <!-- User image -->
+	                                <img class="img-circle img-sm" src="/img/user3-128x128.jpg" alt="User
+	                                Image">
+	
+	                                <div class="comment-text">
+	                                    <span class="username">
+	                                        ${ben.name}
+	                                        <button type="button" onclick="follow(${ben.id})" class=" float-right follow-button btn btn-outline-primary btn-xs">Follow</button>
+	                                    </span><!-- /.username -->
+	
+	                                </div>
+	                                <!-- /.comment-text -->
+	                            </div>
+	                            <!-- /.card-body -->
+	                        </c:forEach>
+                            <div class="card-comment center card-body-compact">
+                                <p class="text-primary">Show more</p>
+                            </div>
+                        </div>
+
+                    </div>
        </div>
       </div>
     </section>
@@ -220,5 +324,50 @@
 <script src="<c:url value="/js/adminlte.min.js" />"></script>
 <!-- AdminLTE for demo purposes -->
 <script src="<c:url value="/js/demo.js" />"></script>
+<script type="text/javascript">
+    	function follow(id){
+    		var token = $("meta[name='_csrf']").attr("content");
+			var header = $("meta[name='_csrf_header']").attr("content");
+			console.log(token);
+			console.log(header);
+        	$.ajax({
+            	url:'/home/beneficiary/follow/'+id,
+            	type: "POST",
+            	cache: false,
+            	contentType: false,
+            	processsData: false,
+            	beforeSend: function(xhr){
+                	xhr.setRequestHeader(header, token);
+                	}
+            })
+            .done(function(e){
+                //var followed = document.getElementById("suggestedBen"+id);
+                //console.log(followed.div);
+                console.log("Beneficiary Followed");
+                setInterval('location.reload()', 2000);
+                });
+        }
+
+    	function unfollow(id){
+        	var token = $("meta[name='_csrf']").attr("content");
+        	var header = $("meta[name='_csrf_header']").attr("content");
+        	$.ajax({
+            	url:'/home/beneficiary/unfollow/'+id,
+            	type: "POST",
+            	cache: false,
+            	contentType: false,
+            	processsData: false,
+            	beforeSend: function(xhr){
+                	xhr.setRequestHeader(header, token);
+                	}
+            })
+            .done(function(e){
+                //var unfollowed = document.getElementById("followedBen"+id);
+                //unfollowed.remove();
+                console.log("Beneficiary Unfollowed");
+                setInterval('location.reload()', 2000);
+                });
+        }
+   </script>
 </body>
 </html>

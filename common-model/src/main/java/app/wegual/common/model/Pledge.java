@@ -16,16 +16,16 @@ public class Pledge implements Serializable {
 	
 	private static final long serialVersionUID = 1L;
 
-	
+	@JsonProperty("pledge_id")
 	private String id;
     
     @JsonProperty("pledged_by")
-    private GenericItem pledgedBy;
+    private GenericItem<String> pledgedBy;
     
-    private GenericItem beneficiary;
+    private GenericItem<String> beneficiary;
     
     @JsonProperty("give_up")
-	private GenericItem giveUp;
+	private GenericItem<String> giveUp;
 
     @JsonProperty("pledged_date")
 	private Long pledgedDate;
@@ -34,4 +34,5 @@ public class Pledge implements Serializable {
     
 	private Currency currency;
 	
+	private String description;
 }

@@ -1,16 +1,44 @@
 {
-	"settings": {
-		"number_of_shards": 5
-	},
 	"mappings": {
 		"properties": {
-			"follower_user_id": {
-				"type": "keyword"
+			"id" : {
+				"type" : "keyword"
 			},
-			"beneficiary_id": {
-				"type": "keyword"
+			"user_follower": {
+				"type": "nested",
+				"properties": {
+					"id": {
+						"type": "keyword"
+					},
+					"name": {
+						"type": "text"
+					},
+					"permalink": {
+						"type": "keyword"
+					},
+					"picture_link": {
+						"type": "keyword"
+					}
+				}
 			},
-			"date_stamp": {
+			"beneficiary_followee": {
+				"type": "nested",
+				"properties": {
+					"id": {
+						"type": "keyword"
+					},
+					"name": {
+						"type": "text"
+					},
+					"permalink": {
+						"type": "keyword"
+					},
+					"picture_link": {
+						"type": "keyword"
+					}
+				}
+			},
+			"follow_date": {
 				"type": "long"
 			}
 		}

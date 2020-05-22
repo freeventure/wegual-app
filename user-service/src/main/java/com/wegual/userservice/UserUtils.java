@@ -4,16 +4,28 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
+import org.elasticsearch.action.search.SearchRequest;
+import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.client.RequestOptions;
+import org.elasticsearch.client.RestHighLevelClient;
+import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.builder.SearchSourceBuilder;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import app.wegual.common.model.GenericItem;
 import app.wegual.common.model.User;
 import app.wegual.common.model.UserEmailVerifyToken;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class UserUtils {
+	
+	@Autowired
+	private static ElasticSearchConfig esConfig;
 
 	public static User userFromESDocument(Map<String, Object> source) {
 		if(source == null || source.isEmpty())
@@ -93,6 +105,35 @@ public class UserUtils {
 			}
 		}
 		return jsonMap;
+	}
+	
+	public static GenericItem<String> getUserGenericItem(String userId) {
+		GenericItem<String> user = new GenericItem<String>();
+		try {
+			SearchRequest searchRequest = new SearchRequest("user_idx");
+			SearchSourceBuilder sourceBuilder = new SearchSourceBuilder(); 
+			sourceBuilder.query(QueryBuilders.termQuery("user_id", userId));
+			searchRequest.source(sourceBuilder);
+			
+			RestHighLevelClient client = esConfig.getElastcsearchClient();
+			SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
+			
+			User u = null;
+			if(searchResponse.getHits().getTotalHits().value>0L) {
+				for(SearchHit hit : searchResponse.getHits()) {
+					u = new ObjectMapper().readValue(hit.getSourceAsString(), User.class);
+				}
+			}
+			user.setId(u.getId());
+			user.setName(u.getFirstName()+" "+u.getLastName());
+			user.setPictureLink(u.getPictureLink());
+			user.setPermalink("/user/"+u.getId());
+			return user;
+			
+		} catch (Exception e) {
+			log.info("Users not found", e);
+		}
+		return user;
 	}
 	
 }

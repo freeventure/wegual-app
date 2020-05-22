@@ -6,10 +6,9 @@ import java.util.Map;
 import app.wegual.common.model.GenericItem;
 import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
 public class GenericItemGiveUpUtils {
-	public static GenericItem giveupGenericItemFromEsDocument(Map<String, Object> source) {
-		GenericItem giveup = new GenericItem();
+	public static GenericItem<String> giveupGenericItemFromEsDocument(Map<String, Object> source) {
+		GenericItem<String> giveup = new GenericItem<String>();
 		String giveupId = source.get("giveup_id").toString();
 		giveup.setId(source.get("giveup_id").toString());
 		giveup.setName(source.get("giveup_name").toString());
@@ -18,7 +17,7 @@ public class GenericItemGiveUpUtils {
 		return giveup;
 	}
 	
-	public static Map<String, Object> jsonPropertiesFromGenericItemGiveUp(GenericItem giveup){
+	public static Map<String, Object> jsonPropertiesFromGenericItemGiveUp(GenericItem<String> giveup){
 		Map<String, Object> giveupmap = new HashMap<String, Object>();
 		
 		if(giveup!=null) {

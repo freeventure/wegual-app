@@ -2,7 +2,6 @@ package com.wegual.userservice.controller;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -11,7 +10,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,18 +19,10 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.wegual.userservice.analytics.UserAnalyticsService;
-import com.wegual.userservice.service.GiveupService;
 import com.wegual.userservice.service.KeycloakUserService;
 import com.wegual.userservice.service.UserActionsService;
-import com.wegual.userservice.service.UserBeneficiaryService;
 import com.wegual.userservice.service.UserTimelineService;
 
-import app.wegual.common.model.Beneficiary;
-import app.wegual.common.model.GenericItem;
-import app.wegual.common.model.GiveUp;
-import app.wegual.common.model.Pledge;
-import app.wegual.common.model.PledgeAnalyticsForUser;
-import app.wegual.common.model.RegisterPledge;
 import app.wegual.common.model.TokenStatus;
 import app.wegual.common.model.User;
 import app.wegual.common.model.UserTimelineItem;
@@ -58,9 +48,6 @@ public class UserController {
 	UserTimelineService uts;
 	
 	@Autowired
-	GiveupService gs;
-	
-	@Autowired
     private DBFileStorageService dbFileStorageService;
 
 	@GetMapping(value="/test/keycloak/activate/account/{userid}")
@@ -75,9 +62,6 @@ public class UserController {
 		}
 	}
 	
-	
-	@Autowired 
-	private UserBeneficiaryService ubs;
 
 //	@GetMapping(value="/test/keycloak/account")
 //	ResponseEntity<String> createKeycloakAcount() {
@@ -141,17 +125,6 @@ public class UserController {
 	}
 	
 	@PreAuthorize("#oauth2.hasScope('user-service')")
-	@GetMapping("/users/pledges/giveup/{userid}")
-	ResponseEntity<List<Object>> getAllGiveupUserPledgedFor(@PathVariable String userid) {
-		try {
-			List<Object> giveup = (List<Object>) gs.getAllGiveupUserPledgedFor(userid);
-			return new ResponseEntity<List<Object>>(giveup, HttpStatus.OK);
-		} catch (Exception e) {
-			return new ResponseEntity<List<Object>>(new ArrayList<Object>(), HttpStatus.BAD_REQUEST);
-		}
-	}
-	
-	@PreAuthorize("#oauth2.hasScope('user-service')")
 	@GetMapping("/users/following/{userid}")
 	ResponseEntity<UserFollowees> getUserFollowees(@PathVariable String userid) {
 		try {
@@ -177,40 +150,6 @@ public class UserController {
 			return new ResponseEntity<User>(new User(), HttpStatus.BAD_REQUEST);
 		}
 		
-	}
-	
-	@PreAuthorize("#oauth2.hasScope('user-service')")
-	@GetMapping("/users/beneficiaryFollowee/{userid}")
-	ResponseEntity<List<GenericItem>> getBeneficiaryFollowees(@PathVariable("userid")  String userId) {
-		try {
-			List<GenericItem> benFolloweeList = ubs.getBeneficiaryFollowees(userId);
-			return new ResponseEntity<List<GenericItem>>(benFolloweeList, HttpStatus.OK);
-		}
-		catch(Exception e) {
-			return new ResponseEntity<List<GenericItem>>(new ArrayList<GenericItem>(), HttpStatus.BAD_REQUEST);
-		}
-	}
-	@PreAuthorize("#oauth2.hasScope('user-service')")
-	@GetMapping("/users/beneficiary/all")
-	ResponseEntity<List<Beneficiary>> getAllBeneficiary() {
-		try {
-			List<Beneficiary> bens = ubs.getAllBeneficiary();
-			return new ResponseEntity<List<Beneficiary>>(bens, HttpStatus.OK);
-		}
-		catch(Exception e) {
-			return new ResponseEntity<List<Beneficiary>>(new ArrayList<Beneficiary>(), HttpStatus.BAD_REQUEST);
-		}
-	}
-	@PreAuthorize("#oauth2.hasScope('user-service')")
-	@GetMapping("/users/giveup/all")
-	ResponseEntity<List<GiveUp>> getAllGiveUp() {
-		try {
-			List<GiveUp> giveups = gs.getAllGiveup();
-			return new ResponseEntity<List<GiveUp>>(giveups, HttpStatus.OK);
-		}
-		catch(Exception e) {
-			return new ResponseEntity<List<GiveUp>>(new ArrayList<GiveUp>(), HttpStatus.BAD_REQUEST);
-		}
 	}
 
 //	@GetMapping("/test/users/profile/{username}")

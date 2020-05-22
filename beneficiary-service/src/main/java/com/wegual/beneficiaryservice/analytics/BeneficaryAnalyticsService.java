@@ -38,9 +38,9 @@ public class BeneficaryAnalyticsService {
 		searchRequest.source(sourceBuilder);
 		
 		try {
-			RestHighLevelClient client = esConfig.getElastcsearchClient();
+			RestHighLevelClient client = esConfig.getElasticsearchClient();
 			SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
-			return searchResponse.getHits().getTotalHits();
+			return searchResponse.getHits().getTotalHits().value;
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -58,9 +58,9 @@ public class BeneficaryAnalyticsService {
 		searchRequest.source(sourceBuilder);
 		
 		try {
-			RestHighLevelClient client = esConfig.getElastcsearchClient();
+			RestHighLevelClient client = esConfig.getElasticsearchClient();
 			SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
-			return new BeneficiaryFollowers(beneficiaryId, searchResponse.getHits().getTotalHits());
+			return new BeneficiaryFollowers(beneficiaryId, searchResponse.getHits().getTotalHits().value);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -89,7 +89,7 @@ public class BeneficaryAnalyticsService {
 		try {
 			
 			// process returned aggregation
-			RestHighLevelClient client = esConfig.getElastcsearchClient();
+			RestHighLevelClient client = esConfig.getElasticsearchClient();
 			SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
 			Aggregations aggregations = searchResponse.getAggregations();
 			Terms byFollowersAggregation = aggregations.get("followers");
@@ -97,7 +97,7 @@ public class BeneficaryAnalyticsService {
 			// user streams here?
 			for(Bucket bucket: byFollowersAggregation.getBuckets()) {
 				top10.add(new BeneficiaryFollowers(Long.valueOf(bucket.getKeyAsString()),
-						new Long(bucket.getDocCount())));
+						(bucket.getDocCount())));
 			}
 			
 			return top10;

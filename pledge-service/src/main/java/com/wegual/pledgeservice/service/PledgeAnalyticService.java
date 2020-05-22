@@ -26,15 +26,15 @@ public class PledgeAnalyticService {
 		
 	@Autowired
 	private ElasticSearchConfig esConfig;
-	
-		public PledgeAnalyticsForUser getCounts(String userId) {
+
+	public PledgeAnalyticsForUser getCounts(String userId) {
 		log.info("Inside pledge analytics service");
 		try {
 			SearchRequest searchRequest = new SearchRequest("pledge_idx");
 			SearchSourceBuilder sourceBuilder = new SearchSourceBuilder(); 
 			sourceBuilder.query(QueryBuilders.nestedQuery("pledged_by",QueryBuilders.boolQuery().must(QueryBuilders.termQuery("pledged_by.id", userId)), ScoreMode.None));
 			searchRequest.source(sourceBuilder);
-		
+
 			RestHighLevelClient client = esConfig.getElastcsearchClient();
 			SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
 			if(searchResponse.getHits().getTotalHits().value > 0L) {
@@ -47,25 +47,25 @@ public class PledgeAnalyticService {
 			return new PledgeAnalyticsForUser();
 		}
 	}
-		@SuppressWarnings("unchecked")
-		private PledgeAnalyticsForUser parsePledgeSearchHits(SearchResponse searchResponse, long pledgecount) {
-			Map<String, Object> src = null;
-			Map<String, Object> beneficiary = null;
-			Map<String, Object> giveup = null;
-			HashSet<String> beneficiaryset = new HashSet<String>();
-			HashSet<String> giveupset = new HashSet<String>();
-			for (SearchHit hit: searchResponse.getHits()) {
-				src = hit.getSourceAsMap();
-				beneficiary = (Map<String, Object>)src.get("beneficiary");
-				giveup = (Map<String, Object>)src.get("give_up");
-				log.info(src.toString());
-				String benstr = (String)beneficiary.get("id");
-				String giveupstr = (String)giveup.get("id");
-
-				beneficiaryset.add(benstr);
-				giveupset.add(giveupstr);
-			}
-			PledgeAnalyticsForUser counts =new PledgeAnalyticsForUser(pledgecount, beneficiaryset.size(), giveupset.size());
-			return counts;
+	
+	@SuppressWarnings("unchecked")
+	private PledgeAnalyticsForUser parsePledgeSearchHits(SearchResponse searchResponse, long pledgecount) {
+		Map<String, Object> src = null;
+		Map<String, Object> beneficiary = null;
+		Map<String, Object> giveup = null;
+		HashSet<String> beneficiaryset = new HashSet<String>();
+		HashSet<String> giveupset = new HashSet<String>();
+		for (SearchHit hit: searchResponse.getHits()) {
+			src = hit.getSourceAsMap();
+			beneficiary = (Map<String, Object>)src.get("beneficiary");
+			giveup = (Map<String, Object>)src.get("give_up");
+			log.info(src.toString());
+			String benstr = (String)beneficiary.get("id");
+			String giveupstr = (String)giveup.get("id");
+			beneficiaryset.add(benstr);
+			giveupset.add(giveupstr);
 		}
+		PledgeAnalyticsForUser counts =new PledgeAnalyticsForUser(pledgecount, beneficiaryset.size(), giveupset.size());
+		return counts;
+	}
 }

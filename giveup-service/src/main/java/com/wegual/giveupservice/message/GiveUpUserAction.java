@@ -1,55 +1,29 @@
 package com.wegual.giveupservice.message;
 
 import java.io.Serializable;
-import java.util.Date;
 
-import app.wegual.common.model.GiveUp;
-import app.wegual.common.model.User;
+import app.wegual.common.model.GenericItem;
 import app.wegual.common.model.UserActionType;
+import lombok.Getter;
+import lombok.Setter;
 
-
+@Getter
+@Setter
 public class GiveUpUserAction implements Serializable {
 	private static final long serialVersionUID = 1L;
-	private GiveUp giveUp;
-	private User user;
+	private GenericItem<Long> giveUp;
+	private GenericItem<String> user;
 	private UserActionType userActionType;
-	private Date actionDate;
+	private long actionDate;
 	
 	public GiveUpUserAction() {
 		
 	}
 	
-	public GiveUpUserAction(GiveUp gu, User u) {
-		giveUp = gu;
-		user = u;
-		actionDate = new Date();
-	}
-	
-	public GiveUp getGiveUp() {
-		return giveUp;
-	}
-	public void setGiveUp(GiveUp gu) {
+	public GiveUpUserAction(GenericItem<Long> gu, GenericItem<String> u) {
 		this.giveUp = gu;
-	}
-	public User getUser() {
-		return user;
-	}
-	public void setUser(User user) {
-		this.user = user;
-	}
-	public UserActionType getUserActionType() {
-		return userActionType;
-	}
-	public void setUserActionType(UserActionType userActionType) {
-		this.userActionType = userActionType;
-	}
-
-	public Date getActionDate() {
-		return actionDate;
-	}
-
-	public void setActionDate(Date actionDate) {
-		this.actionDate = actionDate;
+		this.user = u;
+		actionDate = System.currentTimeMillis();
 	}
 
 }

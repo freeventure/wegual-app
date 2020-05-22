@@ -32,6 +32,7 @@ import com.wegual.userservice.UserUtils;
 import com.wegual.userservice.message.UserActionsAsynchMessageSender;
 
 import app.wegual.common.asynch.SenderRunnable;
+import app.wegual.common.model.GiveUpLike;
 import app.wegual.common.model.TokenStatus;
 import app.wegual.common.model.User;
 import app.wegual.common.model.UserEmailVerifyToken;
@@ -287,6 +288,10 @@ public class UserActionsService {
 
 	protected void sendMessageAsynch(UserEmailVerifyToken uevt) {
 		te.execute(new SenderRunnable<UserActionsAsynchMessageSender, UserEmailVerifyToken>(uaam, uevt));
+	}
+	
+	protected void sendMessageAsynch(GiveUpLike gul) {
+		te.execute(new SenderRunnable<UserActionsAsynchMessageSender, GiveUpLike>(uaam, gul));
 	}
 	
 }

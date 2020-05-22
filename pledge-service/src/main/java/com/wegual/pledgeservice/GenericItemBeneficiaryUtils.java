@@ -4,22 +4,20 @@ import java.util.HashMap;
 import java.util.Map;
 
 import app.wegual.common.model.GenericItem;
-import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
 public class GenericItemBeneficiaryUtils {
 
-	public static GenericItem beneficiaryGenericItemFromEsDocument(Map<String, Object> source) {
-		GenericItem beneficiary = new GenericItem();
+	public static GenericItem<String> beneficiaryGenericItemFromEsDocument(Map<String, Object> source) {
+		GenericItem<String> beneficiary = new GenericItem<String>();
 		String beneficiaryId = source.get("beneficiary_id").toString();
 		beneficiary.setId(source.get("beneficiary_id").toString());
 		beneficiary.setName(source.get("beneficiary_name").toString());
 		beneficiary.setPermalink("/beneficiary/"+beneficiaryId);
-		beneficiary.setPictureLink(source.get("picture_link").toString());
+		// beneficiary.setPictureLink(source.get("picture_link").toString());
 		return beneficiary;
 	}
 	
-	public static Map<String, Object> jsonPropertiesFromGenericItemBeneficiary(GenericItem beneficiary){
+	public static Map<String, Object> jsonPropertiesFromGenericItemBeneficiary(GenericItem<String> beneficiary){
 		Map<String, Object> beneficiarymap = new HashMap<String, Object>();
 		
 		if(beneficiary!=null) {

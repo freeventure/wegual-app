@@ -5,6 +5,8 @@
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="_csrf" content="${_csrf.token}"/>
+  	<meta name="_csrf_header" content="${_csrf.headerName}"/>
     <title>Wegual | Giveup</title>
     <!-- Tell the browser to be responsive to screen width -->
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -205,88 +207,91 @@
                         </div>
                     </div>
                     <div class="col-md-6">
-                        <div class="row" style="padding: 1%;">
-                                <h1>Giveups Taken By User</h1>
-                            <div class="col-md-12">
-                                <c:forEach var="giveup" items="${giveups}">
-                                    <div class="row elevation-1" style="padding: 1%;">
-                                        <div class="col-md-4">
-                                            <img id="followeePic" src="/img/user4-128x128.jpg"
-                                                class="img-circle elevation-2" alt="User Image">
-                                        </div>
-                                        <div class="col-md-6">
-                                            <a>
-                                                <h3>${giveup.name}</h3>
-                                            </a>
-                                        </div>
-                                        <div class="col-md-2">
-                                            <p>Unfollow</p>
-                                        </div>
-                                    </div>
-                                </c:forEach>
-                            </div>
-                        </div>
-                    </div>
+			            <div class="card">
+			              <div class="card-header p-2">
+			                <ul class="nav nav-pills">
+			                  <li class="nav-item"><a class="nav-link active" href="#liked" data-toggle="tab">Liked</a></li>
+							  <li class="nav-item"><a class="nav-link" href="#pledged" data-toggle="tab">Pledged For</a></li>
+			                </ul>
+			              </div><!-- /.card-header -->
+			              <div class="card-body">
+			                <div class="tab-content">
+			                  <!-- /.tab-pane -->
+			                  <div class="tab-pane" id="pledged">
+		                        <div class="row" style="padding: 1%;">
+									<h1>Giveups used for Pledges</h1>
+										<div class="col-md-12">
+											<c:forEach var="giveup" items="${pledgedgiveups}">
+		                                    	<div class="row elevation-1" style="padding: 1%;">
+													<div class="col-md-4">
+														<img id="followeePic" src="/img/user4-128x128.jpg"
+		                                                	class="img-circle elevation-2" alt="User Image">
+													</div>
+														<div class="col-md-6">
+		                                            	<a>
+		                                                	<h3>${giveup.name}</h3>
+		                                            	</a>
+													</div>
+													<!-- <div class="col-md-2">
+														<button type="button" onclick="unlike(${giveup.id})" class=" float-right follow-button btn btn-outline-primary btn-xs">Unlike</button>
+													</div> -->
+												</div>
+		                                		</c:forEach>
+										</div>
+								</div>
+                    		</div>
+                    		<div class="tab-pane active" id="liked">
+		                        <div class="row" style="padding: 1%;">
+		                                <h1>Giveups liked by User</h1>
+			                            <div class="col-md-12">
+			                                <c:forEach var="giveup" items="${likedGiveups}">
+			                                    <div class="row elevation-1" style="padding: 1%;">
+			                                        <div class="col-md-4">
+			                                            <img id="followeePic" src="/img/user4-128x128.jpg"
+			                                                class="img-circle elevation-2" alt="User Image">
+			                                        </div>
+			                                        <div class="col-md-6">
+			                                            <a>
+			                                                <h3>${giveup.name}</h3>
+			                                            </a>
+			                                        </div>
+			                                        <div class="col-md-2">
+			                                            <button type="button" onclick="unlike(${giveup.id})" class=" float-right follow-button btn btn-outline-primary btn-xs">Unlike</button>
+			                                        </div>
+			                                    </div>
+			                                </c:forEach>
+			                            </div>
+		                        </div>
+                    		</div>
+                   		</div>
+                	</div>
+                    		</div>
+                    		</div>
                     <!-- /.col -->
 
                     <div class="col-md-3">
                         <div class="d-none d-lg-block card card-footer-compact card-comments ">
                             <div class="card-header-compact">
-                                <h5><b>Who to Follow</b></h5>
+                                <h5><b>Giveups You May Like</b></h5>
                             </div>
                             <!-- /.card-header -->
-                            <div class="card-comment">
-                                <!-- User image -->
-                                <img class="img-circle img-sm" src="/img/user3-128x128.jpg" alt="User
-                                Image">
-
-                                <div class="comment-text">
-                                    <span class="username">
-                                        Maria Gonzales
-                                        <button type="button"
-                                            class=" float-right follow-button btn btn-outline-primary btn-xs">Follow</button>
-                                    </span><!-- /.username -->
-
-                                </div>
-                                <span class="text-muted"><i class="fas fa-user-friends"></i>&nbsp;7 Followers</span>
-                                <span class="text-muted"><i class="fas fa-hand-holding-usd"></i>&nbsp;$1350
-                                    Pledged</span>
-                                <!-- /.comment-text -->
-                            </div>
-                            <!-- /.card-body -->
-                            <div class="card-comment">
-                                <!-- User image -->
-                                <img class="img-circle img-sm" src="/img/user5-128x128.jpg" alt="User
-                                Image">
-
-                                <div class="comment-text">
-                                    <span class="username">
-                                        Serena Gomez
-                                        <button type="button"
-                                            class=" float-right follow-button btn btn-outline-primary btn-xs">Follow</button>
-                                    </span><!-- /.username -->
-                                </div>
-                                <span class="text-muted"><i class="fas fa-user-friends"></i>&nbsp;17 Followers</span>
-                                <span class="text-muted"><i class="fas fa-hand-holding-usd"></i>&nbsp;$135
-                                    Pledged</span>
-                                <!-- /.comment-text -->
-                            </div>
-                            <div class="card-comment">
-                                <!-- User image -->
-                                <img class="img-circle img-sm" src="/img/user6-128x128.jpg" alt="User
-                                Image">
-
-                                <div class="comment-text">
-                                    <span class="username">
-                                        Joaqin Phoenix
-                                        <button type="button"
-                                            class=" float-right follow-button btn btn-outline-primary btn-xs">Follow</button>
-                                    </span><!-- /.username -->
-                                </div>
-                                <span class="text-muted"><i class="fas fa-user-friends"></i>&nbsp;21 Followers</span>
-                                <span class="text-muted"><i class="fas fa-hand-holding-usd"></i>&nbsp;$50 Pledged</span>
-                                <!-- /.comment-text -->
-                            </div>
+                            <c:forEach var="giveup" items="${suggestedGiveups}">
+	                            <div class="card-comment">
+	                                <!-- User image -->
+	                                <img class="img-circle img-sm" src="/img/user3-128x128.jpg" alt="User
+	                                Image">
+	
+	                                <div class="comment-text">
+	                                    <span class="username">
+	                                        ${giveup.name}
+	                                        <button type="button" onclick="like(${giveup.id})" class=" float-right follow-button btn btn-outline-primary btn-xs">Like</button>
+	                                    </span><!-- /.username -->
+	
+	                                </div>
+	                                <!-- /.comment-text -->
+	                            </div>
+	                            <!-- /.card-body -->
+	                        </c:forEach>
                             <div class="card-comment center card-body-compact">
                                 <p class="text-primary">Show more</p>
                             </div>
@@ -321,8 +326,55 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"
         integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6"
         crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.5.1.js"
+		integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc="
+		crossorigin="anonymous"></script>
     <!-- AdminLTE for demo purposes -->
-    <script src="./js/demo.js"></script>
+    <script src="<c:url value="/js/demo.js" />"></script>
+    <script type="text/javascript">
+    	function like(id){
+    		var token = $("meta[name='_csrf']").attr("content");
+			var header = $("meta[name='_csrf_header']").attr("content");
+			console.log(token);
+			console.log(header);
+			var test = "test";
+        	$.ajax({
+            	url:'/home/giveup/like/'+id,
+            	type: "POST",
+            	cache: false,
+            	contentType: false,
+            	data : "{}",
+            	processsData: false,
+            	beforeSend: function(xhr){
+                	xhr.setRequestHeader(header, token);
+                	}
+            })
+            .done(function(e){
+                console.log("GiveUp Liked");
+                setInterval('location.reload()', 2000);
+                });
+        }
+
+    	function unlike(id){
+        	var token = $("meta[name='_csrf']").attr("content");
+        	var header = $("meta[name='_csrf_header']").attr("content");
+        	$.ajax({
+            	url:'/home/giveup/unlike/'+id,
+            	type: "POST",
+            	cache: false,
+            	contentType: false,
+            	data : "{}",
+            	processsData: false,
+            	beforeSend: function(xhr){
+                	xhr.setRequestHeader(header, token);
+                	}
+            })
+            .done(function(e){
+                console.log("GiveUp UnLiked");
+                setInterval('location.reload()', 2000);
+                });
+        }
+    </script>
 </body>
 
 </html>

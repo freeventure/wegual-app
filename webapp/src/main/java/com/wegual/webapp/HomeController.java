@@ -36,6 +36,7 @@ import com.netflix.discovery.EurekaClient;
 import com.wegual.webapp.client.BeneficiaryServiceClient;
 import com.wegual.webapp.client.ClientBeans;
 import com.wegual.webapp.client.PledgeServiceClient;
+import com.wegual.webapp.client.GiveUpServiceClient;
 import com.wegual.webapp.client.UserServiceClient;
 import com.wegual.webapp.message.ProfileImageTimelineItemBuilder;
 import com.wegual.webapp.message.UserActionsMessageSender;
@@ -57,6 +58,8 @@ import app.wegual.common.model.GiveUp;
 
 import app.wegual.common.model.TokenStatus;
 import app.wegual.common.model.User;
+import app.wegual.common.model.UserActionItem;
+import app.wegual.common.model.UserActionType;
 import app.wegual.common.model.UserHomePageData;
 import app.wegual.common.model.UserProfileCounts;
 import app.wegual.common.model.UserProfileData;
@@ -115,7 +118,7 @@ public class HomeController {
 		return bearerToken;	
 	}
 	
-	private static String getBearerTokenForPledge() {
+	private static String getBearerTokenForPledgeService() {
 		String bearerToken = null;
 		OAuth2AccessToken token = null;
 		try {
@@ -130,6 +133,46 @@ public class HomeController {
 		}
 		catch(Exception e) {
 			log.info("Error getting access token" + e);
+			return bearerToken;
+		}
+		return bearerToken;	
+	}
+	
+	private static String getBearerTokenForBeneficiaryService() {
+		String bearerToken = null;
+		OAuth2AccessToken token = null;
+		try {
+			OAuth2RestTemplate ort = CommonBeans.getExternalServicesOAuthClients().restTemplate("beneficiary-service");
+			if (ort != null) {
+				token = ort.getAccessToken();
+				log.info("Created token");
+				log.info("Value: " + token.getValue());
+				bearerToken = "Bearer " + token.getValue();
+				return bearerToken;
+			}
+		}
+		catch(Exception e) {
+			log.info("Error getting access token" + e);
+			return bearerToken;
+		}
+		return bearerToken;	
+	}
+	
+	private static String getBearerTokenForGiveUpService() {
+		String bearerToken = null;
+		OAuth2AccessToken token = null;
+		try {
+			OAuth2RestTemplate ort = CommonBeans.getExternalServicesOAuthClients().restTemplate("giveup-service");
+			if (ort != null) {
+				token = ort.getAccessToken();
+				log.info("Created token for giveup service");
+				log.info("Value: " + token.getValue());
+				bearerToken = "Bearer " + token.getValue();
+				return bearerToken;
+			}
+		}
+		catch(Exception e) {
+			log.info("Error getting access token for giveup service" + e);
 			return bearerToken;
 		}
 		return bearerToken;	
@@ -179,7 +222,7 @@ public class HomeController {
 		String bearerToken = null;
 		
 		try {
-			bearerToken = HomeController.getBearerTokenForPledge();
+			bearerToken = HomeController.getBearerTokenForPledgeService();
 			PledgeServiceClient usc = ClientBeans.getPledgeServiceClient();			
 			usc.savePledge(bearerToken, ra);
 			}
@@ -228,7 +271,7 @@ public class HomeController {
 		String bearerTokenForPledge = null;
 		try {
 			bearerToken = HomeController.getBearerToken();
-			bearerTokenForPledge = HomeController.getBearerTokenForPledge();
+			bearerTokenForPledge = HomeController.getBearerTokenForPledgeService();
 			User user = null;
 			UserServiceClient usc = ClientBeans.getUserServiceClient();
 			PledgeServiceClient psc = ClientBeans.getPledgeServiceClient();
@@ -257,10 +300,10 @@ public class HomeController {
 	public ResponseEntity<List<Beneficiary>> getAllBeneficiary(){
 		String bearerToken = null;
 		try {
-			bearerToken = HomeController.getBearerToken();
-			UserServiceClient usc = ClientBeans.getUserServiceClient();
+			bearerToken = HomeController.getBearerTokenForBeneficiaryService();
+			BeneficiaryServiceClient bsc = ClientBeans.getBeneficiaryServiceClient();
 			
-			List<Beneficiary> beneficiary= usc.getAllBeneficiary(bearerToken);
+			List<Beneficiary> beneficiary= bsc.getAllBeneficiary(bearerToken);
 			return new ResponseEntity<List<Beneficiary>>(beneficiary, HttpStatus.OK);
 
 		} catch (Exception ex) {
@@ -272,10 +315,10 @@ public class HomeController {
 	public ResponseEntity<List<GiveUp>> getAllGiveUp(){
 		String bearerToken = null;
 		try {
-			bearerToken = HomeController.getBearerToken();
-			UserServiceClient usc = ClientBeans.getUserServiceClient();
+			bearerToken = HomeController.getBearerTokenForGiveUpService();
+			GiveUpServiceClient gsc = ClientBeans.getGiveUpServiceClient();
 			
-			List<GiveUp> giveup = usc.getAllGiveup(bearerToken);
+			List<GiveUp> giveup = gsc.getAllGiveup(bearerToken);
 			return new ResponseEntity<List<GiveUp>>(giveup,HttpStatus.OK);
 
 		} catch (Exception ex) {
@@ -373,13 +416,17 @@ public class HomeController {
 	public ModelAndView beneficiaries() {
 		ModelAndView mv = new ModelAndView("user/beneficiaries");
 		String username = kaf.getUserLoginName();
+		String userId = kaf.getUserId();
 		log.info("Found username principal: " + username);
-		String bearerToken = null;
+		String userBearerToken = null;
+		String beneficiaryBearerToken = null;
 		try {
-			bearerToken = HomeController.getBearerToken();
+			userBearerToken = HomeController.getBearerToken();
+			beneficiaryBearerToken = HomeController.getBearerTokenForBeneficiaryService();
 			User user = null;
 			UserServiceClient usc = ClientBeans.getUserServiceClient();
-			user = usc.getUser(bearerToken, username);
+			BeneficiaryServiceClient bsc = ClientBeans.getBeneficiaryServiceClient();
+			user = usc.getUser(userBearerToken, username);
 			String userServiceUrl = StringUtils.removeEnd(getUserServiceUrl(), "/");
 			log.info("User service URL is: " + userServiceUrl);
 			if(user != null && StringUtils.isEmpty(user.getPictureLink()))
@@ -388,11 +435,19 @@ public class HomeController {
 			{
 				user.setPictureLink(userServiceUrl + user.getPictureLink());
 			}
-			List<GenericItem> benFollowees = usc.getBeneficiaryFollowees(bearerToken, user.getId());
+			List<GenericItem<String>> benFollowees = bsc.getBeneficiaryFollowees(beneficiaryBearerToken, userId);
 			log.info("User service URL is: " + userServiceUrl);
 			mv.addObject("user", user);
 			mv.addObject("userServiceUrl", userServiceUrl);
 			mv.addObject("benFollowees", benFollowees);
+			
+			
+			List<Beneficiary> suggestedBen = bsc.suggestBeneficiaryToFollow(beneficiaryBearerToken, userId);
+			mv.addObject("suggestedBen", suggestedBen);
+			List<GenericItem<String>> followedBen = bsc.allBeneficiaryFollowedByUser(beneficiaryBearerToken, userId);
+			mv.addObject("followedBen", followedBen);
+			List<Object> benpledged = bsc.getAllBeneficiaryUserPledgedFor(beneficiaryBearerToken, userId);
+			mv.addObject("benpledged", benpledged);
 		}
 		catch (Exception ex) {
 			log.error("Error getting beneficiary followee", ex);
@@ -406,8 +461,10 @@ public class HomeController {
 		String username = kaf.getUserLoginName();
 		log.info("Found username principal: " + username);
 		String bearerToken = null;
+		String beneficiaryBearerToken = null;
 		try {
 			bearerToken = HomeController.getBearerToken();
+			beneficiaryBearerToken = HomeController.getBearerTokenForBeneficiaryService();
 			User user = null;
 			UserServiceClient usc = ClientBeans.getUserServiceClient();
 			user = usc.getUser(bearerToken, username);
@@ -420,10 +477,8 @@ public class HomeController {
 				user.setPictureLink(userServiceUrl + user.getPictureLink());
 			}
 			BeneficiaryServiceClient bsc = ClientBeans.getBeneficiaryServiceClient();
-			Beneficiary ben = bsc.getBeneficiary(bearerToken, benId);
-			if(ben!= null)
-				System.out.println(ben.getName());
-			BeneficiarySnapshot bs = bsc.getBeneficiarySnapshot(bearerToken, benId);
+			Beneficiary ben = bsc.getBeneficiary(beneficiaryBearerToken, benId);
+			BeneficiarySnapshot bs = bsc.getBeneficiarySnapshot(beneficiaryBearerToken, benId);
 			BeneficiaryProfileData bpd = new BeneficiaryProfileData();
 			bpd.setBeneficiary(ben);
 			bpd.setBeneficiarySnapshot(bs);
@@ -435,6 +490,42 @@ public class HomeController {
 		}
 		return mv;
 	}
+	
+	@RequestMapping("/home/beneficiary/follow/{benId}")
+	public ResponseEntity<String> followBeneficiary(@PathVariable String benId) {
+		String userId = kaf.getUserId();
+		log.info(userId + " initiates follow request for ben with id " + benId);
+		
+		try {
+			UserActionItem uat = new UserActionItem();
+			uat.setActorId(userId);
+			uat.setTargetId(benId);
+			uat.setActionType(UserActionType.FOLLOW_BENEFICIARY);
+			te.execute(new SenderRunnable<UserActionsMessageSender, UserActionItem>(uams, uat));
+			return(new ResponseEntity<String>("Ok",HttpStatus.OK));
+		} catch (Exception e) {
+			log.info("Unable to follow ben with id" + benId + "for userId" + userId, e);
+			return(new ResponseEntity<String>("Error",HttpStatus.BAD_REQUEST));
+		}
+	}
+	
+	@RequestMapping("/home/beneficiary/unfollow/{benId}")
+	public ResponseEntity<String> unfollowBeneficiary(@PathVariable String benId) {
+		String userId = kaf.getUserId();
+		log.info(userId + " initiates unfollow request for ben with id " + benId);
+		
+		try {
+			UserActionItem uat = new UserActionItem();
+			uat.setActorId(userId);
+			uat.setTargetId(benId);
+			uat.setActionType(UserActionType.UNFOLLOW_BENEFICIARY);
+			te.execute(new SenderRunnable<UserActionsMessageSender, UserActionItem>(uams, uat));
+			return(new ResponseEntity<String>("Ok",HttpStatus.OK));
+		} catch (Exception e) {
+			log.info("Unable to unfollow ben with id " + benId + " for userId " + userId, e);
+			return(new ResponseEntity<String>("Error",HttpStatus.BAD_REQUEST));
+		}
+	}
 
 	@RequestMapping("/home/pledges")
 	public ModelAndView pledge() {
@@ -444,12 +535,11 @@ public class HomeController {
 		log.info("Found username principal: " + userId);
 		String bearerToken = null;
 		try {
-			bearerToken = HomeController.getBearerTokenForPledge();
+			bearerToken = HomeController.getBearerTokenForPledgeService();
 			PledgeServiceClient psc = ClientBeans.getPledgeServiceClient();
 			
 			try {
 				List<Map<String, Object>> pledges = psc.getAllPledgesForUser(bearerToken, userId);
-				System.out.println(pledges.size());
 				mv.addObject("pledges", pledges);
 			} catch (Exception ex) {
 				log.error("Error getting pledges taken by user", ex);
@@ -460,6 +550,42 @@ public class HomeController {
 		return mv;
 	}
 	
+	@RequestMapping(value = "/home/giveup/like/{giveupId}", method = {RequestMethod.POST})
+	public ResponseEntity<String> likeGiveUp(@PathVariable String giveupId) {
+		String userId = kaf.getUserId();
+		log.info(userId + " initiates like for giveup with id " + giveupId);
+		
+		try {
+			UserActionItem uat = new UserActionItem();
+			uat.setActorId(userId);
+			uat.setTargetId(giveupId);
+			uat.setActionType(UserActionType.LIKE);
+			te.execute(new SenderRunnable<UserActionsMessageSender, UserActionItem>(uams, uat));
+			return(new ResponseEntity<String>("Ok",HttpStatus.OK));
+		} catch (Exception e) {
+			log.info("Unable to like giveup with id" + giveupId + "for userId" + userId, e);
+			return(new ResponseEntity<String>("Error",HttpStatus.BAD_REQUEST));
+		}
+	}
+	
+	@RequestMapping(value = "/home/giveup/unlike/{giveupId}", method = {RequestMethod.POST})
+	public ResponseEntity<String> unlikeGiveUp(@PathVariable String giveupId) {
+		String userId = kaf.getUserId();
+		log.info(userId + " initiates like for giveup with id " + giveupId);
+		
+		try {
+			UserActionItem uat = new UserActionItem();
+			uat.setActorId(userId);
+			uat.setTargetId(giveupId);
+			uat.setActionType(UserActionType.UNLIKE);
+			te.execute(new SenderRunnable<UserActionsMessageSender, UserActionItem>(uams, uat));
+			return(new ResponseEntity<String>("Ok",HttpStatus.OK));
+		} catch (Exception e) {
+			log.info("Unable to unlike giveup with id" + giveupId + "for userId" + userId, e);
+			return(new ResponseEntity<String>("Error",HttpStatus.BAD_REQUEST));
+		}
+	}
+	
 	@RequestMapping("/home/giveups")
 	public ModelAndView giveup() {
 		ModelAndView mv = new ModelAndView("user/giveup");
@@ -467,18 +593,26 @@ public class HomeController {
 		
 		log.info("Found username principal: " + userId);
 
-		String bearerToken = null;
+		String giveUpBearerToken = null;
 		try {
-			bearerToken = HomeController.getBearerToken();
-			UserServiceClient usc = ClientBeans.getUserServiceClient();
-			
+			giveUpBearerToken = HomeController.getBearerTokenForGiveUpService();
+			GiveUpServiceClient gusc = ClientBeans.getGiveUpServiceClient();
 			try {
-				List<Object> giveups = usc.getAllGiveupUserPledgedFor(bearerToken, userId);
-				System.out.println(giveups.size());
-				mv.addObject("giveups", giveups);
+				List<GenericItem<String>> pledgedgiveups = gusc.getAllGiveupUserPledgedFor(giveUpBearerToken, userId);
+				mv.addObject("pledgedgiveups", pledgedgiveups);
+				
+				List<GenericItem<String>> likedGiveups = gusc.allGiveUpLikedByUser(giveUpBearerToken, userId);
+				mv.addObject("likedGiveups", likedGiveups);
 			} catch (Exception ex) {
 				log.error("Error getting unique giveups user pledged for", ex);
 			}
+			try {
+				List<GiveUp> suggestedGiveups = gusc.suggestGiveUpToLike(giveUpBearerToken, userId);
+				log.info("Suggested Giveups :" + suggestedGiveups.size());
+				mv.addObject("suggestedGiveups", suggestedGiveups);
+			}catch (Exception e) {
+				log.error("Error getting suggested giveups for user", e);
+			} 
 		} catch (Exception ex) {
 			log.error("Error getting user pledge data", ex);
 		}

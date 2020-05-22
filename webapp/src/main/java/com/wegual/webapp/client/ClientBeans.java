@@ -7,24 +7,27 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class ClientBeans implements ApplicationContextAware {
-	
+
 	private static ApplicationContext theContext;
-	
+
 	@Override
 	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
 		ClientBeans.theContext = applicationContext;
-		
+
 	}
 
 	public static UserServiceClient getUserServiceClient() {
 		return theContext.getBean(UserServiceClient.class);
 	}
-	
+
 	public static BeneficiaryServiceClient getBeneficiaryServiceClient() {
 		return theContext.getBean(BeneficiaryServiceClient.class);
 	}
-	
+
 	public static PledgeServiceClient getPledgeServiceClient() {
 		return theContext.getBean(PledgeServiceClient.class);
+	}
+	public static GiveUpServiceClient getGiveUpServiceClient() {
+		return theContext.getBean(GiveUpServiceClient.class);
 	}
 }

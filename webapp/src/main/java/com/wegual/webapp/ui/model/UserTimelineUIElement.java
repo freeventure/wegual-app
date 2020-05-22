@@ -109,7 +109,7 @@ public class UserTimelineUIElement extends TimelineUIElement<String> {
 		}
 
 		// user follow
-		if(UserActionType.FOLLOW.equals(timelineItem.getUserActionType())) {
+		if(UserActionType.FOLLOW_USER.equals(timelineItem.getUserActionType())) {
 			
 			if (timelineItem.getTarget() != null
 					&& UserActionTargetType.USER.equals(timelineItem.getTarget().getActionType())) {

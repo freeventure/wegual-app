@@ -1,22 +1,47 @@
 {
-	"settings": {
-		"number_of_shards": 5
-	},
-	"mappings": {
+	"mappings" : {
 		"properties": {
 			"beneficiary_id" : {
-				"type": "keyword"
+				"type" : "keyword"
 			},
-			"beneficiary": {
-				"type": "text",
+			"beneficiary_name" : {
+				"type" : "text",
 				"fields": {
-					"name_suggest": {
+					"full_name_suggest": {
 						"type": "completion"
 					}
 				}
 			},
-			"description": {
-				"type": "text"
+			"description" : {
+				"type" : "text"
+			},
+			"beneficiary_type" : {
+				"type" : "keyword"
+			},
+			"url" : {
+				"type" : "text"
+			},
+			"facebook_page" : {
+				"type" : "keyword"
+			},
+			"twitter_handle" : {
+				"type" : "keyword"
+			},
+			"linkedin_page" : {
+				"type" : "keyword"
+ 			},
+			"owner_id" : {
+				"type" : "keyword"
+			},
+			"picture_link": {
+				"type": "keyword",
+				"index": false
+			},
+			"created_date" : {
+				"type" : "long"
+			},
+			"updated_date" : {
+				"type" : "long"
 			}
 		}
 	}

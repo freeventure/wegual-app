@@ -38,7 +38,7 @@ public class GiveUpAnalyticsService {
 		
 		try {
 			SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
-			return searchResponse.getHits().getTotalHits();
+			return searchResponse.getHits().getTotalHits().value;
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -58,7 +58,7 @@ public class GiveUpAnalyticsService {
 		try {
 			SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
 			
-			return new GiveUpFollowers(giveUpId, searchResponse.getHits().getTotalHits());
+			return new GiveUpFollowers(giveUpId, searchResponse.getHits().getTotalHits().value);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

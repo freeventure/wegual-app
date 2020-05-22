@@ -1,14 +1,45 @@
 {
-	"settings": {
-		"number_of_shards": 5
-	},
-	"mappings": {
-		"properties": {
-			"giveup": {
-				"type": "text"
+	"mappings" : {
+		"properties" : {
+			"giveup_id" :{
+				"type" : "keyword"
 			},
-			"description": {
-				"type": "text"
+			"giveup_name" :{
+				"type" : "text",
+				"fields": {
+					"full_name_suggest": {
+						"type": "completion"
+					}
+				}
+			},
+			"description" : {
+				"type" : "text"
+			},
+			"created_by" : {
+				"type" : "nested",
+				"properties" : {
+					"id": {
+						"type": "keyword"
+					},
+					"name": {
+						"type": "text"
+					},
+					"permalink": {
+						"type": "keyword"
+					},
+					"picture_link": {
+						"type": "keyword"
+					}
+				}
+			},
+			"created_date" : {
+				"type" : "long"
+			},
+			"updation_date" : {
+				"type" : "long"
+			},
+			"picture_link" : {
+				"type" : "keyword"
 			}
 		}
 	}

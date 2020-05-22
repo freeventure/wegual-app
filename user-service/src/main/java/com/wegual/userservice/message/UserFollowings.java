@@ -20,13 +20,13 @@ public class UserFollowings {
     public void receiveObjectMessage(UserTimelineItem uti) {
         log.info("ES Received user action message");
         
-        if(UserActionType.FOLLOW.equals(uti.getUserActionType()))
+        if(UserActionType.FOLLOW_USER.equals(uti.getUserActionType()))
         {
         	// add to ES index
         	actions.userFollowed(uti);
         }
 
-        if(UserActionType.UNFOLLOW.equals(uti.getUserActionType()))
+        if(UserActionType.UNFOLLOW_USER.equals(uti.getUserActionType()))
         {
         	// remove from ES index
         	actions.userUnfollowed(uti);

@@ -17,7 +17,7 @@ public class UserTimelineMessages {
 
 	@RabbitListener(queues = "user-timeline")
     public void receiveObjectMessage(UserTimelineItem uti) {
-        log.info("ES Timeline Received user action message");
+        log.info("ES Timeline Received user action message at user-timeline inside user-service");
         actions.userTimelineGenericEvent(uti);
     }
 }

@@ -1,0 +1,46 @@
+{
+	"mappings" : {
+		"properties" : {
+			"id" : {
+				"type" : "keyword"
+			},
+			"user" : {
+				"type" : "nested",
+				"properties" :{
+					"id": {
+						"type": "keyword"
+					},
+					"name": {
+						"type": "text"
+					},
+					"permalink": {
+						"type": "keyword"
+					},
+					"picture_link": {
+						"type": "keyword"
+					}
+				}
+			},
+			"giveup" : {
+				"type" : "nested",
+				"properties": {
+					"id": {
+						"type": "long"
+					},
+					"name": {
+						"type": "text"
+					},
+					"permalink": {
+						"type": "keyword"
+					},
+					"picture_link": {
+						"type": "keyword"
+					}
+				}
+			},
+			"like_date" : {
+				"type" : "long"
+			}
+		}
+	}
+}

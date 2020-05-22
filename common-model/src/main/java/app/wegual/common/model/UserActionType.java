@@ -2,8 +2,12 @@ package app.wegual.common.model;
 
 public enum UserActionType {
 
-	FOLLOW,
-	UNFOLLOW,
+	FOLLOW_BENEFICIARY,
+	UNFOLLOW_BENEFICIARY,
+	FOLLOW_USER,
+	UNFOLLOW_USER,
+	LIKE,
+	UNLIKE,
 	CREATE,
 	INACTIVATE,
 	ACTIVATE,

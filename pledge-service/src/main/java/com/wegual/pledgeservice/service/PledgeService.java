@@ -135,9 +135,9 @@ public class PledgeService {
 			log.error("Error getting giveup from ES: ", e);
 		}
 		
-		GenericItem genericUser = GenericItemUserUtils.userGenericItemFromEsDocument(user);
-		GenericItem genericBeneficiary = GenericItemBeneficiaryUtils.beneficiaryGenericItemFromEsDocument(beneficiary);
-		GenericItem genericGiveUp = GenericItemGiveUpUtils.giveupGenericItemFromEsDocument(giveup);
+		GenericItem<String> genericUser = GenericItemUserUtils.userGenericItemFromEsDocument(user);
+		GenericItem<String> genericBeneficiary = GenericItemBeneficiaryUtils.beneficiaryGenericItemFromEsDocument(beneficiary);
+		GenericItem<String> genericGiveUp = GenericItemGiveUpUtils.giveupGenericItemFromEsDocument(giveup);
 		
 		Pledge pledgeObject = new Pledge();
 		pledgeObject.setAmount(Double.parseDouble(pledge.getAmount()));

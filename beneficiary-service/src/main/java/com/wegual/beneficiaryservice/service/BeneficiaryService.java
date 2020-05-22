@@ -3,8 +3,10 @@ package com.wegual.beneficiaryservice.service;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.lucene.search.join.ScoreMode;
 import org.elasticsearch.action.search.SearchRequest;
@@ -19,16 +21,21 @@ import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.nested.NestedAggregationBuilder;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms.Bucket;
+import org.elasticsearch.search.aggregations.metrics.Sum;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
+import org.elasticsearch.search.sort.SortBuilders;
+import org.elasticsearch.search.sort.SortOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.elasticsearch.search.aggregations.metrics.sum.Sum;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wegual.beneficiaryservice.ElasticSearchConfig;
 
 import app.wegual.common.model.Beneficiary;
+import app.wegual.common.model.BeneficiaryFollowItem;
+import app.wegual.common.model.GenericItem;
 import app.wegual.common.rest.model.BeneficiarySnapshot;
+import app.wegual.common.util.ESIndices;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -38,6 +45,33 @@ public class BeneficiaryService {
 	@Autowired
 	private ElasticSearchConfig esConfig;
 	
+	public List<Beneficiary> getAllBeneficiary(){
+		SearchRequest searchRequest = new SearchRequest(ESIndices.BENEFICIARY_INDEX);
+		SearchSourceBuilder sourceBuilder = new SearchSourceBuilder(); 
+		sourceBuilder.query(QueryBuilders.matchAllQuery());
+		searchRequest.source(sourceBuilder);
+		
+		RestHighLevelClient client = esConfig.getElasticsearchClient();
+		
+		try {
+			SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
+			List<Beneficiary> bens = new ArrayList<Beneficiary>();
+			if(searchResponse.getHits().getTotalHits().value>0L) {
+				for (SearchHit hit: searchResponse.getHits()) {
+					Beneficiary beneficiary = new ObjectMapper().readValue(hit.getSourceAsString(), Beneficiary.class);
+					bens.add(beneficiary);
+				}
+				
+				return bens;
+			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return new ArrayList<Beneficiary>();
+	}
+	
 	public Beneficiary getBeneficiary(Long id) {
 		SearchRequest searchRequest = new SearchRequest("beneficiary_idx");
 		SearchSourceBuilder sourceBuilder = new SearchSourceBuilder(); 
@@ -46,7 +80,7 @@ public class BeneficiaryService {
 		log.info("Inside Beneficiary Service");
 		Beneficiary beneficiary = null;
 		try {
-			RestHighLevelClient client = esConfig.getElastcsearchClient();
+			RestHighLevelClient client = esConfig.getElasticsearchClient();
 			SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
 			for(SearchHit searchHit : searchResponse.getHits().getHits()){
 				beneficiary = new ObjectMapper().readValue(searchHit.getSourceAsString(), Beneficiary.class);
@@ -81,12 +115,12 @@ public class BeneficiaryService {
 		searchRequest.source(sourceBuilder);
 		log.info("Inside Beneficiary Service");
 		try {
-			RestHighLevelClient client = esConfig.getElastcsearchClient();
+			RestHighLevelClient client = esConfig.getElasticsearchClient();
 			SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
-			return searchResponse.getHits().getTotalHits();
+			return searchResponse.getHits().getTotalHits().value;
 		} catch (IOException e) {
 			log.error("Error getting pledge count for beneficiary with id: " + benId , e);
-			return new Long(0L);
+			return (0L);
 		}
 	}
 	
@@ -100,12 +134,12 @@ public class BeneficiaryService {
 		searchRequest.source(sourceBuilder);
 		log.info("Inside Beneficiary Service");
 		try {
-			RestHighLevelClient client = esConfig.getElastcsearchClient();
+			RestHighLevelClient client = esConfig.getElasticsearchClient();
 			SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
-			return searchResponse.getHits().getTotalHits();
+			return searchResponse.getHits().getTotalHits().value;
 		} catch (IOException e) {
 			log.error("Error getting followers count for beneficiary with id: " + benId , e);
-			return new Long(0L);
+			return (0L);
 		}
 	}
 	
@@ -148,15 +182,15 @@ public class BeneficiaryService {
 		searchRequest.source(sourceBuilder);
 		
 		try {
-			RestHighLevelClient client = esConfig.getElastcsearchClient();
+			RestHighLevelClient client = esConfig.getElasticsearchClient();
 			SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
 			Terms currencyType = searchResponse.getAggregations().get("currency_type");
 			// For each entry
 			for (Bucket bucket : currencyType.getBuckets()) {
-				Sum sum = bucket.getAggregations().get("sum");
+				Sum sum = (Sum) bucket.getAggregations().asMap().get("sum");
 				amountByCurrency.put(bucket.getKeyAsString(), sum.getValue());
-				System.out.println(bucket.getKeyAsString());      // Term
-				System.out.println(sum.getValue());
+				// System.out.println(bucket.getKeyAsString());      // Term
+//				System.out.println(sum.getValue());
 			}
 			return amountByCurrency;
 		}
@@ -164,6 +198,149 @@ public class BeneficiaryService {
 			log.info("Error getting amount by currency for beneficiary with id: " + benId , e);
 			return new HashMap<String, Double>();
 		}
+	}
+	
+	public List<Beneficiary> suggestBeneficiaryToFollow(String userId) {
+		log.info("Searching for all beneficiary follow suggestion for :" + userId);
+		List<Beneficiary> ben = new ArrayList<Beneficiary>();
+
+		RestHighLevelClient client = esConfig.getElasticsearchClient();
+
+		SearchRequest searchRequest = new SearchRequest(ESIndices.BENEFICIARY_FOLLOW_INDEX);
+		SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
+		sourceBuilder.query(QueryBuilders.nestedQuery("user_follower",QueryBuilders.boolQuery().must(QueryBuilders.termQuery("user_follower.id", userId)), ScoreMode.None));
+		searchRequest.source(sourceBuilder);
+		SearchResponse searchResponse;
+		
+		SearchRequest giveupRequest = new SearchRequest(ESIndices.BENEFICIARY_INDEX);
+		SearchSourceBuilder benBuilder = new SearchSourceBuilder();
+		benBuilder.query(QueryBuilders.matchAllQuery());
+		giveupRequest.source(benBuilder);
+		SearchResponse benResponse;
+		
+		try {
+			searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
+			benResponse = client.search(giveupRequest, RequestOptions.DEFAULT);
+			for(SearchHit hit: benResponse.getHits()) {
+				String idInBen =((String)((Map<String, Object>)hit.getSourceAsMap()).get("beneficiary_id"));
+				Beneficiary benObject = new ObjectMapper().readValue(hit.getSourceAsString(), Beneficiary.class);
+				int flag = 0;
+				Map<String, Object> srcforbenlike = null;
+				Map<String, Object> benliked = null;
+				for(SearchHit giveuplike: searchResponse.getHits()) {
+					srcforbenlike = giveuplike.getSourceAsMap();
+					benliked = (Map<String, Object>) srcforbenlike.get("beneficiary_followee");
+					String idInBenLike = (String) benliked.get("id");
+					if(idInBenLike.equals(idInBen)) {
+						flag=1;
+						break;
+					}
+				}
+				if(flag==0) {
+					ben.add(benObject);
+				}
+			}
+		} catch (IOException e) {
+			log.info("Failed to fetch giveup", e);
+		}
+		return ben;
+
+	}
+	
+	public List<GenericItem<String>> allBeneficiaryFollowedByUser(String userId){
+		log.info("Searching for all beneficiaries followed by :" + userId);
+		List<GenericItem<String>> ben = new ArrayList<GenericItem<String>>();
+		
+		SearchRequest searchRequest = new SearchRequest(ESIndices.BENEFICIARY_FOLLOW_INDEX);
+		SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
+		sourceBuilder.query(QueryBuilders.nestedQuery("user_follower",QueryBuilders.boolQuery().must(QueryBuilders.termQuery("user_follower.id", userId)), ScoreMode.None));
+		searchRequest.source(sourceBuilder);
+		
+		RestHighLevelClient client = esConfig.getElasticsearchClient();
+		
+		try {
+			SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
+			for(SearchHit hit : searchResponse.getHits()) {
+				BeneficiaryFollowItem bfi = new ObjectMapper().readValue(hit.getSourceAsString(), BeneficiaryFollowItem.class);
+				ben.add(bfi.getBeneficiaryFollowee());
+			}
+		} catch (Exception e) {
+			log.info("Failed to fetch beneficiaries followed by user", e);
+		}
+		return ben;
+	}
+	
+	public List<Object> getAllBeneficiaryUserPledgedFor(String userId) {
+		log.info("Inside user service");
+		Set<Object> bens= new HashSet<Object>();
+		List<Object> ben = new ArrayList<Object>();
+		try {
+			SearchRequest searchRequest = new SearchRequest(ESIndices.PLEDGE_INDEX);
+			SearchSourceBuilder sourceBuilder = new SearchSourceBuilder(); 
+			sourceBuilder.query(QueryBuilders.nestedQuery("pledged_by",QueryBuilders.boolQuery().must(QueryBuilders.termQuery("pledged_by.id", userId)), ScoreMode.None));
+			searchRequest.source(sourceBuilder);
+			
+			RestHighLevelClient client = esConfig.getElasticsearchClient();
+			
+			SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
+			
+			if(searchResponse.getHits().getTotalHits().value>0L) {
+				Map<String, Object> src = null;
+				Object g = null;
+				for (SearchHit hit: searchResponse.getHits()) {
+					src = hit.getSourceAsMap();
+					g = src.get("beneficiary");
+					bens.add(g);
+				}
+				for(Object x : bens) {
+					ben.add(x);
+				}
+				return ben;
+			}
+		} catch (Exception e) {
+			log.error("Error getting giveups user pledged for: " + userId , e);
+		}
+		return ben;
+	}
+	
+public  List<GenericItem<String>> getBeneficiaryFollowees(String userId) {
+		
+		SearchRequest searchRequest = new SearchRequest("beneficiary_follow_idx");
+		SearchSourceBuilder sourceBuilder = new SearchSourceBuilder(); 
+		sourceBuilder.query(QueryBuilders.nestedQuery("user_follower", QueryBuilders.boolQuery().must(QueryBuilders.termQuery("user_follower.id", userId)), ScoreMode.None))
+		.size(10)
+		.sort(SortBuilders.fieldSort("follow_date").order(SortOrder.DESC));
+		searchRequest.source(sourceBuilder);
+		log.info("Inside User Beneficiary Service");
+		try {
+			RestHighLevelClient client = esConfig.getElasticsearchClient();
+			SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
+			if(searchResponse.getHits().getTotalHits().value > 0L)
+				return parseBeneficiarySearchHits(searchResponse);
+			return new ArrayList<GenericItem<String>>();
+		} catch (IOException e) {
+			log.error("Error getting beneficiary followees for user: " + userId , e);
+			return new ArrayList<GenericItem<String>>();
+		}
+	}
+	
+	private List<GenericItem<String>> parseBeneficiarySearchHits(SearchResponse searchResponse){
+		
+		List<GenericItem<String>> benFolloweeList = new ArrayList<GenericItem<String>>();
+		BeneficiaryFollowItem benFolloweeItem;
+		SearchHit[] searchHits = searchResponse.getHits().getHits();
+		for (SearchHit searchHit : searchHits) {
+			try {
+				benFolloweeItem = new ObjectMapper().readValue(searchHit.getSourceAsString(), BeneficiaryFollowItem.class);
+				benFolloweeList.add(benFolloweeItem.getBeneficiaryFollowee());
+			}
+			catch(Exception e) {
+				log.info("Json Parsing Exception" + e);
+				return new ArrayList<GenericItem<String>>();
+			}
+		}
+		
+		return benFolloweeList;
 	}
 	
 }

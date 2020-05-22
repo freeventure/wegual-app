@@ -1,6 +1,5 @@
 package app.wegual.common.model;
 
-import java.sql.Timestamp;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -10,22 +9,23 @@ import lombok.Setter;
 @Getter
 @Setter
 public class BeneficiaryFollowItem{
+	
+	private String id;
 
 	@JsonProperty("user_follower")
-	private GenericItem userFollower;
+	private GenericItem<String> userFollower;
 		
 	@JsonProperty("beneficiary_followee")
-	private GenericItem beneficiaryFollowee;
+	private GenericItem<String> beneficiaryFollowee;
 		
 	@JsonProperty("follow_date")
-	private Timestamp followDate;
+	private long followDate;
 	
 	public BeneficiaryFollowItem() {
 		super();
 	}	
 
-	public BeneficiaryFollowItem(GenericItem userFollower, GenericItem beneficiaryFollowee,
-			Timestamp followDate) {
+	public BeneficiaryFollowItem(GenericItem<String> userFollower, GenericItem<String> beneficiaryFollowee, long followDate) {
 		super();
 		this.userFollower = userFollower;
 		this.beneficiaryFollowee = beneficiaryFollowee;

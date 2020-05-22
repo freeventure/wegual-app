@@ -15,12 +15,25 @@ import org.springframework.web.bind.annotation.RestController;
 import com.wegual.beneficiaryservice.service.BeneficiaryService;
 
 import app.wegual.common.model.Beneficiary;
+import app.wegual.common.model.GenericItem;
 import app.wegual.common.rest.model.BeneficiarySnapshot;
 @RestController
 public class BeneficiaryController {
 	
 	@Autowired
 	BeneficiaryService bs;
+	
+	@PreAuthorize("#oauth2.hasScope('user-service')")
+	@GetMapping("/beneficiary/all")
+	ResponseEntity<List<Beneficiary>> getAllBeneficiary() {
+		try {
+			List<Beneficiary> bens = bs.getAllBeneficiary();
+			return new ResponseEntity<List<Beneficiary>>(bens, HttpStatus.OK);
+		}
+		catch(Exception e) {
+			return new ResponseEntity<List<Beneficiary>>(new ArrayList<Beneficiary>(), HttpStatus.BAD_REQUEST);
+		}
+	}
 	
 	@PreAuthorize("#oauth2.hasScope('user-service')")
 	@GetMapping("/beneficiary/{benid}")
@@ -44,6 +57,52 @@ public class BeneficiaryController {
 			return new ResponseEntity<BeneficiarySnapshot>(new BeneficiarySnapshot(), HttpStatus.BAD_REQUEST);
 		}
 		
+	}
+	
+	@PreAuthorize("#oauth2.hasScope('user-service')")
+	@GetMapping("/beneficiary/suggest/{userId}")
+	ResponseEntity<List<Beneficiary>> suggestBeneficiaryToFollow(@PathVariable("userId") String userId) {
+		try {
+			List<Beneficiary> ben = bs.suggestBeneficiaryToFollow(userId);
+			return new ResponseEntity<List<Beneficiary>>(ben, HttpStatus.OK);
+		} catch (Exception e) {
+			return new ResponseEntity<List<Beneficiary>>(new ArrayList<Beneficiary>(), HttpStatus.BAD_REQUEST);
+		}
+		
+	}
+	
+	@PreAuthorize("#oauth2.hasScope('user-service')")
+	@GetMapping("/beneficiary/followedby/{userId}")
+	ResponseEntity<List<GenericItem<String>>> allBeneficiaryFollowedByUser(@PathVariable("userId") String userId) {
+		try {
+			List<GenericItem<String>> ben = bs.allBeneficiaryFollowedByUser(userId);
+			return new ResponseEntity<List<GenericItem<String>>>(ben, HttpStatus.OK);
+		} catch (Exception e) {
+			return new ResponseEntity<List<GenericItem<String>>>(new ArrayList<GenericItem<String>>(), HttpStatus.BAD_REQUEST);
+		}
+		
+	}
+	
+	@PreAuthorize("#oauth2.hasScope('user-service')")
+	@GetMapping("/beneficiary/pledges/{userid}")
+	ResponseEntity<List<Object>> getAllBeneficiaryUserPledgedFor(@PathVariable String userid) {
+		try {
+			List<Object> giveup = (List<Object>) bs.getAllBeneficiaryUserPledgedFor(userid);
+			return new ResponseEntity<List<Object>>(giveup, HttpStatus.OK);
+		} catch (Exception e) {
+			return new ResponseEntity<List<Object>>(new ArrayList<Object>(), HttpStatus.BAD_REQUEST);
+		}
+	}
+	
+	@PreAuthorize("#oauth2.hasScope('user-service')")
+	@GetMapping("/beneficiary/followee/{userId}")
+	ResponseEntity<List<GenericItem<String>>> getBeneficiaryFollowees(@PathVariable String userId) {
+		try {
+			List<GenericItem<String>> giveup = (List<GenericItem<String>>) bs.getBeneficiaryFollowees(userId);
+			return new ResponseEntity<List<GenericItem<String>>>(giveup, HttpStatus.OK);
+		} catch (Exception e) {
+			return new ResponseEntity<List<GenericItem<String>>>(new ArrayList<GenericItem<String>>(), HttpStatus.BAD_REQUEST);
+		}
 	}
 
 }

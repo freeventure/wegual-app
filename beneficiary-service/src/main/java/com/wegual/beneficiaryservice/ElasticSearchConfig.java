@@ -30,7 +30,7 @@ public class ElasticSearchConfig {
 		}
 	}
     
-    public RestHighLevelClient getElastcsearchClient() {
+    public RestHighLevelClient getElasticsearchClient() {
     	
     	
     	if(client == null) {
