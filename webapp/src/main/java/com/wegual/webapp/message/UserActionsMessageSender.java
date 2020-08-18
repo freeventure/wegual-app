@@ -39,14 +39,16 @@ public class UserActionsMessageSender implements MessageSender {
 
 	protected void sendMessageToBeneficiary(UserActionItem uat) {
 		log.info("Sending message for beneficiary action...");
-		rabbitTemplate.convertAndSend(MessagingConstants.BENEFICIARY_FANOUT_EXCHANGE_NAME, MessagingConstants.BENEFICIARY_ACTION_QUEUE_NAME, uat);
+		rabbitTemplate.convertAndSend(MessagingConstants.BENEFICIARY_ACTION_EXCHANGE_NAME, MessagingConstants.BENEFICIARY_ACTION_QUEUE_NAME, uat);
 	}
 
 	@Override
 	public void sendMessage(Object object) {
 		List<UserActionType> giveupAction = new ArrayList<UserActionType>(Arrays.asList(
 				UserActionType.LIKE, 
-				UserActionType.UNLIKE
+				UserActionType.UNLIKE,
+				UserActionType.FOLLOW_GIVEUP,
+				UserActionType.UNFOLLOW_GIVEUP
 				));
 		List<UserActionType> benAction = new ArrayList<UserActionType>(Arrays.asList(
 				UserActionType.FOLLOW_BENEFICIARY, 

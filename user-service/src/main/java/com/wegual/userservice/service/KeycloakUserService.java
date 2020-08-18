@@ -144,9 +144,10 @@ public class KeycloakUserService {
 			log.info("Value: " + token.getValue());
 			
 			user = this.getUserFromKeycloak(token.getValue(), username);
-			log.info("Getting user from keycloak with id: " + user.getId());
+			log.info("Getting user from keycloak with id: " + user.getId() + username);
 			if(user == null)
 				throw new IllegalStateException("Unable to get user from identity store");
+			System.out.println(user.toString());
 			return user;
 		} else throw new IllegalStateException("Unable to get auth token from authorization server");
 

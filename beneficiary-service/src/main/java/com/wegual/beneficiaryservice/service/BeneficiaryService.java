@@ -34,6 +34,7 @@ import com.wegual.beneficiaryservice.ElasticSearchConfig;
 import app.wegual.common.model.Beneficiary;
 import app.wegual.common.model.BeneficiaryFollowItem;
 import app.wegual.common.model.GenericItem;
+import app.wegual.common.model.Pledge;
 import app.wegual.common.rest.model.BeneficiarySnapshot;
 import app.wegual.common.util.ESIndices;
 import lombok.extern.slf4j.Slf4j;
@@ -72,7 +73,7 @@ public class BeneficiaryService {
 		return new ArrayList<Beneficiary>();
 	}
 	
-	public Beneficiary getBeneficiary(Long id) {
+	public Beneficiary getBeneficiary(String id) {
 		SearchRequest searchRequest = new SearchRequest("beneficiary_idx");
 		SearchSourceBuilder sourceBuilder = new SearchSourceBuilder(); 
 		sourceBuilder.query(QueryBuilders.termQuery("beneficiary_id", id)); 	
@@ -93,7 +94,7 @@ public class BeneficiaryService {
 			return beneficiary;
 		}
 	}
-	public BeneficiarySnapshot getBeneficiarySnapshot(Long id) {
+	public BeneficiarySnapshot getBeneficiarySnapshot(String id) {
 		
 		BeneficiarySnapshot beneficiarySnapshot= new BeneficiarySnapshot();
 		beneficiarySnapshot.setBeneficiaryId(id);
@@ -107,7 +108,7 @@ public class BeneficiaryService {
 		//return new BeneficiarySnapshot(id, 2L, 4L, 5L, 0.0, new HashMap<String, Double>());
 	}
 	
-	public Long getPledgeCountForBeneficiary(Long benId) {
+	public Long getPledgeCountForBeneficiary(String benId) {
 		SearchRequest searchRequest = new SearchRequest("pledge_idx");
 		SearchSourceBuilder sourceBuilder = new SearchSourceBuilder(); 
 		sourceBuilder.query(QueryBuilders.nestedQuery("beneficiary", QueryBuilders.boolQuery().must(QueryBuilders.termQuery("beneficiary.id", benId)), ScoreMode.None));
@@ -124,7 +125,7 @@ public class BeneficiaryService {
 		}
 	}
 	
-	public Long getFollowerCountForBeneficiary(Long benId) {
+	public Long getFollowerCountForBeneficiary(String benId) {
 		
 		SearchRequest searchRequest = new SearchRequest("beneficiary_follow_idx");
 		SearchSourceBuilder sourceBuilder = new SearchSourceBuilder(); 
@@ -167,7 +168,7 @@ public class BeneficiaryService {
 //		}
 //	}
 //	
-	public HashMap<String, Double> getAmountByCurrency(Long benId){
+	public HashMap<String, Double> getAmountByCurrency(String benId){
 		
 		HashMap<String, Double> amountByCurrency = new HashMap<String, Double>();
 		
@@ -270,10 +271,10 @@ public class BeneficiaryService {
 		return ben;
 	}
 	
-	public List<Object> getAllBeneficiaryUserPledgedFor(String userId) {
-		log.info("Inside user service");
-		Set<Object> bens= new HashSet<Object>();
-		List<Object> ben = new ArrayList<Object>();
+	public List<GenericItem<String>> getAllBeneficiaryUserPledgedFor(String userId) {
+		log.info("Inside ben service");
+		Map<String, GenericItem<String>> bens = new HashMap<String, GenericItem<String>>();
+		List<GenericItem<String>> ben = new ArrayList<GenericItem<String>>();
 		try {
 			SearchRequest searchRequest = new SearchRequest(ESIndices.PLEDGE_INDEX);
 			SearchSourceBuilder sourceBuilder = new SearchSourceBuilder(); 
@@ -283,20 +284,15 @@ public class BeneficiaryService {
 			RestHighLevelClient client = esConfig.getElasticsearchClient();
 			
 			SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
-			
-			if(searchResponse.getHits().getTotalHits().value>0L) {
-				Map<String, Object> src = null;
-				Object g = null;
-				for (SearchHit hit: searchResponse.getHits()) {
-					src = hit.getSourceAsMap();
-					g = src.get("beneficiary");
-					bens.add(g);
-				}
-				for(Object x : bens) {
-					ben.add(x);
-				}
-				return ben;
+			for(SearchHit hit : searchResponse.getHits()) {
+				Pledge pledge = new ObjectMapper().readValue(hit.getSourceAsString(), Pledge.class);
+				bens.put(pledge.getBeneficiary().getId(), pledge.getBeneficiary());
 			}
+			Set<Map.Entry<String, GenericItem<String>>> st = bens.entrySet();
+			for(Map.Entry<String, GenericItem<String>> mp : st) {
+				ben.add(mp.getValue());
+			}
+			return ben;
 		} catch (Exception e) {
 			log.error("Error getting giveups user pledged for: " + userId , e);
 		}

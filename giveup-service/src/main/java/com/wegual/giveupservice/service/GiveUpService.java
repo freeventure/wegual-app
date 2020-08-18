@@ -2,6 +2,7 @@ package com.wegual.giveupservice.service;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -133,7 +134,7 @@ public class GiveUpService {
 	
 	public List<GenericItem<String>> getAllGiveupUserPledgedFor(String userId) {
 		log.info("Inside giveup service");
-		Set<GenericItem<String>> giveups= new HashSet<GenericItem<String>>();
+		Map<String, GenericItem<String>> giveups = new HashMap<String, GenericItem<String>>();
 		List<GenericItem<String>> giveup = new ArrayList<GenericItem<String>>();
 		try {
 			SearchRequest searchRequest = new SearchRequest(ESIndices.PLEDGE_INDEX);
@@ -146,10 +147,11 @@ public class GiveUpService {
 			SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
 			for(SearchHit hit : searchResponse.getHits()) {
 				Pledge pledge = new ObjectMapper().readValue(hit.getSourceAsString(), Pledge.class);
-				giveups.add(pledge.getGiveUp());
+				giveups.put(pledge.getGiveUp().getId(), pledge.getGiveUp());
 			}
-			for(GenericItem<String> g : giveups) {
-				giveup.add(g);
+			Set<Map.Entry<String, GenericItem<String>>> st = giveups.entrySet();
+			for(Map.Entry<String, GenericItem<String>> mp : st) {
+				giveup.add(mp.getValue());
 			}
 			return giveup;
 		} catch (Exception e) {

@@ -1,6 +1,7 @@
 package com.wegual.pledgeservice.message;
 
 import app.wegual.common.model.ActionTarget;
+import app.wegual.common.model.BeneficiaryTimelineItem;
 import app.wegual.common.model.GenericActionTarget;
 import app.wegual.common.model.Pledge;
 import app.wegual.common.model.TimelineItem;
@@ -15,12 +16,14 @@ public class PledgeTimelineItemBuilder extends TimelineItem<String>{
 			UserActionType uat) {
 		super(actorId, actionObject, actionTarget, uat);
 	}
+	
 	public PledgeTimelineItemBuilder() {
 		super(null, null, null, UserActionType.PLEDGE);
 		actionObject = new GenericActionTarget(UserActionTargetType.PLEDGE, "", "", "", "");
 		target = new GenericActionTarget(UserActionTargetType.BENEFICIARY, "", "", "", "");
 		detailActions = new TimelineItemDetailActions(true, true);
 	}
+	
 	public PledgeTimelineItemBuilder pledge(Pledge pledge) {
 		GenericActionTarget gat = (GenericActionTarget) actionObject;
 		gat.setId(pledge.getId());
@@ -34,13 +37,14 @@ public class PledgeTimelineItemBuilder extends TimelineItem<String>{
 		gt.setId(pledge.getBeneficiary().getId());
 		gt.setName(pledge.getBeneficiary().getName());
 		gt.setPermalink(pledge.getBeneficiary().getPermalink());
-		gt.setSummary("");
+		gt.setSummary(pledge.getPledgedBy().getName() + " pledged for you");
 
 		this.actionDate=System.currentTimeMillis();	
 		
 		this.detail = "Currency :" +pledge.getCurrency()+"\n"+"Amount :"+pledge.getAmount();
 		return this;
 	}
+	
 	public UserTimelineItem build() {
 		UserTimelineItem uti = new UserTimelineItem(actorId, actionObject, target, userActionType);
 
@@ -52,4 +56,17 @@ public class PledgeTimelineItemBuilder extends TimelineItem<String>{
 		uti.setUserActionType(userActionType);
 		return uti;
 	}
+	
+	public BeneficiaryTimelineItem buildForBeneficiary() {
+		BeneficiaryTimelineItem bti = new BeneficiaryTimelineItem(actorId, actionObject, target, userActionType);
+
+		bti.setDetail(detail);
+		bti.setActionDate(actionDate);
+		bti.setActionObject(actionObject);
+		bti.setTarget(target);
+		bti.setDetailActions(detailActions);
+		bti.setUserActionType(userActionType);
+		return bti;
+	}
+
 }

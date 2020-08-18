@@ -1,6 +1,7 @@
 package app.wegual.common.model;
 
 import java.io.Serializable;
+import java.util.Currency;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -20,37 +21,42 @@ public class Beneficiary  implements Serializable {
 	private String name;
 
 	private String description;
-   
+
 	@JsonProperty("beneficiary_type")
 	private BeneficiaryType beneficiaryType;
-   
+
 	private String email;
-	
+
 	@JsonIgnore
 	private String url;
-   
+
 	@JsonIgnore
 	@JsonProperty("facebook_page")
 	private String facebookPage;
-   
+
 	@JsonIgnore
 	@JsonProperty("twitter_handle")
 	private String twitterHandle;
-   
+
 	@JsonIgnore
 	@JsonProperty("linkedin_page")
 	private String linkedInPage;
 
 	@JsonProperty("owner_id")
 	private String ownerId;
-   
+
 	@JsonProperty("created_date")
 	private Long createdDate;
-   
+
 	@JsonProperty("updated_date")
 	private Long updatedDate;
-	
+
 	@JsonProperty("picture_link")
 	private String pictureLink;
-    
+
+	private Location location;
+
+	@JsonProperty("base_currency")
+	private Currency baseCurrency;
+
 }

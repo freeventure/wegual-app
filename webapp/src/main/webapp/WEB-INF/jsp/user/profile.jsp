@@ -351,6 +351,7 @@
 						</a>
                       </div>
                     </div>
+                    <button type="button" class="btn btn-primary" onclick="nextTimelineElements(${userProfileData.user.id})">Load More</button>
                   </div>
                   <!-- /.tab-pane -->
 
@@ -513,6 +514,45 @@
 				$('#cropImagePop').modal('hide');
 	  		});
 	  });
+
+	function getNextTimelineElements(userId){
+	    var token = $("meta[name='_csrf']").attr("content");
+	    var header = $("meta[name='_csrf_header']").attr("content");
+	    $.ajax({
+	        url:'/home/scrolltimeline/' + userId + '/' + Date.now(),
+	        type: "GET",
+	        cache: false,
+	        contentType: false,
+	        processData: false,
+	        beforeSend: function(xhr){
+	            xhr.setRequestHeader(header, token);
+	            },
+	           success : function (data, status, xhr){
+				var bens ="";
+		        data.map((item) => {
+		    	        bens = bens+"<option  value="+ben.beneficiary_id+">"+ben.beneficiary_name+"</option>";
+		    	        })
+		    	        document.getElementById("beneficiarySelect").innerHTML= bens;
+	               }
+	       });
+	    $.ajax({
+	        url:'/giveup/all',
+	        type: "GET",
+	        cache: false,
+	        contentType: false,
+	        processData: false,
+	        beforeSend: function(xhr){
+	            xhr.setRequestHeader(header, token);
+	            },
+	           success : function (data, status, xhr){
+				var giveups ="";
+		        data.map((giveup) => {
+		    	        giveups = giveups+"<option  value="+giveup.giveup_id+">"+giveup.giveup_name+"</option>";
+		    	        })
+		    	        document.getElementById("giveupSelect").innerHTML= giveups;
+	           }
+	       });
+	   };
 	// End upload preview image
 </script>
 </body>

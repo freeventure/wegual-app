@@ -2,6 +2,8 @@ package com.wegual.giveupservice.es.actions;
 
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.elasticsearch.action.DocWriteRequest;
 import org.elasticsearch.action.DocWriteResponse;
@@ -26,15 +28,17 @@ import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wegual.giveupservice.ElasticSearchConfig;
 import com.wegual.giveupservice.message.GiveUpLikeTimelineItemBuilder;
-import com.wegual.giveupservice.message.UserTimelineMessageSender;
+import com.wegual.giveupservice.message.TimelineMessageSender;
 
 import app.wegual.common.asynch.SenderRunnable;
 import app.wegual.common.model.GenericItem;
 import app.wegual.common.model.GiveUp;
 import app.wegual.common.model.GiveUpLike;
+import app.wegual.common.model.GiveUpTimelineItem;
 import app.wegual.common.model.User;
 import app.wegual.common.model.UserActionType;
 import app.wegual.common.model.UserTimelineItem;
+import app.wegual.common.util.ESIndices;
 import app.wegual.common.model.UserActionItem;
 import lombok.extern.slf4j.Slf4j;
 
@@ -50,10 +54,8 @@ public class GiveUpLikeService {
 	TaskExecutor te;
 
 	@Autowired
-	UserTimelineMessageSender utms;
+	TimelineMessageSender utms;
 	
-	private static String GIVEUP_LIKE_INDEX = "giveup_like_idx";
-
 	public void likeGiveUp(UserActionItem uat) {
 		String userId = uat.getActorId();
 		String giveupId = uat.getTargetId();
@@ -74,7 +76,7 @@ public class GiveUpLikeService {
 		
 		RestHighLevelClient client = esConfig.getElasticsearchClient();
 		try {
-			IndexRequest indexRequest = new IndexRequest(GIVEUP_LIKE_INDEX).id(gul.getId()).source(new ObjectMapper().writeValueAsString(gul), XContentType.JSON);
+			IndexRequest indexRequest = new IndexRequest(ESIndices.GIVEUP_LIKE_INDEX).id(gul.getId()).source(new ObjectMapper().writeValueAsString(gul), XContentType.JSON);
 			indexRequest.opType(DocWriteRequest.OpType.INDEX);
 			IndexResponse indexResponse = client.index(indexRequest, RequestOptions.DEFAULT);
 			if ( (indexResponse.getResult() != DocWriteResponse.Result.CREATED) && (indexResponse.getResult() != DocWriteResponse.Result.UPDATED) )
@@ -91,7 +93,13 @@ public class GiveUpLikeService {
 						.user(user)
 						.giveup(giveup)
 						.build();
-				te.execute(new SenderRunnable<UserTimelineMessageSender, UserTimelineItem>(utms, uti));
+				te.execute(new SenderRunnable<TimelineMessageSender, UserTimelineItem>(utms, uti));
+				GiveUpTimelineItem gti = new GiveUpLikeTimelineItemBuilder(UserActionType.UNLIKE)
+						.time(System.currentTimeMillis())
+						.user(user)
+						.giveup(giveup)
+						.buildForGiveUp(giveupId);
+				te.execute(new SenderRunnable<TimelineMessageSender, GiveUpTimelineItem>(utms, gti));
 			}
 		} catch (Exception e) {
 			log.error("Unable to like a giveup for given userId in ES", giveup.getName(), user.getId(), e);
@@ -101,7 +109,7 @@ public class GiveUpLikeService {
 	public void unlikeGiveUp(UserActionItem gut) {
 		String id = gut.getTargetId() + "_" + gut.getActorId();
 		
-		DeleteByQueryRequest request = new DeleteByQueryRequest(GIVEUP_LIKE_INDEX); 
+		DeleteByQueryRequest request = new DeleteByQueryRequest(ESIndices.GIVEUP_LIKE_INDEX); 
 		
 		TermQueryBuilder termQuery = QueryBuilders.termQuery("id", id);
 				
@@ -127,7 +135,13 @@ public class GiveUpLikeService {
 						.user(user)
 						.giveup(giveup)
 						.build();
-				te.execute(new SenderRunnable<UserTimelineMessageSender, UserTimelineItem>(utms, uti));
+				te.execute(new SenderRunnable<TimelineMessageSender, UserTimelineItem>(utms, uti));
+				GiveUpTimelineItem gti = new GiveUpLikeTimelineItemBuilder(UserActionType.UNLIKE)
+						.time(System.currentTimeMillis())
+						.user(user)
+						.giveup(giveup)
+						.buildForGiveUp(gut.getTargetId());
+				te.execute(new SenderRunnable<TimelineMessageSender, GiveUpTimelineItem>(utms, gti));
 			}
 		} catch (IOException e) {
 			
@@ -146,16 +160,16 @@ public class GiveUpLikeService {
 			RestHighLevelClient client = esConfig.getElasticsearchClient();
 			SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
 			
-			User u = null;
+			Map<String, Object> u = new HashMap<String, Object>();
 			if(searchResponse.getHits().getTotalHits().value>0L) {
 				for(SearchHit hit : searchResponse.getHits()) {
-					u = new ObjectMapper().readValue(hit.getSourceAsString(), User.class);
+					u = hit.getSourceAsMap();
 				}
-				user.setId(u.getId());
-				String name = u.getFirstName() + " " + u.getLastName();
+				user.setId((String) u.get("user_id"));
+				String name = u.get("first_name") + " " + u.get("last_name");
 				user.setName(name);
-				user.setPictureLink(u.getPictureLink());
-				String permalink = "/user/" + u.getId();
+				user.setPictureLink((String) u.get("picture_link"));
+				String permalink = "/user/" + user.getId();
 				user.setPermalink(permalink);
 				return user;
 			}

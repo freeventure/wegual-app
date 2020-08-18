@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.wegual.giveupservice.service.GiveUpFollowService;
 import com.wegual.giveupservice.service.GiveUpService;
 
 import app.wegual.common.model.GenericItem;
@@ -23,6 +24,9 @@ public class GiveUpController {
 	
 	@Autowired
 	private GiveUpService gus;
+	
+	@Autowired
+	private GiveUpFollowService gufs;
 	
 	@PreAuthorize("#oauth2.hasScope('user-service')")
 	@GetMapping("/giveup/all")
@@ -37,13 +41,25 @@ public class GiveUpController {
 	}
 	
 	@PreAuthorize("#oauth2.hasScope('user-service')")
-	@GetMapping("/giveup/suggest/{userId}")
+	@GetMapping("/giveup/suggest/like/{userId}")
 	public List<GiveUp> suggestGiveUpToLike(@PathVariable("userId") String userId){
 		log.info("Inside GiveUp Controller to suggest giveups");
 		try {
 			return gus.suggestGiveUpToLike(userId);
 		} catch (Exception e) {
 			log.info("Error suggesting giveups to like for user Id" + userId);
+		}
+		return null;
+	}
+	
+	@PreAuthorize("#oauth2.hasScope('user-service')")
+	@GetMapping("/giveup/suggest/follow/{userId}")
+	public List<GiveUp> suggestGiveUpToFollow(@PathVariable("userId") String userId){
+		log.info("Inside GiveUp Controller to suggest giveups to follow");
+		try {
+			return gufs.suggestGiveUpToFollow(userId);
+		} catch (Exception e) {
+			log.info("Error suggesting giveups to like for user Id" + userId, e);
 		}
 		return null;
 	}
@@ -56,6 +72,18 @@ public class GiveUpController {
 			return gus.allGiveUpLikedByUser(userId);
 		} catch (Exception e) {
 			log.info("Error finding giveups liked by user Id" + userId);
+		}
+		return null;
+	}
+	
+	@PreAuthorize("#oauth2.hasScope('user-service')")
+	@GetMapping("/giveup/followedby/{userId}")
+	public List<GenericItem<String>> allGiveUpFollowedByUser(@PathVariable("userId") String userId){
+		log.info("Inside GiveUp Controller to find all giveups followed by userId " + userId);
+		try {
+			return gufs.allGiveUpFollowedByUser(userId);
+		} catch (Exception e) {
+			log.info("Error finding giveups followed by user Id" + userId, e);
 		}
 		return null;
 	}

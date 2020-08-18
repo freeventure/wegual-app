@@ -5,6 +5,7 @@ package com.wegual.giveupservice.message;
 import app.wegual.common.model.ActionTarget;
 import app.wegual.common.model.GenericActionTarget;
 import app.wegual.common.model.GenericItem;
+import app.wegual.common.model.GiveUpTimelineItem;
 import app.wegual.common.model.TimelineItem;
 import app.wegual.common.model.UserActionTargetType;
 import app.wegual.common.model.UserActionType;
@@ -65,6 +66,18 @@ public class GiveUpLikeTimelineItemBuilder extends TimelineItem<String>{
 		uti.setDetailActions(detailActions);
 		uti.setUserActionType(userActionType);
 		return uti;
+	}
+	
+	public GiveUpTimelineItem buildForGiveUp(String giveupId) {
+		GiveUpTimelineItem gti = new GiveUpTimelineItem(actorId, actionObject, target, userActionType);
+		gti.setGiveupId(giveupId);
+		gti.setDetail(detail);
+		gti.setActionDate(actionDate);
+		gti.setActionObject(actionObject);
+		gti.setTarget(target);
+		gti.setDetailActions(detailActions);
+		gti.setUserActionType(userActionType);
+		return gti;
 	}
 	
 }

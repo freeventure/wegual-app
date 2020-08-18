@@ -57,7 +57,7 @@ public class PledgeAnalyticsService {
 	}
 	
 	// get total counts for the beneficiary
-	public BeneficiarySnapshot countsForBeneficiary(Long beneficiaryId) {
+	public BeneficiarySnapshot countsForBeneficiary(String beneficiaryId) {
 		
 		
 		BeneficiarySnapshot benSnap = new BeneficiarySnapshot().withBeneficiaryId(beneficiaryId);
@@ -144,7 +144,7 @@ public class PledgeAnalyticsService {
 
 			Terms terms = aggregations.get("total_pledges");
 			for(Terms.Bucket bucket: terms.getBuckets()) {
-				beSnap = new BeneficiarySnapshot().withBeneficiaryId(Long.valueOf(bucket.getKeyAsString()));
+				beSnap = new BeneficiarySnapshot().withBeneficiaryId(bucket.getKeyAsString());
 				
 				beSnap.setPledgesCount(bucket.getDocCount());
 				top10.add(beSnap);
@@ -184,7 +184,7 @@ public class PledgeAnalyticsService {
 			Terms terms = aggregations.get("total_pledged");
 			Sum amount = null;
 			for(Terms.Bucket bucket: terms.getBuckets()) {
-				beSnap = new BeneficiarySnapshot().withBeneficiaryId(Long.valueOf(bucket.getKeyAsString()));
+				beSnap = new BeneficiarySnapshot().withBeneficiaryId(bucket.getKeyAsString());
 				amount = bucket.getAggregations().get("total_amount");
 				beSnap.setTotalPledged(amount.getValue());
 				top10.add(beSnap);

@@ -1,6 +1,7 @@
 package app.wegual.common.model;
 
 import java.io.Serializable;
+import java.util.Currency;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -13,40 +14,38 @@ import lombok.Setter;
 public class User implements Serializable {
 	private static final long serialVersionUID = -4545977887269286250L;
 
-	@JsonProperty("user_id")
 	private String id;
 
     private String username;
     
-    @JsonProperty("first_name")
     private String firstName;
     
-    @JsonProperty("last_name")
     private String lastName;
     
     private String email;
     
-    @JsonProperty("creation_stamp")
 	private long createdTimestamp;
     
-    @JsonProperty("last_udate_stamp")
    	private long updatedTimestamp;
    	
-    @JsonProperty("picture_link")
    	private String pictureLink;
    	
-    @JsonProperty("account_locked")
+   	@JsonProperty("account_locked")
    	private Boolean accountLocked;
 
-    @JsonProperty("is_active")
+   	@JsonProperty("is_active")
    	private Boolean active;
-    
-    @JsonProperty("full_name")
-    @JsonIgnore
-    private String fullName;
 
-    @JsonProperty("email_verify_pending")
+   	@JsonProperty("email_verify_pending")
    	private Boolean emailVerifyPending;
+   	
+   	private Location location;
+   	
+   	@JsonProperty("base_currency")
+   	private Currency baseCurrency;
+   	
+   	@JsonProperty("filled_details")
+   	private boolean filledDetails;
    	
     public User() {}
     

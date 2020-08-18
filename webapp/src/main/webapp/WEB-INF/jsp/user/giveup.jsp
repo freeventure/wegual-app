@@ -211,6 +211,7 @@
 			              <div class="card-header p-2">
 			                <ul class="nav nav-pills">
 			                  <li class="nav-item"><a class="nav-link active" href="#liked" data-toggle="tab">Liked</a></li>
+			                  <li class="nav-item"><a class="nav-link" href="#followed" data-toggle="tab">Followed</a></li>
 							  <li class="nav-item"><a class="nav-link" href="#pledged" data-toggle="tab">Pledged For</a></li>
 			                </ul>
 			              </div><!-- /.card-header -->
@@ -263,6 +264,29 @@
 			                            </div>
 		                        </div>
                     		</div>
+                    		<div class="tab-pane" id="followed">
+		                        <div class="row" style="padding: 1%;">
+		                                <h1>Giveups followed by User</h1>
+			                            <div class="col-md-12">
+			                                <c:forEach var="giveup" items="${followedGiveups}">
+			                                    <div class="row elevation-1" style="padding: 1%;">
+			                                        <div class="col-md-4">
+			                                            <img id="followeePic" src="/img/user4-128x128.jpg"
+			                                                class="img-circle elevation-2" alt="User Image">
+			                                        </div>
+			                                        <div class="col-md-6">
+			                                            <a>
+			                                                <h3>${giveup.name}</h3>
+			                                            </a>
+			                                        </div>
+			                                        <div class="col-md-2">
+			                                            <button type="button" onclick="unfollow(${giveup.id})" class=" float-right follow-button btn btn-outline-primary btn-xs">Unfollow</button>
+			                                        </div>
+			                                    </div>
+			                                </c:forEach>
+			                            </div>
+		                        </div>
+                    		</div>
                    		</div>
                 	</div>
                     		</div>
@@ -285,6 +309,32 @@
 	                                    <span class="username">
 	                                        ${giveup.name}
 	                                        <button type="button" onclick="like(${giveup.id})" class=" float-right follow-button btn btn-outline-primary btn-xs">Like</button>
+	                                    </span><!-- /.username -->
+	
+	                                </div>
+	                                <!-- /.comment-text -->
+	                            </div>
+	                            <!-- /.card-body -->
+	                        </c:forEach>
+                            <div class="card-comment center card-body-compact">
+                                <p class="text-primary">Show more</p>
+                            </div>
+                        </div>
+                        <div class="d-none d-lg-block card card-footer-compact card-comments ">
+                            <div class="card-header-compact">
+                                <h5><b>Giveups You May Follow</b></h5>
+                            </div>
+                            <!-- /.card-header -->
+                            <c:forEach var="giveup" items="${suggestedGiveupsforFollow}">
+	                            <div class="card-comment">
+	                                <!-- User image -->
+	                                <img class="img-circle img-sm" src="/img/user3-128x128.jpg" alt="User
+	                                Image">
+	
+	                                <div class="comment-text">
+	                                    <span class="username">
+	                                        ${giveup.name}
+	                                        <button type="button" onclick="follow(${giveup.id})" class=" float-right follow-button btn btn-outline-primary btn-xs">Follow</button>
 	                                    </span><!-- /.username -->
 	
 	                                </div>
@@ -371,6 +421,46 @@
             })
             .done(function(e){
                 console.log("GiveUp UnLiked");
+                setInterval('location.reload()', 2000);
+                });
+        }
+
+    	function follow(id){
+        	var token = $("meta[name='_csrf']").attr("content");
+        	var header = $("meta[name='_csrf_header']").attr("content");
+        	$.ajax({
+            	url:'/home/giveup/follow/'+id,
+            	type: "POST",
+            	cache: false,
+            	contentType: false,
+            	data : "{}",
+            	processsData: false,
+            	beforeSend: function(xhr){
+                	xhr.setRequestHeader(header, token);
+                	}
+            })
+            .done(function(e){
+                console.log("GiveUp followed");
+                setInterval('location.reload()', 2000);
+                });
+        }
+
+    	function unfollow(id){
+        	var token = $("meta[name='_csrf']").attr("content");
+        	var header = $("meta[name='_csrf_header']").attr("content");
+        	$.ajax({
+            	url:'/home/giveup/unfollow/'+id,
+            	type: "POST",
+            	cache: false,
+            	contentType: false,
+            	data : "{}",
+            	processsData: false,
+            	beforeSend: function(xhr){
+                	xhr.setRequestHeader(header, token);
+                	}
+            })
+            .done(function(e){
+                console.log("GiveUp unfollowed");
                 setInterval('location.reload()', 2000);
                 });
         }

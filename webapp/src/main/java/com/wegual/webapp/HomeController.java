@@ -2,6 +2,7 @@ package com.wegual.webapp;
 
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -40,6 +41,7 @@ import com.wegual.webapp.client.GiveUpServiceClient;
 import com.wegual.webapp.client.UserServiceClient;
 import com.wegual.webapp.message.ProfileImageTimelineItemBuilder;
 import com.wegual.webapp.message.UserActionsMessageSender;
+import com.wegual.webapp.ui.model.BeneficiaryTimelineUIElement;
 import com.wegual.webapp.ui.model.RegisterAccount;
 import com.wegual.webapp.ui.model.UserRegistrationValidator;
 import com.wegual.webapp.ui.model.UserTimelineUIElement;
@@ -51,6 +53,7 @@ import app.wegual.common.asynch.SenderRunnable;
 import app.wegual.common.client.CommonBeans;
 import app.wegual.common.model.Beneficiary;
 import app.wegual.common.model.BeneficiaryProfileData;
+import app.wegual.common.model.BeneficiaryTimelineItem;
 import app.wegual.common.model.DBFile;
 
 import app.wegual.common.model.GenericItem;
@@ -60,6 +63,7 @@ import app.wegual.common.model.TokenStatus;
 import app.wegual.common.model.User;
 import app.wegual.common.model.UserActionItem;
 import app.wegual.common.model.UserActionType;
+import app.wegual.common.model.UserDetails;
 import app.wegual.common.model.UserHomePageData;
 import app.wegual.common.model.UserProfileCounts;
 import app.wegual.common.model.UserProfileData;
@@ -223,13 +227,29 @@ public class HomeController {
 		
 		try {
 			bearerToken = HomeController.getBearerTokenForPledgeService();
-			PledgeServiceClient usc = ClientBeans.getPledgeServiceClient();			
-			usc.savePledge(bearerToken, ra);
+			PledgeServiceClient psc = ClientBeans.getPledgeServiceClient();			
+			psc.savePledge(bearerToken, ra);
 			}
 		catch (Exception ex) {
 			log.error("Error getting user profilde data", ex);
 		}
         return new ModelAndView("user/home");
+    }
+	
+	@RequestMapping(value ="/home/user/submit/details",method = RequestMethod.POST)
+    public ResponseEntity<String> submitUserDetails(UserDetails ud) {
+		String bearerToken = null;
+		
+		try {
+			bearerToken = HomeController.getBearerToken();
+			UserServiceClient usc = ClientBeans.getUserServiceClient();			
+			usc.saveUserDetails(bearerToken, ud);
+			return(new ResponseEntity<String>("Ok",HttpStatus.OK));
+		}
+		catch (Exception ex) {
+			log.error("Error getting user profilde data", ex);
+			return(new ResponseEntity<String>("Error",HttpStatus.BAD_REQUEST));
+		}
     }
 
 	@PostMapping("/public/verify/token")
@@ -402,6 +422,13 @@ public class HomeController {
 					Map<String, List<UserTimelineUIElement>> groupedElements
 						= UserTimelineUIElement.groupByDate(uiTimelineElements);
 					mv.addObject("timeline", groupedElements);
+					
+					List<UserTimelineItem> scrolltimeline = usc.getScrollableUserTimeline(bearerToken, user.getId(), System.currentTimeMillis());
+					List<UserTimelineUIElement> uiScrollTimelineElements =  UserTimelineUIElement.build(scrolltimeline);
+					Map<String, List<UserTimelineUIElement>> groupedScrollElements
+						= UserTimelineUIElement.groupByDate(uiScrollTimelineElements);
+					System.out.println("Scroll Timeline size:- " + scrolltimeline.size());
+					mv.addObject("scollTimeline", groupedScrollElements);
 				} catch (Exception ex) {
 					log.error("Error getting timeline", ex);
 				}
@@ -410,6 +437,24 @@ public class HomeController {
 			log.error("Error getting user profilde data", ex);
 		}
 		return mv;
+	}
+	
+	@RequestMapping("/home/scrolltimeline/{userid}/{timestamp}")
+	public ResponseEntity<Map<String, List<UserTimelineUIElement>>> getNextTimeline(@PathVariable("userid") String userId, @PathVariable("timestamp") long timestamp) {
+		String bearerToken = null;
+		try {
+			bearerToken = HomeController.getBearerToken();
+			UserServiceClient usc = ClientBeans.getUserServiceClient();
+			List<UserTimelineItem> scrolltimeline = usc.getScrollableUserTimeline(bearerToken, userId, timestamp);
+			List<UserTimelineUIElement> uiScrollTimelineElements =  UserTimelineUIElement.build(scrolltimeline);
+			Map<String, List<UserTimelineUIElement>> groupedScrollElements
+				= UserTimelineUIElement.groupByDate(uiScrollTimelineElements);
+			System.out.println("Scroll Timeline size:- " + scrolltimeline.size());
+			return(new ResponseEntity<Map<String, List<UserTimelineUIElement>>>(groupedScrollElements, HttpStatus.OK));
+		}
+		catch(Exception e) {
+			return(new ResponseEntity<Map<String, List<UserTimelineUIElement>>>((new HashMap<String, List<UserTimelineUIElement>>()),HttpStatus.BAD_REQUEST));
+		}
 	}
 	
 	@RequestMapping("/home/beneficiaries")
@@ -446,7 +491,7 @@ public class HomeController {
 			mv.addObject("suggestedBen", suggestedBen);
 			List<GenericItem<String>> followedBen = bsc.allBeneficiaryFollowedByUser(beneficiaryBearerToken, userId);
 			mv.addObject("followedBen", followedBen);
-			List<Object> benpledged = bsc.getAllBeneficiaryUserPledgedFor(beneficiaryBearerToken, userId);
+			List<GenericItem<String>> benpledged = bsc.getAllBeneficiaryUserPledgedFor(beneficiaryBearerToken, userId);
 			mv.addObject("benpledged", benpledged);
 		}
 		catch (Exception ex) {
@@ -456,7 +501,7 @@ public class HomeController {
 	}
 	
 	@RequestMapping("/beneficiary/profile/{benid}")
-	public ModelAndView beneficiaryProfilePage(@PathVariable ("benid") Long benId) {
+	public ModelAndView beneficiaryProfilePage(@PathVariable ("benid") String benId) {
 		ModelAndView mv = new ModelAndView("benadmin/benprofile");
 		String username = kaf.getUserLoginName();
 		log.info("Found username principal: " + username);
@@ -484,6 +529,16 @@ public class HomeController {
 			bpd.setBeneficiarySnapshot(bs);
 			mv.addObject("user", user);
 			mv.addObject("beneficiaryProfileData", bpd);
+			try {
+				List<BeneficiaryTimelineItem> timeline = bsc.getTimeline(beneficiaryBearerToken, benId);
+				System.out.println("Ben Timeline found with size :- " + timeline.size());
+				List<BeneficiaryTimelineUIElement> uiTimelineElements =  BeneficiaryTimelineUIElement.build(timeline);
+				Map<String, List<BeneficiaryTimelineUIElement>> groupedElements
+					= BeneficiaryTimelineUIElement.groupByDate(uiTimelineElements);
+				mv.addObject("timeline", groupedElements);
+			} catch (Exception ex) {
+				log.error("Error getting ben timeline", ex);
+			}
 		}
 		catch (Exception ex) {
 			log.error("Error getting beneficiary profile", ex);
@@ -586,6 +641,42 @@ public class HomeController {
 		}
 	}
 	
+	@RequestMapping(value = "/home/giveup/follow/{giveupId}", method = {RequestMethod.POST})
+	public ResponseEntity<String> followGiveUp(@PathVariable String giveupId) {
+		String userId = kaf.getUserId();
+		log.info(userId + " initiates follow for giveup with id " + giveupId);
+		
+		try {
+			UserActionItem uat = new UserActionItem();
+			uat.setActorId(userId);
+			uat.setTargetId(giveupId);
+			uat.setActionType(UserActionType.FOLLOW_GIVEUP);
+			te.execute(new SenderRunnable<UserActionsMessageSender, UserActionItem>(uams, uat));
+			return(new ResponseEntity<String>("Ok",HttpStatus.OK));
+		} catch (Exception e) {
+			log.info("Unable to follow giveup with id " + giveupId + " for userId " + userId, e);
+			return(new ResponseEntity<String>("Error",HttpStatus.BAD_REQUEST));
+		}
+	}
+	
+	@RequestMapping(value = "/home/giveup/unfollow/{giveupId}", method = {RequestMethod.POST})
+	public ResponseEntity<String> unfollowGiveUp(@PathVariable String giveupId) {
+		String userId = kaf.getUserId();
+		log.info(userId + " initiates unfollow for giveup with id " + giveupId);
+		
+		try {
+			UserActionItem uat = new UserActionItem();
+			uat.setActorId(userId);
+			uat.setTargetId(giveupId);
+			uat.setActionType(UserActionType.UNFOLLOW_GIVEUP);
+			te.execute(new SenderRunnable<UserActionsMessageSender, UserActionItem>(uams, uat));
+			return(new ResponseEntity<String>("Ok",HttpStatus.OK));
+		} catch (Exception e) {
+			log.info("Unable to unfollow giveup with id " + giveupId + " for userId " + userId, e);
+			return(new ResponseEntity<String>("Error",HttpStatus.BAD_REQUEST));
+		}
+	}
+	
 	@RequestMapping("/home/giveups")
 	public ModelAndView giveup() {
 		ModelAndView mv = new ModelAndView("user/giveup");
@@ -603,13 +694,21 @@ public class HomeController {
 				
 				List<GenericItem<String>> likedGiveups = gusc.allGiveUpLikedByUser(giveUpBearerToken, userId);
 				mv.addObject("likedGiveups", likedGiveups);
+				
+				List<GenericItem<String>> followedGiveups = gusc.allGiveUpFollowedByUser(giveUpBearerToken, userId);
+				log.info("Number of giveups followed by user :" + followedGiveups.size());
+				mv.addObject("followedGiveups", followedGiveups);
 			} catch (Exception ex) {
 				log.error("Error getting unique giveups user pledged for", ex);
 			}
 			try {
 				List<GiveUp> suggestedGiveups = gusc.suggestGiveUpToLike(giveUpBearerToken, userId);
-				log.info("Suggested Giveups :" + suggestedGiveups.size());
+				log.info("Suggested Giveups to like :" + suggestedGiveups.size());
 				mv.addObject("suggestedGiveups", suggestedGiveups);
+				
+				List<GiveUp> suggestedGiveupsforFollow = gusc.suggestGiveUpToFollow(giveUpBearerToken, userId);
+				log.info("Suggested Giveups to follow :" + suggestedGiveups.size());
+				mv.addObject("suggestedGiveupsforFollow", suggestedGiveupsforFollow);
 			}catch (Exception e) {
 				log.error("Error getting suggested giveups for user", e);
 			} 

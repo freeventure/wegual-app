@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -25,6 +26,7 @@ import com.wegual.userservice.service.UserTimelineService;
 
 import app.wegual.common.model.TokenStatus;
 import app.wegual.common.model.User;
+import app.wegual.common.model.UserDetails;
 import app.wegual.common.model.UserTimelineItem;
 import app.wegual.common.rest.model.UserFollowees;
 import app.wegual.common.rest.model.UserFollowers;
@@ -108,6 +110,20 @@ public class UserController {
 			log.info("Inside user controller, timeline hits: " + uteList.size());
 			return new ResponseEntity<List<UserTimelineItem>>(uteList, HttpStatus.OK);
 		} catch (Exception e) {
+			log.error(""+e);
+			return new ResponseEntity<List<UserTimelineItem>>(new ArrayList<UserTimelineItem>(), HttpStatus.BAD_REQUEST);
+		}
+	}
+	
+	@PreAuthorize("#oauth2.hasScope('user-service')")
+	@GetMapping("/users/scrollabletimeline/{userid}/{timestamp}")
+	ResponseEntity<List<UserTimelineItem>> getScrollableUserTimeline(@PathVariable("userid") String userId, @PathVariable("timestamp") long timestamp) {
+		try {
+			List<UserTimelineItem> uteList = uts.getScrollableTimeline(userId, timestamp);
+			log.info("Inside user controller, timeline hits: " + uteList.size());
+			return new ResponseEntity<List<UserTimelineItem>>(uteList, HttpStatus.OK);
+		} catch (Exception e) {
+			log.error(""+e);
 			return new ResponseEntity<List<UserTimelineItem>>(new ArrayList<UserTimelineItem>(), HttpStatus.BAD_REQUEST);
 		}
 	}
@@ -119,6 +135,7 @@ public class UserController {
 			UserFollowers userFollowers = uas.followersCount(userid);
 			return new ResponseEntity<UserFollowers>(userFollowers, HttpStatus.OK);
 		} catch (Exception e) {
+			log.error(""+e);
 			return new ResponseEntity<UserFollowers>(new UserFollowers(userid, 0L), HttpStatus.BAD_REQUEST);
 		}
 		
@@ -131,6 +148,7 @@ public class UserController {
 			UserFollowees userFollowees = uas.followingCount(userid);
 			return new ResponseEntity<UserFollowees>(userFollowees, HttpStatus.OK);
 		} catch (Exception e) {
+			log.error(""+e);
 			return new ResponseEntity<UserFollowees>(new UserFollowees(userid, 0L), HttpStatus.BAD_REQUEST);
 		}
 	}
@@ -147,9 +165,21 @@ public class UserController {
 			}
 			return new ResponseEntity<User>(user, HttpStatus.OK);
 		} catch (Exception e) {
+			log.error(""+e);
 			return new ResponseEntity<User>(new User(), HttpStatus.BAD_REQUEST);
 		}
 		
+	}
+	
+	@PreAuthorize("#oauth2.hasScope('user-service')")
+	@PostMapping("/users/save/details")
+	void saveUserDetails(@RequestBody UserDetails ud) {
+		try {
+			uactsvc.saveUserDetails(ud);
+		} catch (Exception e) {
+			log.error("Error saving user details : "+ e);
+			e.printStackTrace();
+		}
 	}
 
 //	@GetMapping("/test/users/profile/{username}")

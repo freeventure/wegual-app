@@ -84,7 +84,61 @@
                     </a>
                 </div>
             </div>
-            <div class="card card-footer card-comments">
+            <div class="card">
+              <div class="card-header p-2">
+                <ul class="nav nav-pills">
+                  <li class="nav-item"><a class="nav-link active" href="#settings" data-toggle="tab">Settings</a></li>
+				  <li class="nav-item"><a class="nav-link" href="#timeline" data-toggle="tab">Timeline</a></li>
+                </ul>
+              </div><!-- /.card-header -->
+              <div class="card-body">
+                <div class="tab-content">
+                  <!-- /.tab-pane -->
+                  <div class="tab-pane" id="timeline">
+                    <!-- The timeline -->
+					<div class="timeline timeline-inverse">
+                    <c:forEach var="entry" items="${timeline}">
+  					  <!-- Key represents date box -->	
+                      <div class="time-label">
+                        <span class="bg-light">
+                          <c:out value="${entry.key}"/>
+                        </span>
+                      </div>
+                      <c:forEach var="timelineElement" items="${entry.value}">
+						<div>
+	                        <i class="fas ${timelineElement.iconName} ${timelineElement.iconColor}"></i>
+	
+	                        <div class="timeline-item">
+	                          <span class="time"><i class="far fa-clock"></i>${timelineElement.timeAgo}</span>
+	                          <h3 class="timeline-header">${timelineElement.summary}</h3>
+							  <c:if test="${timelineElement.hasDetail}">
+		                          <div class="timeline-body">
+		                            ${timelineElement.detail}
+		                          </div>
+		                          <div class="timeline-footer">
+		                          	<c:if test="${timelineElement.showView}">
+		                            	<a href="#" class="btn btn-primary btn-sm">View</a>
+		                            </c:if>
+		                            <c:if test="${timelineElement.showShare}">
+		                            	<a href="#" class="btn btn-danger btn-sm">Share</a>
+		                            </c:if>
+		                          </div>
+	                          </c:if>
+	                        </div>
+                      </div>                      
+                      </c:forEach>
+					</c:forEach>
+                      <div>
+						<a class="far bg-gray" href="#">
+                        <i class="far fa-clock"></i>
+						</a>
+                      </div>
+                    </div>
+                  </div>
+                  <!-- /.tab-pane -->
+
+                  <div class="active tab-pane" id="settings">
+                  	<div class="card card-footer card-comments">
                 <div class="card-comment">
                     <!-- User image -->
                     <img class="img-circle img-sm" src="/img/user3-128x128.jpg" alt="User Image">
@@ -169,6 +223,12 @@
                     </div>
                     <!-- /.comment-text -->
                 </div>
+            </div>
+                  </div>
+                  <!-- /.tab-pane -->
+                </div>
+                <!-- /.tab-content -->
+              </div><!-- /.card-body -->
             </div>
             <div class="d-none d-lg-block card card-footer-compact card-comments">
                 <div class="card-header-compact">

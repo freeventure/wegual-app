@@ -36,10 +36,12 @@ import com.wegual.pledgeservice.GenericItemBeneficiaryUtils;
 import com.wegual.pledgeservice.GenericItemGiveUpUtils;
 import com.wegual.pledgeservice.GenericItemUserUtils;
 import com.wegual.pledgeservice.message.PledgeTimelineItemBuilder;
-import com.wegual.pledgeservice.message.UserTimelineMessageSender;
+import com.wegual.pledgeservice.message.TimelineMessageSender;
 
 import app.wegual.common.asynch.SenderRunnable;
+import app.wegual.common.model.BeneficiaryTimelineItem;
 import app.wegual.common.model.GenericItem;
+import app.wegual.common.model.GiveUpTimelineItem;
 import app.wegual.common.model.Pledge;
 import app.wegual.common.model.RegisterPledge;
 import app.wegual.common.model.UserTimelineItem;
@@ -53,7 +55,7 @@ public class PledgeService {
 	@Autowired
 	private ElasticSearchConfig esConfig;
 	@Autowired
-	private UserTimelineMessageSender utms;
+	private TimelineMessageSender utms;
 	@Autowired
 	@Qualifier("executorMessageSender")
 	private TaskExecutor te;
@@ -85,6 +87,7 @@ public class PledgeService {
 		}
 		return pledges;
 	}
+	
 	public void createPledge(RegisterPledge pledge) throws JsonProcessingException {
 		Map<String, Object> giveup = null;
 		Map<String, Object> user = null;
@@ -145,7 +148,9 @@ public class PledgeService {
 		pledgeObject.setPledgedDate(System.currentTimeMillis());
 		pledgeObject.setPledgedBy(genericUser);
 		pledgeObject.setBeneficiary(genericBeneficiary);
-		pledgeObject.setGiveUp(genericGiveUp);		
+		pledgeObject.setGiveUp(genericGiveUp);
+		pledgeObject.setBaseCurrency(Currency.getInstance(pledge.getBaseCurrency()));
+		pledgeObject.setBaseCurrencyAmount(Double.parseDouble(pledge.getBaseAmount()));
 		
 		IndexRequest indexRequest = new IndexRequest("pledge_idx").source(new ObjectMapper().writeValueAsString(pledgeObject),XContentType.JSON);
 		indexRequest.opType(DocWriteRequest.OpType.INDEX);
@@ -162,14 +167,17 @@ public class PledgeService {
 				updateRequest.id(indexResponse.getId());
 				updateRequest.doc( XContentFactory.jsonBuilder()
 				        .startObject()
-				            .field("id",indexResponse.getId() )
+				            .field("pledge_id",indexResponse.getId() )
 				        .endObject());
 				UpdateResponse update = esConfig.getElastcsearchClient().update(updateRequest, RequestOptions.DEFAULT);
 				log.info("Pledge Document update with id " + update.toString());
 				pledgeObject.setId(indexResponse.getId());
 				UserTimelineItem uti = new PledgeTimelineItemBuilder().pledge(pledgeObject)
 						.build();
-				te.execute(new SenderRunnable<UserTimelineMessageSender, UserTimelineItem>(utms, uti));
+				te.execute(new SenderRunnable<TimelineMessageSender, UserTimelineItem>(utms, uti));
+				BeneficiaryTimelineItem bti = new PledgeTimelineItemBuilder().pledge(pledgeObject)
+						.buildForBeneficiary();
+				te.execute(new SenderRunnable<TimelineMessageSender, BeneficiaryTimelineItem>(utms, bti));
 			}
 		} catch (IOException e) {
 			
