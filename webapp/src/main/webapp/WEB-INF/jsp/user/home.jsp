@@ -29,6 +29,9 @@
        z-index: 10000 !important;
    }
 	.follow-button {font-weight: 700; border-radius: 25px; min-width:80px;}
+	.pac-container {
+        z-index: 10000 !important;
+    }
 </style>
 <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC2uDzEktFvqAcppBjj52NPnIBpsX47euc&libraries=places"></script>
 </head>
@@ -128,10 +131,12 @@
     				<label for="exampleInputEmail1">Amount</label>
     				<input id="pledgeAmount" name="amount" type="number" class="form-control"  placeholder="Amount" />
   				</div>
+
   				<div class="form-group">
     				<label for="exampleFormControlTextarea1">Description</label>
     				<textarea class="form-control" name = "description" placeholder = "What inspired you to take this pledge?" rows="3"></textarea>
   			 	</div>
+
   				<div>
   				 	<input type="hidden" name="userId" value="${homePageData.user.id}" />
   				</div>
@@ -313,6 +318,7 @@
 					  </div>
 					  <!-- /.col -->
 					</div>
+
 					<c:forEach var = "feed" items ="${feeds}">
 						<div class="col-md-12" style="padding: 1%;">
 						<div class="card-comment elevation-1" >
@@ -460,9 +466,7 @@
 <script src="<c:url value="/js/adminlte.min.js" />"></script>
 <!-- AdminLTE for demo purposes -->
 <script src="<c:url value="/js/demo.js" />"></script>
-<script src="https://code.jquery.com/jquery-3.5.1.js"
-integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc="
-crossorigin="anonymous"></script>
+<script src="https://code.jquery.com/jquery-3.5.1.js" integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc=" crossorigin="anonymous"></script>
 <script>
 function renderdropdown(){
     var token = $("meta[name='_csrf']").attr("content");
@@ -526,7 +530,7 @@ function renderdropdown(){
 	    var form_data = $(this).serialize();
 	    form_data += "&baseAmount=" + encodeURIComponent(baseAmount);
 	    console.log(form_data);
-	    //debugger;
+
 	    $.ajax({
 				url: post_url,
 				type: request_method,

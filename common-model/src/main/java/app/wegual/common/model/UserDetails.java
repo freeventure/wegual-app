@@ -12,5 +12,4 @@ public class UserDetails {
 	private String state;
 	private String country;
 	private String baseCurrency;
-
 }

@@ -15,3 +15,4 @@ public class Location implements Serializable{
 	private String state;
 	private String city;
 }
+

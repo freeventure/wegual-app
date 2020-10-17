@@ -14,8 +14,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.wegual.beneficiaryservice.service.BeneficiaryService;
+import com.wegual.beneficiaryservice.service.BeneficiaryTimelineService;
 
 import app.wegual.common.model.Beneficiary;
+import app.wegual.common.model.BeneficiaryTimelineItem;
 import app.wegual.common.model.GenericItem;
 import app.wegual.common.rest.model.BeneficiarySnapshot;
 import lombok.extern.slf4j.Slf4j;
@@ -25,7 +27,10 @@ import lombok.extern.slf4j.Slf4j;
 public class BeneficiaryController {
 	
 	@Autowired
-	BeneficiaryService bs;
+	private BeneficiaryService bs;
+	
+	@Autowired
+	private BeneficiaryTimelineService bts;
 	
 	@PreAuthorize("#oauth2.hasScope('user-service')")
 	@GetMapping("/beneficiary/all")
@@ -35,13 +40,14 @@ public class BeneficiaryController {
 			return new ResponseEntity<List<Beneficiary>>(bens, HttpStatus.OK);
 		}
 		catch(Exception e) {
+			log.error(""+e);
 			return new ResponseEntity<List<Beneficiary>>(new ArrayList<Beneficiary>(), HttpStatus.BAD_REQUEST);
 		}
 	}
 	
 	@PreAuthorize("#oauth2.hasScope('user-service')")
 	@GetMapping("/beneficiary/{benid}")
-	ResponseEntity<Beneficiary> getBeneficiary(@PathVariable("benid") Long benId) {
+	ResponseEntity<Beneficiary> getBeneficiary(@PathVariable("benid") String benId) {
 		try {
 			Beneficiary ben = bs.getBeneficiary(benId);
 			return new ResponseEntity<Beneficiary>(ben, HttpStatus.OK);
@@ -53,7 +59,7 @@ public class BeneficiaryController {
 	
 	@PreAuthorize("#oauth2.hasScope('user-service')")
 	@GetMapping("/beneficiary/snapshot/{benid}")
-	ResponseEntity<BeneficiarySnapshot> getBeneficiarySnapshot(@PathVariable("benid") Long benId) {
+	ResponseEntity<BeneficiarySnapshot> getBeneficiarySnapshot(@PathVariable("benid") String benId) {
 		try {
 			BeneficiarySnapshot benSnapshot = bs.getBeneficiarySnapshot(benId);
 			return new ResponseEntity<BeneficiarySnapshot>(benSnapshot, HttpStatus.OK);
@@ -90,12 +96,12 @@ public class BeneficiaryController {
 	
 	@PreAuthorize("#oauth2.hasScope('user-service')")
 	@GetMapping("/beneficiary/pledges/{userid}")
-	ResponseEntity<List<Object>> getAllBeneficiaryUserPledgedFor(@PathVariable String userid) {
+	ResponseEntity<List<GenericItem<String>>> getAllBeneficiaryUserPledgedFor(@PathVariable String userid) {
 		try {
-			List<Object> giveup = (List<Object>) bs.getAllBeneficiaryUserPledgedFor(userid);
-			return new ResponseEntity<List<Object>>(giveup, HttpStatus.OK);
+			List<GenericItem<String>> giveup = (List<GenericItem<String>>) bs.getAllBeneficiaryUserPledgedFor(userid);
+			return new ResponseEntity<List<GenericItem<String>>>(giveup, HttpStatus.OK);
 		} catch (Exception e) {
-			return new ResponseEntity<List<Object>>(new ArrayList<Object>(), HttpStatus.BAD_REQUEST);
+			return new ResponseEntity<List<GenericItem<String>>>(new ArrayList<GenericItem<String>>(), HttpStatus.BAD_REQUEST);
 		}
 	}
 	
@@ -107,6 +113,19 @@ public class BeneficiaryController {
 			return new ResponseEntity<List<GenericItem<String>>>(giveup, HttpStatus.OK);
 		} catch (Exception e) {
 			return new ResponseEntity<List<GenericItem<String>>>(new ArrayList<GenericItem<String>>(), HttpStatus.BAD_REQUEST);
+		}
+	}
+	
+	@PreAuthorize("#oauth2.hasScope('user-service')")
+	@GetMapping("/beneficiary/timeline/{benId}")
+	ResponseEntity<List<BeneficiaryTimelineItem>> getTimeline(@PathVariable String benId) {
+		System.out.println("Inside Beneficiary Service");
+		try {
+			List<BeneficiaryTimelineItem> giveup = (List<BeneficiaryTimelineItem>) bts.getTimeline(benId);
+			return new ResponseEntity<List<BeneficiaryTimelineItem>>(giveup, HttpStatus.OK);
+		} catch (Exception e) {
+			log.info("Error fetching ben timeline", e);
+			return new ResponseEntity<List<BeneficiaryTimelineItem>>(new ArrayList<BeneficiaryTimelineItem>(), HttpStatus.BAD_REQUEST);
 		}
 	}
 

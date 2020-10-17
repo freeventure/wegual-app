@@ -14,6 +14,10 @@ import app.wegual.common.model.TokenStatus;
 import app.wegual.common.model.User;
 import app.wegual.common.model.UserDetails;
 import app.wegual.common.model.PledgeFeedItem;
+import app.wegual.common.model.RegisterPledge;
+import app.wegual.common.model.TokenStatus;
+import app.wegual.common.model.User;
+import app.wegual.common.model.UserDetails;
 import app.wegual.common.model.UserTimelineItem;
 import app.wegual.common.rest.model.UserFollowees;
 import app.wegual.common.rest.model.UserFollowers;
@@ -47,8 +51,13 @@ public interface UserServiceClient {
 	@GetMapping("/users/feed/{userid}")
 	List<PledgeFeedItem> getUserFeed(@RequestHeader(value = "Authorization", required = true) String token,
 			@PathVariable String userid);
+
+	@GetMapping("/users/scrollabletimeline/{userid}/{timestamp}")
+	List<UserTimelineItem> getScrollableUserTimeline(@RequestHeader(value = "Authorization", required = true) String token,
+			@PathVariable("userid") String userid, @PathVariable("timestamp") long timestamp);
 	
 	@PostMapping(value = "/users/save/details")
 	void saveUserDetails(@RequestHeader(value = "Authorization", required = true) String token,
    		 @RequestBody UserDetails ud) ;
+
 }
