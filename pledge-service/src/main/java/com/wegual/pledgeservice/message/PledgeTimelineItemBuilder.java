@@ -26,7 +26,7 @@ public class PledgeTimelineItemBuilder extends TimelineItem<String>{
 		gat.setId(pledge.getId());
 		gat.setName("Pledge");
 		gat.setPermalink("/pledge/"+pledge.getId());
-		gat.setSummary("You made a pledge to "+pledge.getBeneficiary().getName());
+		gat.setSummary("You made a pledge to ${target_name_link}");
 
 		this.actorId = pledge.getPledgedBy().getId();
 
@@ -36,7 +36,7 @@ public class PledgeTimelineItemBuilder extends TimelineItem<String>{
 		gt.setPermalink(pledge.getBeneficiary().getPermalink());
 		gt.setSummary("");
 
-		this.actionDate=System.currentTimeMillis();	
+		this.actionDate = System.currentTimeMillis();	
 		
 		this.detail = "Currency :" +pledge.getCurrency()+"\n"+"Amount :"+pledge.getAmount();
 		return this;
@@ -44,6 +44,7 @@ public class PledgeTimelineItemBuilder extends TimelineItem<String>{
 	public UserTimelineItem build() {
 		UserTimelineItem uti = new UserTimelineItem(actorId, actionObject, target, userActionType);
 
+		uti.setActorId(actorId);
 		uti.setDetail(detail);
 		uti.setActionDate(actionDate);
 		uti.setActionObject(actionObject);

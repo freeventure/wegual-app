@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,10 +22,14 @@ import org.springframework.web.bind.annotation.RestController;
 import com.wegual.userservice.analytics.UserAnalyticsService;
 import com.wegual.userservice.service.KeycloakUserService;
 import com.wegual.userservice.service.UserActionsService;
+import com.wegual.userservice.service.UserFeedService;
 import com.wegual.userservice.service.UserTimelineService;
 
+import app.wegual.common.model.FeedItem;
 import app.wegual.common.model.TokenStatus;
 import app.wegual.common.model.User;
+import app.wegual.common.model.UserDetails;
+import app.wegual.common.model.PledgeFeedItem;
 import app.wegual.common.model.UserTimelineItem;
 import app.wegual.common.rest.model.UserFollowees;
 import app.wegual.common.rest.model.UserFollowers;
@@ -46,6 +51,9 @@ public class UserController {
 	
 	@Autowired
 	UserTimelineService uts;
+	
+	@Autowired
+	UserFeedService ufs;
 	
 	@Autowired
     private DBFileStorageService dbFileStorageService;
@@ -125,6 +133,19 @@ public class UserController {
 	}
 	
 	@PreAuthorize("#oauth2.hasScope('user-service')")
+	@GetMapping("/users/feed/{userid}")
+	ResponseEntity<List<PledgeFeedItem>> getUserFeed(@PathVariable String userid) {
+		try {
+			List<PledgeFeedItem> feed = ufs.getFeed(userid);
+			return new ResponseEntity<List<PledgeFeedItem>>(feed, HttpStatus.OK);
+		} catch (Exception e) {
+			log.error("Error in getting feed", e);
+			return new ResponseEntity<List<PledgeFeedItem>>(new ArrayList<PledgeFeedItem>(), HttpStatus.BAD_REQUEST);
+		}
+		
+	}
+	
+	@PreAuthorize("#oauth2.hasScope('user-service')")
 	@GetMapping("/users/following/{userid}")
 	ResponseEntity<UserFollowees> getUserFollowees(@PathVariable String userid) {
 		try {
@@ -150,6 +171,17 @@ public class UserController {
 			return new ResponseEntity<User>(new User(), HttpStatus.BAD_REQUEST);
 		}
 		
+	}
+	
+	@PreAuthorize("#oauth2.hasScope('user-service')")
+	@PostMapping("/users/save/details")
+	void saveUserDetails(@RequestBody UserDetails ud) {
+		try {
+			uactsvc.saveUserDetails(ud);
+		} catch (Exception e) {
+			log.error("Error saving user details : "+ e);
+			e.printStackTrace();
+		}
 	}
 
 //	@GetMapping("/test/users/profile/{username}")

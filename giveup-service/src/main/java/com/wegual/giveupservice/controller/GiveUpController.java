@@ -43,7 +43,7 @@ public class GiveUpController {
 		try {
 			return gus.suggestGiveUpToLike(userId);
 		} catch (Exception e) {
-			log.info("Error suggesting giveups to like for user Id" + userId);
+			log.info("Error suggesting giveups to like for user Id" + userId,e);
 		}
 		return null;
 	}

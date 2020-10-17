@@ -3,6 +3,7 @@ package com.wegual.userservice.service;
 import java.io.IOException;
 import java.time.Instant;
 import java.util.Base64;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
@@ -14,8 +15,11 @@ import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.action.update.UpdateRequest;
+import org.elasticsearch.action.update.UpdateResponse;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
+import org.elasticsearch.common.xcontent.XContentFactory;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.TermQueryBuilder;
 import org.elasticsearch.index.reindex.BulkByScrollResponse;
@@ -35,8 +39,10 @@ import app.wegual.common.asynch.SenderRunnable;
 import app.wegual.common.model.GiveUpLike;
 import app.wegual.common.model.TokenStatus;
 import app.wegual.common.model.User;
+import app.wegual.common.model.UserDetails;
 import app.wegual.common.model.UserEmailVerifyToken;
 import app.wegual.common.model.UserTimelineItem;
+import app.wegual.common.util.ESIndices;
 import app.wegual.common.util.OTPGenerator;
 import lombok.extern.slf4j.Slf4j;
 
@@ -242,6 +248,30 @@ public class UserActionsService {
 			log.error("Unable to create user document in ES", e);
 		}
 		return null;
+	}
+	public void saveUserDetails(UserDetails ud) throws Exception {
+		System.out.println(ud.getCity() + " "  + ud.getState() + " " + ud.getCountry() + " " + ud.getBaseCurrency() + " " + ud.getUserId());
+		Map<String, Object> loc = new HashMap<String, Object>();
+		loc.put("city", ud.getCity());
+		loc.put("state", ud.getState());
+		loc.put("country", ud.getCountry());
+		
+		UpdateRequest updateRequest = new UpdateRequest();
+		updateRequest.index(ESIndices.USER_INDEX);
+		updateRequest.id(ud.getUserId());
+		updateRequest.doc( XContentFactory.jsonBuilder()
+				.startObject()
+				.field("location", loc)
+				.field("base_currency", ud.getBaseCurrency())
+				.field("filled_details", true)
+				.endObject());
+		try {
+			UpdateResponse update = esConfig.getElastcsearchClient().update(updateRequest, RequestOptions.DEFAULT);
+			log.info("User details updated successfully");
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 //	private String createTemporaryUserDocument(User user, String secret) {

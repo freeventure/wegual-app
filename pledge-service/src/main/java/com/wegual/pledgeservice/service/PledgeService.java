@@ -35,13 +35,16 @@ import com.wegual.pledgeservice.ElasticSearchConfig;
 import com.wegual.pledgeservice.GenericItemBeneficiaryUtils;
 import com.wegual.pledgeservice.GenericItemGiveUpUtils;
 import com.wegual.pledgeservice.GenericItemUserUtils;
+import com.wegual.pledgeservice.message.PledgeFeedItemBuilder;
 import com.wegual.pledgeservice.message.PledgeTimelineItemBuilder;
+import com.wegual.pledgeservice.message.UserFeedMessageSender;
 import com.wegual.pledgeservice.message.UserTimelineMessageSender;
 
 import app.wegual.common.asynch.SenderRunnable;
 import app.wegual.common.model.GenericItem;
 import app.wegual.common.model.Pledge;
 import app.wegual.common.model.RegisterPledge;
+import app.wegual.common.model.PledgeFeedItem;
 import app.wegual.common.model.UserTimelineItem;
 import lombok.extern.slf4j.Slf4j;
 import org.elasticsearch.common.xcontent.XContentFactory;
@@ -54,6 +57,8 @@ public class PledgeService {
 	private ElasticSearchConfig esConfig;
 	@Autowired
 	private UserTimelineMessageSender utms;
+	@Autowired 
+	private UserFeedMessageSender ufms;
 	@Autowired
 	@Qualifier("executorMessageSender")
 	private TaskExecutor te;
@@ -145,7 +150,10 @@ public class PledgeService {
 		pledgeObject.setPledgedDate(System.currentTimeMillis());
 		pledgeObject.setPledgedBy(genericUser);
 		pledgeObject.setBeneficiary(genericBeneficiary);
-		pledgeObject.setGiveUp(genericGiveUp);		
+		pledgeObject.setGiveUp(genericGiveUp);
+		pledgeObject.setDescription(pledge.getDescription());
+		pledgeObject.setBaseCurrency(Currency.getInstance(pledge.getBaseCurrency()));
+		pledgeObject.setBaseCurrencyAmount(Double.parseDouble(pledge.getBaseAmount()));
 		
 		IndexRequest indexRequest = new IndexRequest("pledge_idx").source(new ObjectMapper().writeValueAsString(pledgeObject),XContentType.JSON);
 		indexRequest.opType(DocWriteRequest.OpType.INDEX);
@@ -170,6 +178,9 @@ public class PledgeService {
 				UserTimelineItem uti = new PledgeTimelineItemBuilder().pledge(pledgeObject)
 						.build();
 				te.execute(new SenderRunnable<UserTimelineMessageSender, UserTimelineItem>(utms, uti));
+				PledgeFeedItem ufi = new PledgeFeedItemBuilder().feed(pledgeObject)
+						.build();
+				te.execute(new SenderRunnable<UserFeedMessageSender, PledgeFeedItem>(ufms, ufi));
 			}
 		} catch (IOException e) {
 			

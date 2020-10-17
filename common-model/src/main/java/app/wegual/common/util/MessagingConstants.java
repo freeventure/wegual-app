@@ -18,4 +18,5 @@ public class MessagingConstants {
 	public static final String USER_ACTION_QUEUE_NAME = "user-actions";
 	public static final String GIVEUP_ACTION_QUEUE_NAME = "giveup-actions";
 	public static final String BENEFICIARY_ACTION_QUEUE_NAME = "beneficiary-actions";
+	public static final String USER_FEED_QUEUE_NAME = "user-feed";
 }

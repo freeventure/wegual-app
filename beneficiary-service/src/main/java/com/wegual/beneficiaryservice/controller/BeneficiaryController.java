@@ -1,6 +1,7 @@
 package com.wegual.beneficiaryservice.controller;
 
 import java.util.ArrayList;
+
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +18,9 @@ import com.wegual.beneficiaryservice.service.BeneficiaryService;
 import app.wegual.common.model.Beneficiary;
 import app.wegual.common.model.GenericItem;
 import app.wegual.common.rest.model.BeneficiarySnapshot;
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @RestController
 public class BeneficiaryController {
 	
@@ -66,6 +70,7 @@ public class BeneficiaryController {
 			List<Beneficiary> ben = bs.suggestBeneficiaryToFollow(userId);
 			return new ResponseEntity<List<Beneficiary>>(ben, HttpStatus.OK);
 		} catch (Exception e) {
+			log.error("Error :"+e);
 			return new ResponseEntity<List<Beneficiary>>(new ArrayList<Beneficiary>(), HttpStatus.BAD_REQUEST);
 		}
 		

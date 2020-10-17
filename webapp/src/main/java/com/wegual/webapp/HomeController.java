@@ -41,6 +41,7 @@ import com.wegual.webapp.client.UserServiceClient;
 import com.wegual.webapp.message.ProfileImageTimelineItemBuilder;
 import com.wegual.webapp.message.UserActionsMessageSender;
 import com.wegual.webapp.ui.model.RegisterAccount;
+import com.wegual.webapp.ui.model.UserFeedUIElement;
 import com.wegual.webapp.ui.model.UserRegistrationValidator;
 import com.wegual.webapp.ui.model.UserTimelineUIElement;
 import com.wegual.webapp.ui.model.VerificationCodeValidator;
@@ -52,7 +53,7 @@ import app.wegual.common.client.CommonBeans;
 import app.wegual.common.model.Beneficiary;
 import app.wegual.common.model.BeneficiaryProfileData;
 import app.wegual.common.model.DBFile;
-
+import app.wegual.common.model.FeedItem;
 import app.wegual.common.model.GenericItem;
 import app.wegual.common.model.GiveUp;
 
@@ -60,6 +61,8 @@ import app.wegual.common.model.TokenStatus;
 import app.wegual.common.model.User;
 import app.wegual.common.model.UserActionItem;
 import app.wegual.common.model.UserActionType;
+import app.wegual.common.model.UserDetails;
+import app.wegual.common.model.PledgeFeedItem;
 import app.wegual.common.model.UserHomePageData;
 import app.wegual.common.model.UserProfileCounts;
 import app.wegual.common.model.UserProfileData;
@@ -277,11 +280,11 @@ public class HomeController {
 			PledgeServiceClient psc = ClientBeans.getPledgeServiceClient();
 			user = usc.getUser(bearerToken, username);
 			log.info("Got user object");
+			String userServiceUrl = StringUtils.removeEnd(getUserServiceUrl(), "/");
 			if(user != null && StringUtils.isEmpty(user.getPictureLink()))
 				user.setPictureLink("/img/avatar-empty.png");
 			else
 			{
-				String userServiceUrl = StringUtils.removeEnd(getUserServiceUrl(), "/");
 				log.info("User service URL is: " + userServiceUrl);
 				user.setPictureLink(userServiceUrl + user.getPictureLink());
 			}
@@ -289,6 +292,14 @@ public class HomeController {
 			UserHomePageData uhd = new UserHomePageData();
 			uhd.setUser(user);
 			uhd.setCounts(counts);
+			try {
+				List<PledgeFeedItem> feed = usc.getUserFeed(bearerToken, user.getId());
+				List<UserFeedUIElement> uiFeedElements =  UserFeedUIElement.build(feed, userServiceUrl);
+				mv.addObject("feeds", uiFeedElements);
+			}
+			catch(Exception e){
+				log.error("Error getting feed", e);
+			}
 			mv.addObject("homePageData", uhd);
 
 		} catch (Exception ex) {
@@ -326,6 +337,23 @@ public class HomeController {
 			return new ResponseEntity<List<GiveUp>>(new ArrayList<GiveUp>(),HttpStatus.BAD_REQUEST);
 		}
 	}
+	
+	@RequestMapping(path ="/user/feed/{userid}", method = RequestMethod.GET )
+	public ResponseEntity<List<PledgeFeedItem>> getFeed(@PathVariable String userid){
+		String bearerToken = null;
+		try {
+			bearerToken = HomeController.getBearerToken();
+			UserServiceClient usc = ClientBeans.getUserServiceClient();
+			
+			List<PledgeFeedItem> feed = usc.getUserFeed(bearerToken, userid);
+			return new ResponseEntity<List<PledgeFeedItem>>(feed,HttpStatus.OK);
+
+		} catch (Exception ex) {
+			log.error("Error getting user profilde data", ex);
+			return new ResponseEntity<List<PledgeFeedItem>>(new ArrayList<PledgeFeedItem>(),HttpStatus.BAD_REQUEST);
+		}
+	}
+	
 	@RequestMapping(path = "/logout" )
     public String logout(HttpServletRequest request){
 		try {
@@ -455,7 +483,7 @@ public class HomeController {
 		return mv;
 	}
 	
-	@RequestMapping("/beneficiary/profile/{benid}")
+	@RequestMapping("/beneficiary/{benid}")
 	public ModelAndView beneficiaryProfilePage(@PathVariable ("benid") Long benId) {
 		ModelAndView mv = new ModelAndView("benadmin/benprofile");
 		String username = kaf.getUserLoginName();
@@ -585,6 +613,21 @@ public class HomeController {
 			return(new ResponseEntity<String>("Error",HttpStatus.BAD_REQUEST));
 		}
 	}
+	@RequestMapping(value ="/home/user/submit/details",method = RequestMethod.POST)
+    public ResponseEntity<String> submitUserDetails(UserDetails ud) {
+		String bearerToken = null;
+		
+		try {
+			bearerToken = HomeController.getBearerToken();
+			UserServiceClient usc = ClientBeans.getUserServiceClient();			
+			usc.saveUserDetails(bearerToken, ud);
+			return(new ResponseEntity<String>("Ok",HttpStatus.OK));
+		}
+		catch (Exception ex) {
+			log.error("Error getting user profilde data", ex);
+			return(new ResponseEntity<String>("Error",HttpStatus.BAD_REQUEST));
+		}
+    }
 	
 	@RequestMapping("/home/giveups")
 	public ModelAndView giveup() {

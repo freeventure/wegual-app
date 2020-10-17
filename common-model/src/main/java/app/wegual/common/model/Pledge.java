@@ -35,4 +35,10 @@ public class Pledge implements Serializable {
 	private Currency currency;
 	
 	private String description;
+	
+	@JsonProperty("base_currency_amount")
+	private double baseCurrencyAmount;
+
+	@JsonProperty("base_currency")
+	private Currency baseCurrency;
 }

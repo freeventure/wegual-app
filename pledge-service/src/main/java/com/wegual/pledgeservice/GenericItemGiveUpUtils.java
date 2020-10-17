@@ -13,7 +13,7 @@ public class GenericItemGiveUpUtils {
 		giveup.setId(source.get("giveup_id").toString());
 		giveup.setName(source.get("giveup_name").toString());
 		giveup.setPermalink("/giveup/"+giveupId);
-		giveup.setPictureLink(source.get("picture_link").toString());
+		//giveup.setPictureLink(source.get("picture_link").toString());
 		return giveup;
 	}
 	

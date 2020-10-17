@@ -5,11 +5,15 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import app.wegual.common.model.FeedItem;
 import app.wegual.common.model.TokenStatus;
 import app.wegual.common.model.User;
+import app.wegual.common.model.UserDetails;
+import app.wegual.common.model.PledgeFeedItem;
 import app.wegual.common.model.UserTimelineItem;
 import app.wegual.common.rest.model.UserFollowees;
 import app.wegual.common.rest.model.UserFollowers;
@@ -40,4 +44,11 @@ public interface UserServiceClient {
 	List<UserTimelineItem> getUserTimeline(@RequestHeader(value = "Authorization", required = true) String token,
 			@PathVariable String userid);
 	
+	@GetMapping("/users/feed/{userid}")
+	List<PledgeFeedItem> getUserFeed(@RequestHeader(value = "Authorization", required = true) String token,
+			@PathVariable String userid);
+	
+	@PostMapping(value = "/users/save/details")
+	void saveUserDetails(@RequestHeader(value = "Authorization", required = true) String token,
+   		 @RequestBody UserDetails ud) ;
 }
