@@ -34,6 +34,7 @@ import com.wegual.beneficiaryservice.ElasticSearchConfig;
 import app.wegual.common.model.Beneficiary;
 import app.wegual.common.model.BeneficiaryFollowItem;
 import app.wegual.common.model.GenericItem;
+import app.wegual.common.model.Pledge;
 import app.wegual.common.rest.model.BeneficiarySnapshot;
 import app.wegual.common.util.ESIndices;
 import lombok.extern.slf4j.Slf4j;
@@ -44,15 +45,15 @@ public class BeneficiaryService {
 
 	@Autowired
 	private ElasticSearchConfig esConfig;
-	
+
 	public List<Beneficiary> getAllBeneficiary(){
 		SearchRequest searchRequest = new SearchRequest(ESIndices.BENEFICIARY_INDEX);
 		SearchSourceBuilder sourceBuilder = new SearchSourceBuilder(); 
 		sourceBuilder.query(QueryBuilders.matchAllQuery());
 		searchRequest.source(sourceBuilder);
-		
+
 		RestHighLevelClient client = esConfig.getElasticsearchClient();
-		
+
 		try {
 			SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
 			List<Beneficiary> bens = new ArrayList<Beneficiary>();
@@ -61,18 +62,18 @@ public class BeneficiaryService {
 					Beneficiary beneficiary = new ObjectMapper().readValue(hit.getSourceAsString(), Beneficiary.class);
 					bens.add(beneficiary);
 				}
-				
+
 				return bens;
 			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
 		return new ArrayList<Beneficiary>();
 	}
-	
-	public Beneficiary getBeneficiary(Long id) {
+
+	public Beneficiary getBeneficiary(String id) {
 		SearchRequest searchRequest = new SearchRequest("beneficiary_idx");
 		SearchSourceBuilder sourceBuilder = new SearchSourceBuilder(); 
 		sourceBuilder.query(QueryBuilders.termQuery("beneficiary_id", id)); 	
@@ -93,8 +94,8 @@ public class BeneficiaryService {
 			return beneficiary;
 		}
 	}
-	public BeneficiarySnapshot getBeneficiarySnapshot(Long id) {
-		
+	public BeneficiarySnapshot getBeneficiarySnapshot(String id) {
+
 		BeneficiarySnapshot beneficiarySnapshot= new BeneficiarySnapshot();
 		beneficiarySnapshot.setBeneficiaryId(id);
 		beneficiarySnapshot.setUserCount(getFollowerCountForBeneficiary(id));
@@ -106,8 +107,8 @@ public class BeneficiaryService {
 		return beneficiarySnapshot;
 		//return new BeneficiarySnapshot(id, 2L, 4L, 5L, 0.0, new HashMap<String, Double>());
 	}
-	
-	public Long getPledgeCountForBeneficiary(Long benId) {
+
+	public Long getPledgeCountForBeneficiary(String benId) {
 		SearchRequest searchRequest = new SearchRequest("pledge_idx");
 		SearchSourceBuilder sourceBuilder = new SearchSourceBuilder(); 
 		sourceBuilder.query(QueryBuilders.nestedQuery("beneficiary", QueryBuilders.boolQuery().must(QueryBuilders.termQuery("beneficiary.id", benId)), ScoreMode.None));
@@ -123,13 +124,13 @@ public class BeneficiaryService {
 			return (0L);
 		}
 	}
-	
-	public Long getFollowerCountForBeneficiary(Long benId) {
-		
+
+	public Long getFollowerCountForBeneficiary(String benId) {
+
 		SearchRequest searchRequest = new SearchRequest("beneficiary_follow_idx");
 		SearchSourceBuilder sourceBuilder = new SearchSourceBuilder(); 
 		sourceBuilder.query(QueryBuilders.nestedQuery("beneficiary_followee", 
-			QueryBuilders.boolQuery().must(QueryBuilders.termQuery("beneficiary_followee.id", benId)), ScoreMode.None)); 
+				QueryBuilders.boolQuery().must(QueryBuilders.termQuery("beneficiary_followee.id", benId)), ScoreMode.None)); 
 		sourceBuilder.size(0); 		
 		searchRequest.source(sourceBuilder);
 		log.info("Inside Beneficiary Service");
@@ -142,45 +143,45 @@ public class BeneficiaryService {
 			return (0L);
 		}
 	}
-	
-//	public Long getGiveUpCountForBeneficiary(Long benId) {
-//		
-//		SearchRequest searchRequest = new SearchRequest("pledge_idx");
-//		SearchSourceBuilder sourceBuilder = new SearchSourceBuilder(); 
-//		sourceBuilder.query(QueryBuilders.nestedQuery("beneficiary_followee", 
-//			QueryBuilders.boolQuery().must(QueryBuilders.termQuery("beneficiary_followee.id", benId)), ScoreMode.None)); 
-//		sourceBuilder.size(0); 		
-//		searchRequest.source(sourceBuilder);
-//		NestedAggregationBuilder aggregation = AggregationBuilders.nested("aggs", "give_up").subAggregation(AggregationBuilders.cardinality("giveups")
-//				.field("give_up.id"));
-//		sourceBuilder.aggregation(aggregation);
-//		log.info("Inside Beneficiary Service");
-//		try {
-//			RestHighLevelClient client = esConfig.getElastcsearchClient();
-//			SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
-//			Aggregation aggs = searchResponse.getAggregations().get("aggs").;
-//			Aggregation giveUps = aggs.getAggregations().get("giveups");
-//			return ();
-//		} catch (IOException e) {
-//			log.error("Error getting followers count for beneficiary with id: " + benId , e);
-//			return new Long(0L);
-//		}
-//	}
-//	
-	public HashMap<String, Double> getAmountByCurrency(Long benId){
-		
+
+	//	public Long getGiveUpCountForBeneficiary(Long benId) {
+	//		
+	//		SearchRequest searchRequest = new SearchRequest("pledge_idx");
+	//		SearchSourceBuilder sourceBuilder = new SearchSourceBuilder(); 
+	//		sourceBuilder.query(QueryBuilders.nestedQuery("beneficiary_followee", 
+	//			QueryBuilders.boolQuery().must(QueryBuilders.termQuery("beneficiary_followee.id", benId)), ScoreMode.None)); 
+	//		sourceBuilder.size(0); 		
+	//		searchRequest.source(sourceBuilder);
+	//		NestedAggregationBuilder aggregation = AggregationBuilders.nested("aggs", "give_up").subAggregation(AggregationBuilders.cardinality("giveups")
+	//				.field("give_up.id"));
+	//		sourceBuilder.aggregation(aggregation);
+	//		log.info("Inside Beneficiary Service");
+	//		try {
+	//			RestHighLevelClient client = esConfig.getElastcsearchClient();
+	//			SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
+	//			Aggregation aggs = searchResponse.getAggregations().get("aggs").;
+	//			Aggregation giveUps = aggs.getAggregations().get("giveups");
+	//			return ();
+	//		} catch (IOException e) {
+	//			log.error("Error getting followers count for beneficiary with id: " + benId , e);
+	//			return new Long(0L);
+	//		}
+	//	}
+	//	
+	public HashMap<String, Double> getAmountByCurrency(String benId){
+
 		HashMap<String, Double> amountByCurrency = new HashMap<String, Double>();
-		
+
 		SearchRequest searchRequest = new SearchRequest("pledge_idx");
 		SearchSourceBuilder sourceBuilder = new SearchSourceBuilder(); 
 		sourceBuilder.query(QueryBuilders.nestedQuery("beneficiary", QueryBuilders.boolQuery().must(QueryBuilders.termQuery("beneficiary.id", benId)), ScoreMode.None));
-		
+
 		AggregationBuilder aggregation = AggregationBuilders.terms("currency_type").field("currency")
-		.subAggregation(AggregationBuilders.sum("sum").field("amount"));
-		
+				.subAggregation(AggregationBuilders.sum("sum").field("amount"));
+
 		sourceBuilder.aggregation(aggregation);
 		searchRequest.source(sourceBuilder);
-		
+
 		try {
 			RestHighLevelClient client = esConfig.getElasticsearchClient();
 			SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
@@ -190,7 +191,7 @@ public class BeneficiaryService {
 				Sum sum = (Sum) bucket.getAggregations().asMap().get("sum");
 				amountByCurrency.put(bucket.getKeyAsString(), sum.getValue());
 				// System.out.println(bucket.getKeyAsString());      // Term
-//				System.out.println(sum.getValue());
+				//				System.out.println(sum.getValue());
 			}
 			return amountByCurrency;
 		}
@@ -199,7 +200,7 @@ public class BeneficiaryService {
 			return new HashMap<String, Double>();
 		}
 	}
-	
+
 	public List<Beneficiary> suggestBeneficiaryToFollow(String userId) {
 		log.info("Searching for all beneficiary follow suggestion for :" + userId);
 		List<Beneficiary> ben = new ArrayList<Beneficiary>();
@@ -211,13 +212,13 @@ public class BeneficiaryService {
 		sourceBuilder.query(QueryBuilders.nestedQuery("user_follower",QueryBuilders.boolQuery().must(QueryBuilders.termQuery("user_follower.id", userId)), ScoreMode.None));
 		searchRequest.source(sourceBuilder);
 		SearchResponse searchResponse;
-		
+
 		SearchRequest giveupRequest = new SearchRequest(ESIndices.BENEFICIARY_INDEX);
 		SearchSourceBuilder benBuilder = new SearchSourceBuilder();
 		benBuilder.query(QueryBuilders.matchAllQuery());
 		giveupRequest.source(benBuilder);
 		SearchResponse benResponse;
-		
+
 		try {
 			searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
 			benResponse = client.search(giveupRequest, RequestOptions.DEFAULT);
@@ -246,18 +247,18 @@ public class BeneficiaryService {
 		return ben;
 
 	}
-	
+
 	public List<GenericItem<String>> allBeneficiaryFollowedByUser(String userId){
 		log.info("Searching for all beneficiaries followed by :" + userId);
 		List<GenericItem<String>> ben = new ArrayList<GenericItem<String>>();
-		
+
 		SearchRequest searchRequest = new SearchRequest(ESIndices.BENEFICIARY_FOLLOW_INDEX);
 		SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
 		sourceBuilder.query(QueryBuilders.nestedQuery("user_follower",QueryBuilders.boolQuery().must(QueryBuilders.termQuery("user_follower.id", userId)), ScoreMode.None));
 		searchRequest.source(sourceBuilder);
-		
+
 		RestHighLevelClient client = esConfig.getElasticsearchClient();
-		
+
 		try {
 			SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
 			for(SearchHit hit : searchResponse.getHits()) {
@@ -269,11 +270,11 @@ public class BeneficiaryService {
 		}
 		return ben;
 	}
-	
-	public List<Object> getAllBeneficiaryUserPledgedFor(String userId) {
-		log.info("Inside user service");
-		Set<Object> bens= new HashSet<Object>();
-		List<Object> ben = new ArrayList<Object>();
+
+	public List<GenericItem<String>> getAllBeneficiaryUserPledgedFor(String userId) {
+		log.info("Inside ben service");
+		Map<String, GenericItem<String>> bens = new HashMap<String, GenericItem<String>>();
+		List<GenericItem<String>> ben = new ArrayList<GenericItem<String>>();
 		try {
 			SearchRequest searchRequest = new SearchRequest(ESIndices.PLEDGE_INDEX);
 			SearchSourceBuilder sourceBuilder = new SearchSourceBuilder(); 
@@ -283,28 +284,23 @@ public class BeneficiaryService {
 			RestHighLevelClient client = esConfig.getElasticsearchClient();
 			
 			SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
-			
-			if(searchResponse.getHits().getTotalHits().value>0L) {
-				Map<String, Object> src = null;
-				Object g = null;
-				for (SearchHit hit: searchResponse.getHits()) {
-					src = hit.getSourceAsMap();
-					g = src.get("beneficiary");
-					bens.add(g);
-				}
-				for(Object x : bens) {
-					ben.add(x);
-				}
-				return ben;
+			for(SearchHit hit : searchResponse.getHits()) {
+				Pledge pledge = new ObjectMapper().readValue(hit.getSourceAsString(), Pledge.class);
+				bens.put(pledge.getBeneficiary().getId(), pledge.getBeneficiary());
 			}
+			Set<Map.Entry<String, GenericItem<String>>> st = bens.entrySet();
+			for(Map.Entry<String, GenericItem<String>> mp : st) {
+				ben.add(mp.getValue());
+			}
+			return ben;
 		} catch (Exception e) {
 			log.error("Error getting giveups user pledged for: " + userId , e);
 		}
 		return ben;
 	}
-	
-public  List<GenericItem<String>> getBeneficiaryFollowees(String userId) {
-		
+
+	public  List<GenericItem<String>> getBeneficiaryFollowees(String userId) {
+
 		SearchRequest searchRequest = new SearchRequest("beneficiary_follow_idx");
 		SearchSourceBuilder sourceBuilder = new SearchSourceBuilder(); 
 		sourceBuilder.query(QueryBuilders.nestedQuery("user_follower", QueryBuilders.boolQuery().must(QueryBuilders.termQuery("user_follower.id", userId)), ScoreMode.None))
@@ -323,9 +319,9 @@ public  List<GenericItem<String>> getBeneficiaryFollowees(String userId) {
 			return new ArrayList<GenericItem<String>>();
 		}
 	}
-	
+
 	private List<GenericItem<String>> parseBeneficiarySearchHits(SearchResponse searchResponse){
-		
+
 		List<GenericItem<String>> benFolloweeList = new ArrayList<GenericItem<String>>();
 		BeneficiaryFollowItem benFolloweeItem;
 		SearchHit[] searchHits = searchResponse.getHits().getHits();
@@ -339,8 +335,8 @@ public  List<GenericItem<String>> getBeneficiaryFollowees(String userId) {
 				return new ArrayList<GenericItem<String>>();
 			}
 		}
-		
+
 		return benFolloweeList;
 	}
-	
+
 }

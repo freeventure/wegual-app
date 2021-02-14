@@ -1,7 +1,10 @@
 package com.wegual.beneficiaryservice.es.actions;
 
 import java.io.IOException;
+import java.util.Currency;
+import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.action.DocWriteRequest;
 import org.elasticsearch.action.DocWriteResponse;
 import org.elasticsearch.action.index.IndexRequest;
@@ -31,10 +34,12 @@ import app.wegual.common.asynch.SenderRunnable;
 import app.wegual.common.model.Beneficiary;
 import app.wegual.common.model.BeneficiaryFollowItem;
 import app.wegual.common.model.GenericItem;
+import app.wegual.common.model.Location;
 import app.wegual.common.model.User;
 import app.wegual.common.model.UserActionItem;
 import app.wegual.common.model.UserActionType;
 import app.wegual.common.model.UserTimelineItem;
+import app.wegual.common.service.UserUtils;
 import app.wegual.common.util.ESIndices;
 import lombok.extern.slf4j.Slf4j;
 
@@ -142,8 +147,10 @@ public class BeneficiaryFollowService {
 			
 			User u = null;
 			if(searchResponse.getHits().getTotalHits().value>0L) {
-				for(SearchHit hit : searchResponse.getHits()) {
-					u = new ObjectMapper().readValue(hit.getSourceAsString(), User.class);
+				Map<String, Object> src = null;
+				for(SearchHit hit: searchResponse.getHits()) {
+					src = hit.getSourceAsMap();
+					u = UserUtils.userFromESDocument(src);
 				}
 				user.setId(u.getId());
 				String name = u.getFirstName() + " " + u.getLastName();

@@ -1,6 +1,7 @@
 package com.wegual.pledgeservice.message;
 
 import app.wegual.common.model.ActionTarget;
+import app.wegual.common.model.BeneficiaryTimelineItem;
 import app.wegual.common.model.GenericActionTarget;
 import app.wegual.common.model.Pledge;
 import app.wegual.common.model.TimelineItem;
@@ -41,6 +42,7 @@ public class PledgeTimelineItemBuilder extends TimelineItem<String>{
 		this.detail = "Currency :" +pledge.getCurrency()+"\n"+"Amount :"+pledge.getAmount();
 		return this;
 	}
+	
 	public UserTimelineItem build() {
 		UserTimelineItem uti = new UserTimelineItem(actorId, actionObject, target, userActionType);
 
@@ -52,5 +54,17 @@ public class PledgeTimelineItemBuilder extends TimelineItem<String>{
 		uti.setDetailActions(detailActions);
 		uti.setUserActionType(userActionType);
 		return uti;
+	}
+	
+	public BeneficiaryTimelineItem buildForBeneficiary() {
+		BeneficiaryTimelineItem bti = new BeneficiaryTimelineItem(actorId, actionObject, target, userActionType);
+
+		bti.setDetail(detail);
+		bti.setActionDate(actionDate);
+		bti.setActionObject(actionObject);
+		bti.setTarget(target);
+		bti.setDetailActions(detailActions);
+		bti.setUserActionType(userActionType);
+		return bti;
 	}
 }

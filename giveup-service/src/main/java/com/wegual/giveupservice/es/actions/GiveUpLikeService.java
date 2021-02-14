@@ -2,6 +2,7 @@ package com.wegual.giveupservice.es.actions;
 
 
 import java.io.IOException;
+import java.util.Map;
 
 import org.elasticsearch.action.DocWriteRequest;
 import org.elasticsearch.action.DocWriteResponse;
@@ -35,6 +36,7 @@ import app.wegual.common.model.GiveUpLike;
 import app.wegual.common.model.User;
 import app.wegual.common.model.UserActionType;
 import app.wegual.common.model.UserTimelineItem;
+import app.wegual.common.service.UserUtils;
 import app.wegual.common.model.UserActionItem;
 import lombok.extern.slf4j.Slf4j;
 
@@ -148,8 +150,10 @@ public class GiveUpLikeService {
 			
 			User u = null;
 			if(searchResponse.getHits().getTotalHits().value>0L) {
-				for(SearchHit hit : searchResponse.getHits()) {
-					u = new ObjectMapper().readValue(hit.getSourceAsString(), User.class);
+				Map<String, Object> src = null;
+				for(SearchHit hit: searchResponse.getHits()) {
+					src = hit.getSourceAsMap();
+					u = UserUtils.userFromESDocument(src);
 				}
 				user.setId(u.getId());
 				String name = u.getFirstName() + " " + u.getLastName();

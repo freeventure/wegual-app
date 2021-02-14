@@ -9,7 +9,7 @@ import lombok.Setter;
 @Setter
 public class BeneficiarySnapshot {
 
-	private Long beneficiaryId;
+	private String beneficiaryId;
 	private Long userCount;
 	private Long giveUpCount;
 	private Long pledgesCount;
@@ -20,12 +20,12 @@ public class BeneficiarySnapshot {
 		return new BeneficiarySnapshot();
 	}
 	
-	public BeneficiarySnapshot withBeneficiaryId(Long beneficiaryId) {
+	public BeneficiarySnapshot withBeneficiaryId(String beneficiaryId) {
 		this.beneficiaryId = beneficiaryId;
 		return this;
 	}
 	
-	public BeneficiarySnapshot(Long beneficiaryId, Long userCount, Long giveUpCount, Long pledgesCount,
+	public BeneficiarySnapshot(String beneficiaryId, Long userCount, Long giveUpCount, Long pledgesCount,
 			Double totalPledged, Map<String, Double> amountByCurrency) {
 		super();
 		this.beneficiaryId = beneficiaryId;

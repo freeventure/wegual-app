@@ -29,7 +29,7 @@ public class UserActionsMessageSender implements MessageSender {
 
 	protected void sendMessage(UserTimelineItem uti) {
 		log.info("Sending message for user timeline action...");
-		rabbitTemplate.convertAndSend(MessagingConstants.USERACTIONS_FANOUT_EXCHANGE_NAME, "user-action", uti);
+		rabbitTemplate.convertAndSend(MessagingConstants.USERACTIONS_FANOUT_EXCHANGE_NAME, MessagingConstants.USER_TIMELINE_QUEUE_NAME, uti);
 	}
 
 	protected void sendMessageToGiveUp(UserActionItem uat) {

@@ -42,6 +42,6 @@ public class PledgeAnalyticsController {
 	@PostMapping("/pledge/analytics/snapshot")
 	ResponseEntity<BeneficiarySnapshot> popularBeneficiaries(@RequestBody Map<String, Long> params) {
 		
-		return new ResponseEntity<>(pas.countsForBeneficiary(Long.valueOf(params.get("beneficiaryId"))), HttpStatus.OK);
+		return new ResponseEntity<>(pas.countsForBeneficiary(params.get("beneficiaryId").toString()), HttpStatus.OK);
 	}
 }

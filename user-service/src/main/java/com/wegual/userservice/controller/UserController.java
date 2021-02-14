@@ -200,6 +200,22 @@ public class UserController {
 			e.printStackTrace();
 		}
 	}
+	
+	@PreAuthorize("#oauth2.hasScope('user-service')")
+	@GetMapping("/users/checktwitterauth")
+	@ResponseBody
+	Long checkTwitterAuth(@RequestParam("userId") String userId) {
+		System.out.println("Inside user service, checking twitter auth");
+		try {
+			Long tmp = uactsvc.checkTwitterOauthToken(userId);
+			System.out.println(tmp);
+			return tmp;
+		} catch (Exception e) {
+			log.error("Error saving user details : "+ e);
+			e.printStackTrace();
+		}
+		return (long) 0;
+	}
 
 //	@GetMapping("/test/users/profile/{username}")
 //	ResponseEntity<User> getUserProfileTest(@PathVariable("username") String username) {

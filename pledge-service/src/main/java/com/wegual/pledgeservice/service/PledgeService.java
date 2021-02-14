@@ -42,13 +42,16 @@ import com.wegual.pledgeservice.message.UserTimelineMessageSender;
 import com.wegual.pledgeservice.message.TimelineMessageSender;
 
 import app.wegual.common.asynch.SenderRunnable;
+import app.wegual.common.model.Beneficiary;
 import app.wegual.common.model.BeneficiaryTimelineItem;
 import app.wegual.common.model.GenericItem;
 import app.wegual.common.model.GiveUpTimelineItem;
 import app.wegual.common.model.Pledge;
 import app.wegual.common.model.RegisterPledge;
+import app.wegual.common.model.User;
 import app.wegual.common.model.PledgeFeedItem;
 import app.wegual.common.model.UserTimelineItem;
+import app.wegual.common.util.ESIndices;
 import lombok.extern.slf4j.Slf4j;
 import org.elasticsearch.common.xcontent.XContentFactory;
 

@@ -9,5 +9,6 @@ public enum UserActionTargetType {
 	GIVEUP,
 	PLEDGE,
 	LOGIN,
-	IMAGE
+	IMAGE,
+	TWITTER,
 }

@@ -24,6 +24,7 @@ import app.wegual.common.model.TimelineItemDetailActions;
 import app.wegual.common.model.UserActionTargetType;
 import app.wegual.common.model.UserActionType;
 import app.wegual.common.model.UserTimelineItem;
+import app.wegual.common.util.ESIndices;
 import lombok.extern.slf4j.Slf4j;
 
 @Service
@@ -32,10 +33,11 @@ public class UserTimelineService {
 
 	@Autowired
 	private ElasticSearchConfig esConfig;
-	// get follower count for a user
+	
+	
 	public List<UserTimelineItem> getTimeline(String userId) {
 		
-		SearchRequest searchRequest = new SearchRequest("user_timeline_idx");
+		SearchRequest searchRequest = new SearchRequest(ESIndices.USER_TIMELINE_INDEX);
 		SearchSourceBuilder sourceBuilder = new SearchSourceBuilder(); 
 		sourceBuilder.query(QueryBuilders.termQuery("actor_id", userId)).size(100)
 		.sort(SortBuilders.fieldSort("date_stamp").order(SortOrder.DESC));
@@ -49,6 +51,32 @@ public class UserTimelineService {
 			return new ArrayList<UserTimelineItem>();
 		} catch (IOException e) {
 			log.error("Error getting follower count for user: " + userId , e);
+			return new ArrayList<UserTimelineItem>();
+		}
+	}
+	
+	public List<UserTimelineItem> getScrollableTimeline(String userId, long timestamp) {
+		log.debug("userId :- ", userId);
+		log.debug("timestamp:- ", timestamp);
+		System.out.println("Fetching content for next scroll of timeline");
+		SearchRequest searchRequest = new SearchRequest(ESIndices.USER_TIMELINE_INDEX);
+		SearchSourceBuilder sourceBuilder = new SearchSourceBuilder(); 
+		sourceBuilder.query(QueryBuilders
+				.boolQuery()
+				.must(QueryBuilders.termQuery("actor_id", userId))
+				.must(QueryBuilders.rangeQuery("date_stamp").lt(timestamp)))
+		.sort(SortBuilders.fieldSort("date_stamp").order(SortOrder.DESC))
+		.size(10);
+		searchRequest.source(sourceBuilder);
+
+		try {
+			RestHighLevelClient client = esConfig.getElastcsearchClient();
+			SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
+			if(searchResponse.getHits().getTotalHits().value > 0L)
+				return parseTimelineSearchHits(searchResponse);
+			return new ArrayList<UserTimelineItem>();
+		} catch (IOException e) {
+			log.error("Error getting timeline for user with id: " + userId , e);
 			return new ArrayList<UserTimelineItem>();
 		}
 	}

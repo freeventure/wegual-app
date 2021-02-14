@@ -20,6 +20,7 @@ import org.elasticsearch.action.update.UpdateResponse;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.common.xcontent.XContentFactory;
+import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.TermQueryBuilder;
 import org.elasticsearch.index.reindex.BulkByScrollResponse;
@@ -31,6 +32,8 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.stereotype.Service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wegual.userservice.ElasticSearchConfig;
 import com.wegual.userservice.UserUtils;
 import com.wegual.userservice.message.UserActionsAsynchMessageSender;
@@ -38,6 +41,7 @@ import com.wegual.userservice.message.UserActionsAsynchMessageSender;
 import app.wegual.common.asynch.SenderRunnable;
 import app.wegual.common.model.GiveUpLike;
 import app.wegual.common.model.TokenStatus;
+import app.wegual.common.model.TwitterOauthTokenPersist;
 import app.wegual.common.model.User;
 import app.wegual.common.model.UserDetails;
 import app.wegual.common.model.UserEmailVerifyToken;
@@ -48,10 +52,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
-public class UserActionsService {
-	
-	private static String USER_INDEX = "user_idx";
-	private static String USER_TOKENS_INDEX = "user_tokens_idx";
+public class UserActionsService {	
 
 	@Autowired
 	@Qualifier("executorMessageSender")
@@ -131,7 +132,7 @@ public class UserActionsService {
 
 	public TokenStatus verifyTokenById(String id, String token) {
 		//UserEmailVerifyToken uevt = null;
-		GetRequest getRequest = new GetRequest(USER_TOKENS_INDEX, id);
+		GetRequest getRequest = new GetRequest(ESIndices.USER_TOKENS_INDEX, id);
 		log.info("Verifying token %s for id %s", token, id);
 		try {
 			RestHighLevelClient client = esConfig.getElastcsearchClient();
@@ -162,7 +163,7 @@ public class UserActionsService {
 
 	private void deleteEmailToken(String userId) {
 		
-		DeleteByQueryRequest request = new DeleteByQueryRequest(USER_TOKENS_INDEX); 
+		DeleteByQueryRequest request = new DeleteByQueryRequest(ESIndices.USER_TOKENS_INDEX); 
 		
 		TermQueryBuilder termQuery = QueryBuilders.termQuery("user_id", userId);
 				
@@ -193,7 +194,7 @@ public class UserActionsService {
 		uevt.setToken(token);
 		
 		// generate email verification token with user id 
-		IndexRequest indexRequest = new IndexRequest(USER_TOKENS_INDEX).id(uevt.getUserId()).source(jsonMap);
+		IndexRequest indexRequest = new IndexRequest(ESIndices.USER_TOKENS_INDEX).id(uevt.getUserId()).source(jsonMap);
 		indexRequest.opType(DocWriteRequest.OpType.INDEX); 
 		IndexResponse indexResponse = esConfig.getElastcsearchClient().index(indexRequest, RequestOptions.DEFAULT);
 		if (indexResponse.getResult() != DocWriteResponse.Result.CREATED)
@@ -202,9 +203,112 @@ public class UserActionsService {
 			log.info("User document created successfully for id: " + uevt.getEmail());
 	}
 	
+	public void saveTwitterRequestToken(String value, String secret) {
+		HashMap<String, String> requestToken = new HashMap<String, String>();
+		requestToken.put("value", value);
+		requestToken.put("secret", secret);
+		IndexRequest indexRequest = new IndexRequest(ESIndices.TWITTER_REQUEST_TOKEN_INDEX).id(value).source(requestToken);
+		indexRequest.opType(DocWriteRequest.OpType.INDEX); 
+		IndexResponse indexResponse = null;
+		try {
+			indexResponse = esConfig.getElastcsearchClient().index(indexRequest, RequestOptions.DEFAULT);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		if (indexResponse.getResult() != DocWriteResponse.Result.CREATED)
+			throw new IllegalStateException("Request Token saving failed");
+		else
+			log.info("Request Token saved successfully!!");
+	}
+	
+	public HashMap<String, Object> getTwitterRequestToken(String value){
+		SearchRequest searchRequest = new SearchRequest(ESIndices.TWITTER_REQUEST_TOKEN_INDEX);
+		SearchSourceBuilder sourceBuilder = new SearchSourceBuilder(); 
+		sourceBuilder.query(QueryBuilders.termQuery("value", value)).size(1);
+		searchRequest.source(sourceBuilder);
+		
+		try {
+			RestHighLevelClient client = esConfig.getElastcsearchClient();
+			SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
+			if(searchResponse.getHits().getTotalHits().value > 0L)
+			{
+				Map<String, Object> src = null;
+				for (SearchHit hit: searchResponse.getHits()) {
+					src = hit.getSourceAsMap();
+					return (HashMap<String, Object>) src;
+				}
+			}
+		} catch (Exception e) {
+			log.error("Error getting request token");
+		}
+		return null;
+	}
+	
+	public void persistTwitterAccessToken(String userId, String value, String secret) {
+		TwitterOauthTokenPersist token = new TwitterOauthTokenPersist(userId, value, secret, 1L);
+		IndexRequest indexRequest = null;
+		try {
+			indexRequest = new IndexRequest(ESIndices.TWITTER_OAUTH_TOKEN_INDEX).id(userId)
+					.source(new ObjectMapper().writeValueAsString(token),XContentType.JSON);
+		} catch (JsonProcessingException e1) {
+			e1.printStackTrace();
+		}
+		indexRequest.opType(DocWriteRequest.OpType.INDEX); 
+		IndexResponse indexResponse = null;
+		try {
+			indexResponse = esConfig.getElastcsearchClient().index(indexRequest, RequestOptions.DEFAULT);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		if (indexResponse.getResult() != DocWriteResponse.Result.CREATED)
+			throw new IllegalStateException("Twitter Oauth Token saving failed");
+		else
+			log.info("Twitter Oauth Token saved successfully!!");
+		
+	}
+	
+	public TwitterOauthTokenPersist getTwitterAccessToken(String userId) {
+		SearchRequest searchRequest = new SearchRequest(ESIndices.TWITTER_OAUTH_TOKEN_INDEX);
+		SearchSourceBuilder sourceBuilder = new SearchSourceBuilder(); 
+		sourceBuilder.query(QueryBuilders.termQuery("userId", userId)).size(1);
+		searchRequest.source(sourceBuilder);
+		
+		try {
+			RestHighLevelClient client = esConfig.getElastcsearchClient();
+			SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
+			if(searchResponse.getHits().getTotalHits().value > 0L)
+			{
+				for (SearchHit hit: searchResponse.getHits()) {
+					TwitterOauthTokenPersist token = new ObjectMapper().readValue(hit.getSourceAsString(), TwitterOauthTokenPersist.class);
+					return token;
+				}
+			}
+		} catch (Exception e) {
+			log.error("Error getting twitter access token");
+		}
+		return new TwitterOauthTokenPersist();
+	}
+	
+	public long checkTwitterOauthToken(String userId) {
+		
+		SearchRequest searchRequest = new SearchRequest(ESIndices.TWITTER_OAUTH_TOKEN_INDEX);
+		SearchSourceBuilder sourceBuilder = new SearchSourceBuilder(); 
+		sourceBuilder.query(QueryBuilders.termQuery("userId", userId));
+		searchRequest.source(sourceBuilder);
+		try {
+			RestHighLevelClient client = esConfig.getElastcsearchClient();
+			SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
+			return searchResponse.getHits().getTotalHits().value;
+		} catch (Exception e) {
+			log.error("Error getting twitter access token");
+		}
+		return 0;
+	}
+	
 	// gets a user document from ES given username
 	public User getUserDocument(String username) {
-		SearchRequest searchRequest = new SearchRequest(USER_INDEX);
+		SearchRequest searchRequest = new SearchRequest(ESIndices.USER_INDEX);
 		SearchSourceBuilder sourceBuilder = new SearchSourceBuilder(); 
 		sourceBuilder.query(QueryBuilders.termQuery("username", username)).size(1);
 		searchRequest.source(sourceBuilder);
@@ -232,7 +336,7 @@ public class UserActionsService {
 	// creates a User document in ES with the given User
 	public String createUserDocument(User user) {
 		Map<String, Object> jsonMap = UserUtils.jsonPropertiesFromUser(user);
-		IndexRequest indexRequest = new IndexRequest(USER_INDEX).id(user.getId()).source(jsonMap);
+		IndexRequest indexRequest = new IndexRequest(ESIndices.USER_INDEX).id(user.getId()).source(jsonMap);
 		indexRequest.opType(DocWriteRequest.OpType.INDEX);
 		try {
 			IndexResponse indexResponse = esConfig.getElastcsearchClient().index(
@@ -249,6 +353,7 @@ public class UserActionsService {
 		}
 		return null;
 	}
+	
 	public void saveUserDetails(UserDetails ud) throws Exception {
 		System.out.println(ud.getCity() + " "  + ud.getState() + " " + ud.getCountry() + " " + ud.getBaseCurrency() + " " + ud.getUserId());
 		Map<String, Object> loc = new HashMap<String, Object>();

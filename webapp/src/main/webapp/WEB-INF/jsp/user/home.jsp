@@ -18,6 +18,7 @@
   <link rel="stylesheet" href="<c:url value="/css/adminlte.css" />">
   <!-- Google Font: Source Sans Pro -->
   <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
   
   <style>
 	.center {
@@ -32,6 +33,19 @@
 	.pac-container {
         z-index: 10000 !important;
     }
+    .fa {
+	  padding: 10px;
+	  font-size: 30px;
+	  width: 50px;
+	  text-align: center;
+	  text-decoration: none;
+	  border-radius: 50%;
+	}
+	.fa-twitter {
+	  background: #55ACEE;
+	  color: white;
+	}
+    
 </style>
 <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC2uDzEktFvqAcppBjj52NPnIBpsX47euc&libraries=places"></script>
 </head>
@@ -264,6 +278,9 @@
                 People
               </p>
             </a>
+          </li>
+          <li onClick="checkTwitterLink()" class="nav-item">
+            <a class="fa fa-twitter" ></a>
           </li>
 		</ul>
       </nav>
@@ -608,6 +625,46 @@ function renderdropdown(){
 	            //console.log(place);
 	        });
 		}
+	}
+
+	function checkTwitterLink(){
+		console.log("Twitter icon clicked");
+		var token = $("meta[name='_csrf']").attr("content");
+		var header = $("meta[name='_csrf_header']").attr("content");
+		$.ajax({
+	        url:'/home/checktwitterauth',
+	        type: "GET",
+	        cache: false,
+	        contentType: false,
+	        processData: false,
+	        beforeSend: function(xhr){
+	            xhr.setRequestHeader(header, token);
+	            },
+	           success : function (data, status, xhr){
+		           console.log('---------> ' + data);
+		           if(data===0){
+		        	   //window.location.href = "https://www.google.com";
+		        	   $.ajax({
+			       	        url:'/auth/twitter/url',
+			       	        type: "GET",
+			       	        cache: false,
+			       	        contentType: false,
+			       	        processData: false,
+			       	        beforeSend: function(xhr){
+			       	            xhr.setRequestHeader(header, token);
+			       	            },
+			       	           success : function (data, status, xhr){
+			       		           console.log(data);
+			       		           window.location.href = data;
+			       	        }
+			               });
+			       }
+		           else{
+		        	   alert('You have already linked your twitter account');
+			       }
+	        }
+        });
+        return;
 	}
 </script>
 

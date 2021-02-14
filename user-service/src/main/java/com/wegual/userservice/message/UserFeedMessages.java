@@ -1,6 +1,9 @@
 package com.wegual.userservice.message;
 
+import org.springframework.amqp.core.Message;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.amqp.support.converter.MessageConverter;
+import org.springframework.amqp.support.converter.SimpleMessageConverter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -15,10 +18,15 @@ public class UserFeedMessages {
 
 	@Autowired
 	UserFeedActions actions;
-	
+
+
 	@RabbitListener(queues = "user-feed")
-    public void receiveObjectMessage(PledgeFeedItem pfi) {
-        log.info("ES Timeline Received user action message at user-timeline inside user-service");
-        actions.userFeedGenericEvent(pfi);
-    }
+	public void receiveObjectMessage(Message message) {
+		MessageConverter mc =  new SimpleMessageConverter();
+		Object obj = mc.fromMessage(message);
+		if(obj instanceof PledgeFeedItem) {
+			log.info("ES Timeline Received user action message at user-timeline inside user-service");
+			actions.userFeedGenericEvent((PledgeFeedItem)obj);
+		}
+	}
 }

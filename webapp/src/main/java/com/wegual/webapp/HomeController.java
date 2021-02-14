@@ -17,6 +17,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.client.OAuth2RestTemplate;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
+import org.springframework.social.twitter.api.Tweet;
 import org.springframework.stereotype.Controller;
 
 import org.springframework.web.bind.annotation.PathVariable;
@@ -31,6 +32,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.view.RedirectView;
 
 import com.netflix.appinfo.InstanceInfo;
 import com.netflix.discovery.EurekaClient;
@@ -40,6 +42,7 @@ import com.wegual.webapp.client.PledgeServiceClient;
 import com.wegual.webapp.client.GiveUpServiceClient;
 import com.wegual.webapp.client.UserServiceClient;
 import com.wegual.webapp.message.ProfileImageTimelineItemBuilder;
+import com.wegual.webapp.message.TwitterMessageSender;
 import com.wegual.webapp.message.UserActionsMessageSender;
 import com.wegual.webapp.ui.model.BeneficiaryTimelineUIElement;
 import com.wegual.webapp.ui.model.RegisterAccount;
@@ -97,6 +100,9 @@ public class HomeController {
 	
 	@Autowired
 	private UserActionsMessageSender uams;	
+	
+	@Autowired
+	private TwitterMessageSender tms;
 	
 	@Autowired
 	private EurekaClient discoveryClient;
@@ -168,7 +174,7 @@ public class HomeController {
 		String bearerToken = null;
 		OAuth2AccessToken token = null;
 		try {
-			OAuth2RestTemplate ort = CommonBeans.getExternalServicesOAuthClients().restTemplate("giveup-service");
+			OAuth2RestTemplate ort = CommonBeans.getExternalServicesOAuthClients().restTemplate("pledge-service");
 			if (ort != null) {
 				token = ort.getAccessToken();
 				log.info("Created token for giveup service");
@@ -313,6 +319,7 @@ public class HomeController {
 			uhd.setCounts(counts);
 			try {
 				List<PledgeFeedItem> feed = usc.getUserFeed(bearerToken, user.getId());
+				System.out.println("--------->>>>>>>> "+feed.size());
 				List<UserFeedUIElement> uiFeedElements =  UserFeedUIElement.build(feed, userServiceUrl);
 				mv.addObject("feeds", uiFeedElements);
 			}
@@ -448,6 +455,7 @@ public class HomeController {
 					List<UserTimelineUIElement> uiTimelineElements =  UserTimelineUIElement.build(timeline);
 					Map<String, List<UserTimelineUIElement>> groupedElements
 						= UserTimelineUIElement.groupByDate(uiTimelineElements);
+					System.out.println("Timeline size:- " + groupedElements.size());
 					mv.addObject("timeline", groupedElements);
 					
 					List<UserTimelineItem> scrolltimeline = usc.getScrollableUserTimeline(bearerToken, user.getId(), System.currentTimeMillis());
@@ -455,7 +463,7 @@ public class HomeController {
 					Map<String, List<UserTimelineUIElement>> groupedScrollElements
 						= UserTimelineUIElement.groupByDate(uiScrollTimelineElements);
 					System.out.println("Scroll Timeline size:- " + scrolltimeline.size());
-					mv.addObject("scollTimeline", groupedScrollElements);
+					mv.addObject("scrollTimeline", groupedScrollElements);
 				} catch (Exception ex) {
 					log.error("Error getting timeline", ex);
 				}
@@ -743,6 +751,69 @@ public class HomeController {
 			log.error("Error getting user pledge data", ex);
 		}
 		return mv;
+	}
+	
+	@GetMapping(value = "/home/checktwitterauth")
+	public ResponseEntity<Long> checkTwitterAuth() {
+		System.out.println("Checking Twitter Auth status");
+		String userId = kaf.getUserId();
+		System.out.println(userId);
+		UserServiceClient usc = ClientBeans.getUserServiceClient();
+		return(new ResponseEntity<Long>(usc.checkTwitterAuth(getBearerToken(), userId),HttpStatus.OK));
+	}
+	
+	@GetMapping(value = "/auth/twitter")
+	public RedirectView twitterAuthorizationRedirect() {
+		UserServiceClient usc = ClientBeans.getUserServiceClient();
+		RedirectView redirectView = new RedirectView();
+		redirectView.setUrl(usc.twitterAuthUrl(getBearerToken()));
+		return redirectView;
+	}
+	
+	@GetMapping(value = "/auth/twitter/url")
+	public ResponseEntity<String> getTwitterAuthUrl() {
+		UserServiceClient usc = ClientBeans.getUserServiceClient();
+		return (new ResponseEntity<String>(usc.twitterAuthUrl(getBearerToken()),HttpStatus.OK));
+	}
+	
+	@GetMapping(value = "/twitter/save/{oauth_verifier}/{oauth_token}")
+	public RedirectView dummy(@PathVariable("oauth_verifier") String oauthverifier, @PathVariable("oauth_token") String oauthToken) {
+		UserServiceClient usc = ClientBeans.getUserServiceClient();
+		String userId = kaf.getUserId();
+		System.out.println(userId);
+		usc.saveTwitterOauthToken(getBearerToken(), userId, oauthverifier, oauthToken);
+		tms.sendMessage(userId);
+		RedirectView redirectView = new RedirectView();
+		redirectView.setUrl("http://localhost:9000/home");
+		return redirectView;
+	}
+	
+	@GetMapping(value="/twitter/oauth")
+	public RedirectView twitterCallback(@RequestParam("oauth_verifier") String oauthverifier, @RequestParam("oauth_token") String oauthToken) {
+//		UserServiceClient usc = ClientBeans.getUserServiceClient();
+//		String userId = kaf.getUserId();
+//		usc.saveTwitterOauthToken(getBearerToken(), userId, oauthverifier, oauthToken);
+		RedirectView redirectView = new RedirectView();
+		redirectView.setUrl("http://localhost:9000/twitter/save/"+oauthverifier+"/"+oauthToken);
+		return redirectView;
+	}
+	
+	@GetMapping(value="/twitter/tweet")
+	public void postTweeet() {
+		String tweetText = "Tweeting from Spting Boot!!!";
+		System.out.println(tweetText);
+		String userId = kaf.getUserId();
+		UserServiceClient usc = ClientBeans.getUserServiceClient();
+		usc.postTweet(getBearerToken(), tweetText, userId);
+	}
+	
+	@GetMapping(value="/user/twitter/timeline")
+	public ResponseEntity<String> getAllTweets() {
+		String userId = kaf.getUserId();
+		UserServiceClient usc = ClientBeans.getUserServiceClient();
+		//String tweets = usc.getAllTweet(getBearerToken(), userId);
+		//System.out.println(tweets);
+		return(usc.getAllTweet(getBearerToken(), userId));
 	}
 	
 	@RequestMapping("/benadmin")

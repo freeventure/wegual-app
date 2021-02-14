@@ -10,14 +10,13 @@ import org.springframework.stereotype.Component;
 import com.wegual.userservice.ElasticSearchConfig;
 
 import app.wegual.common.model.UserTimelineItem;
+import app.wegual.common.util.ESIndices;
 import lombok.extern.slf4j.Slf4j;
 
 @Component
 @Slf4j
 public class UserTimelineActions {
-	
-	private static String USER_TIMELINE_INDEX = "user_timeline_idx";
-	
+		
 	@Autowired
 	private ElasticSearchConfig esConfig;
 
@@ -39,7 +38,8 @@ public class UserTimelineActions {
 	protected void asynchGenericTimelineInsert(UserTimelineItem uti)
 	{
 		try {
-			IndexRequest indexRequest = new IndexRequest(USER_TIMELINE_INDEX)
+			System.out.println(uti.getActionObject().getName());
+			IndexRequest indexRequest = new IndexRequest(ESIndices.USER_TIMELINE_INDEX)
 			        .source(new UserTimelineIndexAdapter().indexJson(uti));
 			esConfig.getElastcsearchClient().index(indexRequest, RequestOptions.DEFAULT);
 		} catch (Exception e) {

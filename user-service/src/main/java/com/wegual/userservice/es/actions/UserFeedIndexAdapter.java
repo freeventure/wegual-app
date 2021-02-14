@@ -10,25 +10,46 @@ import app.wegual.common.model.ActionTarget;
 import app.wegual.common.model.FeedItemDetailActions;
 import app.wegual.common.model.GenericItem;
 import app.wegual.common.model.PledgeFeedItem;
+import app.wegual.common.model.TwitterFeedItem;
 
 
 public class UserFeedIndexAdapter {
-	public XContentBuilder indexJson(PledgeFeedItem ufi) throws Exception {
-		
+	public XContentBuilder indexJson(Object obj) throws Exception {
+		if(obj instanceof PledgeFeedItem) {
+			PledgeFeedItem ufi = (PledgeFeedItem) obj;
 			XContentBuilder xb= jsonBuilder()
-			.startObject()
-			.field("date_stamp", ufi.getActionDate())
-			.field("detail", ufi.getDetail())
-			.field("verb", ufi.getUserActionType());
+				.startObject()
+				.field("date_stamp", ufi.getActionDate())
+				.field("detail", ufi.getDetail())
+				.field("verb", ufi.getUserActionType());
 
-			getActionTargetObject(xb, "action_object", ufi.getActionObject());
-			getActionTargetObject(xb, "target_object", ufi.getTarget());
-			getGenericItemObject(xb, "actor", ufi.getActor());
-			if(ufi.getDetailActions()!=null)
-				getDetailActionObject(xb, "detail_actions", ufi.getDetailActions());
-			xb.endObject();
+				getActionTargetObject(xb, "action_object", ufi.getActionObject());
+				getActionTargetObject(xb, "target_object", ufi.getTarget());
+				getGenericItemObject(xb, "actor", ufi.getActor());
+				if(ufi.getDetailActions()!=null)
+					getDetailActionObject(xb, "detail_actions", ufi.getDetailActions());
+				xb.endObject();
 
-			return xb;
+				return xb;
+		}
+		else if(obj instanceof TwitterFeedItem) {
+			TwitterFeedItem tfi = (TwitterFeedItem) obj;
+			XContentBuilder xb= jsonBuilder()
+					.startObject()
+					.field("date_stamp", tfi.getActionDate())
+					.field("detail", tfi.getDetail())
+					.field("verb", tfi.getUserActionType());
+
+					getActionTargetObject(xb, "action_object", tfi.getActionObject());
+					getActionTargetObject(xb, "target_object", tfi.getTarget());
+					getGenericItemObject(xb, "actor", tfi.getActor());
+					if(tfi.getDetailActions()!=null)
+						getDetailActionObject(xb, "detail_actions", tfi.getDetailActions());
+					xb.endObject();
+
+					return xb;
+		}
+		return null;
 	}
 	
 	

@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestHeader;
 
 import app.wegual.common.model.Beneficiary;
+import app.wegual.common.model.BeneficiaryTimelineItem;
 import app.wegual.common.model.GenericItem;
 import app.wegual.common.rest.model.BeneficiarySnapshot;
 
@@ -16,11 +17,11 @@ public interface BeneficiaryServiceClient {
 
 	@GetMapping("/beneficiary/{benid}")
 	Beneficiary getBeneficiary(@RequestHeader(value = "Authorization", required = true) String token,
-			@PathVariable Long benid);
+			@PathVariable String benid);
 
 	@GetMapping("/beneficiary/snapshot/{benid}")
 	BeneficiarySnapshot getBeneficiarySnapshot(@RequestHeader(value = "Authorization", required = true) String token,
-			@PathVariable Long benid);
+			@PathVariable String benid);
 
 	@GetMapping("/beneficiary/suggest/{userId}")
 	List<Beneficiary> suggestBeneficiaryToFollow(@RequestHeader(value = "Authorization", required = true) String token,
@@ -31,7 +32,7 @@ public interface BeneficiaryServiceClient {
 			@PathVariable String userId);
 
 	@GetMapping("/beneficiary/pledges/{userid}")
-	List<Object> getAllBeneficiaryUserPledgedFor(@RequestHeader(value = "Authorization", required = true) String token,
+	List<GenericItem<String>> getAllBeneficiaryUserPledgedFor(@RequestHeader(value = "Authorization", required = true) String token,
 			@PathVariable String userid);
 
 	@GetMapping("/beneficiary/followee/{userId}")
@@ -40,5 +41,9 @@ public interface BeneficiaryServiceClient {
 
 	@GetMapping("/beneficiary/all")
 	List<Beneficiary> getAllBeneficiary(@RequestHeader(value = "Authorization", required = true) String token);
+	
+	@GetMapping("/beneficiary/timeline/{benId}")
+	List<BeneficiaryTimelineItem> getTimeline(@RequestHeader(value = "Authorization", required = true) String token,
+			@PathVariable String benId);
 
 }
