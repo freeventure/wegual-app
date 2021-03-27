@@ -72,4 +72,15 @@ public class GiveUpController {
 		return null;
 	}
 	
+	@PreAuthorize("#oauth2.hasScope('user-service')")
+	@GetMapping("/giveup/suggestByName/{name}")
+	List<GenericItem<String>> suggestGiveupByName(@PathVariable String name) {
+		try {
+			return gus.getSuggestionSearch(name);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return new ArrayList<GenericItem<String>>();
+	}
+	
 }

@@ -45,5 +45,8 @@ public interface BeneficiaryServiceClient {
 	@GetMapping("/beneficiary/timeline/{benId}")
 	List<BeneficiaryTimelineItem> getTimeline(@RequestHeader(value = "Authorization", required = true) String token,
 			@PathVariable String benId);
+	
+	@GetMapping("/beneficiary/suggestByName/{name}")
+	List<GenericItem<String>> suggestBeneficiaryByName(@RequestHeader(value = "Authorization", required = true) String token, @PathVariable String name);
 
 }

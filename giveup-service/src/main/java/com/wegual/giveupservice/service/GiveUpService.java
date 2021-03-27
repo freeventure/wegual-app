@@ -11,9 +11,15 @@ import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
+import org.elasticsearch.common.unit.Fuzziness;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
+import org.elasticsearch.search.suggest.Suggest;
+import org.elasticsearch.search.suggest.SuggestBuilder;
+import org.elasticsearch.search.suggest.SuggestBuilders;
+import org.elasticsearch.search.suggest.SuggestionBuilder;
+import org.elasticsearch.search.suggest.completion.CompletionSuggestion;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.apache.lucene.search.join.ScoreMode;
@@ -157,5 +163,45 @@ public class GiveUpService {
 		}
 		return giveup;
 	}
+	
+	public static GenericItem<String> giveupToGenericItem(Map<String, Object> ben){
+		//InstanceInfo instance = discoveryClient.getNextServerFromEureka("user-service", false);
+		GenericItem<String> item = new GenericItem<String>((String)ben.get("giveup_id"), (String)ben.get("giveup_name"), 
+				(String)("/user/" + ben.get("giveup_id")), (String)(ben.get("picture_link")));
+		return item;
+	}
+	
+	public List<GenericItem<String>> getSuggestionSearch(String name) {
+        String suggestionName = "completion-suggestion";
+        List<GenericItem<String>> suggestedUsers = new ArrayList<GenericItem<String>>();
+        try {
+        	SuggestionBuilder completionSuggestionFuzzyBuilder = SuggestBuilders
+                    .completionSuggestion("giveup_name.full_name_suggest").prefix(name, Fuzziness.TWO);
+
+            RestHighLevelClient client = esConfig.getElasticsearchClient();
+            SearchRequest searchRequest = new SearchRequest(ESIndices.GIVEUP_INDEX);
+            searchRequest.types("completion");
+    		SearchSourceBuilder sourceBuilder = new SearchSourceBuilder(); 
+    		sourceBuilder.suggest(new SuggestBuilder().addSuggestion(suggestionName, completionSuggestionFuzzyBuilder));
+    		searchRequest.source(sourceBuilder);
+    		SearchResponse searchResponse = client.search(searchRequest,RequestOptions.DEFAULT);
+    		
+            log.info("result {}", searchResponse);
+            Suggest suggest = searchResponse.getSuggest();
+            CompletionSuggestion completeSuggestion = suggest.getSuggestion(suggestionName);
+            for (CompletionSuggestion.Entry entry : completeSuggestion.getEntries()) {
+                for (CompletionSuggestion.Entry.Option option : entry) {
+                    SearchHit hit = option.getHit();
+                    suggestedUsers.add(giveupToGenericItem(hit.getSourceAsMap()));
+                }
+            }
+            return suggestedUsers;
+        } catch(Exception ex) {
+        	ex.printStackTrace();
+        }
+		return new ArrayList<GenericItem<String>>();
+        
+
+    }
 
 }

@@ -26,6 +26,7 @@ import com.wegual.userservice.service.UserFeedService;
 import com.wegual.userservice.service.UserTimelineService;
 
 import app.wegual.common.model.FeedItem;
+import app.wegual.common.model.GenericItem;
 import app.wegual.common.model.TokenStatus;
 import app.wegual.common.model.User;
 import app.wegual.common.model.UserDetails;
@@ -215,6 +216,18 @@ public class UserController {
 			e.printStackTrace();
 		}
 		return (long) 0;
+	}
+	
+	@PreAuthorize("#oauth2.hasScope('user-service')")
+	@GetMapping("/users/suggest/{name}")
+	List<GenericItem<String>> suggestUserByName(@PathVariable String name) {
+		try {
+			return uactsvc.getSuggestionSearch(name);
+		} catch (Exception e) {
+			log.error("Error saving user details : "+ e);
+			e.printStackTrace();
+		}
+		return new ArrayList<GenericItem<String>>();
 	}
 
 //	@GetMapping("/test/users/profile/{username}")

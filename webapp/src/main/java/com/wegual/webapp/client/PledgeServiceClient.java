@@ -10,13 +10,17 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 
-
+import app.wegual.common.model.Pledge;
 import app.wegual.common.model.PledgeAnalyticsForUser;
 import app.wegual.common.model.RegisterPledge;
 
 @FeignClient("pledge-service")
 public interface PledgeServiceClient {
 
+	@GetMapping("/pledge/{pledgeid}")
+	Pledge getPledge(@RequestHeader(value = "Authorization", required = true) String token,
+			@PathVariable String pledgeid);
+	
 	@PostMapping(value = "/pledge/save")
 	void savePledge(@RequestHeader(value = "Authorization", required = true) String token,
    		 @RequestBody RegisterPledge ra) ;

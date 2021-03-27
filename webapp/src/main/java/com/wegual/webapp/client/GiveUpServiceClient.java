@@ -30,4 +30,7 @@ public interface GiveUpServiceClient {
 	
 	@GetMapping("/giveup/all")
 	List<GiveUp> getAllGiveup(@RequestHeader(value = "Authorization", required = true) String token);
+	
+	@GetMapping("/giveup/suggestByName/{name}")
+	List<GenericItem<String>> suggestGiveupByName(@RequestHeader(value = "Authorization", required = true) String token, @PathVariable String name);
 }

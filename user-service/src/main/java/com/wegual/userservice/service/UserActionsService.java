@@ -2,9 +2,14 @@ package com.wegual.userservice.service;
 
 import java.io.IOException;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Collection;
+import java.util.stream.Collectors;
+
 
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.action.DocWriteRequest;
@@ -19,6 +24,7 @@ import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.action.update.UpdateResponse;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
+import org.elasticsearch.common.unit.Fuzziness;
 import org.elasticsearch.common.xcontent.XContentFactory;
 import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -27,6 +33,12 @@ import org.elasticsearch.index.reindex.BulkByScrollResponse;
 import org.elasticsearch.index.reindex.DeleteByQueryRequest;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
+import org.elasticsearch.search.suggest.Suggest;
+import org.elasticsearch.search.suggest.SuggestBuilder;
+import org.elasticsearch.search.suggest.SuggestBuilders;
+import org.elasticsearch.search.suggest.SuggestionBuilder;
+import org.elasticsearch.search.suggest.completion.CompletionSuggestion;
+import org.elasticsearch.search.suggest.term.TermSuggestion;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.task.TaskExecutor;
@@ -34,11 +46,14 @@ import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.netflix.appinfo.InstanceInfo;
+import com.netflix.discovery.EurekaClient;
 import com.wegual.userservice.ElasticSearchConfig;
 import com.wegual.userservice.UserUtils;
 import com.wegual.userservice.message.UserActionsAsynchMessageSender;
 
 import app.wegual.common.asynch.SenderRunnable;
+import app.wegual.common.model.GenericItem;
 import app.wegual.common.model.GiveUpLike;
 import app.wegual.common.model.TokenStatus;
 import app.wegual.common.model.TwitterOauthTokenPersist;
@@ -416,6 +431,39 @@ public class UserActionsService {
 //			log.error("Error inserting user timeline event in index: " + uti.getActorId(), e);
 //		} 
 //	}
+	
+	public List<GenericItem<String>> getSuggestionSearch(String name) {
+        String suggestionName = "completion-suggestion";
+        List<GenericItem<String>> suggestedUsers = new ArrayList<GenericItem<String>>();
+        try {
+        	SuggestionBuilder completionSuggestionFuzzyBuilder = SuggestBuilders
+                    .completionSuggestion("full_name.full_name_suggest").prefix(name, Fuzziness.TWO);
+
+            RestHighLevelClient client = esConfig.getElastcsearchClient();
+            SearchRequest searchRequest = new SearchRequest(ESIndices.USER_INDEX);
+            searchRequest.types("completion");
+    		SearchSourceBuilder sourceBuilder = new SearchSourceBuilder(); 
+    		sourceBuilder.suggest(new SuggestBuilder().addSuggestion(suggestionName, completionSuggestionFuzzyBuilder));
+    		searchRequest.source(sourceBuilder);
+    		SearchResponse searchResponse = client.search(searchRequest,RequestOptions.DEFAULT);
+    		
+            log.info("result {}", searchResponse);
+            Suggest suggest = searchResponse.getSuggest();
+            CompletionSuggestion completeSuggestion = suggest.getSuggestion(suggestionName);
+            for (CompletionSuggestion.Entry entry : completeSuggestion.getEntries()) {
+                for (CompletionSuggestion.Entry.Option option : entry) {
+                    SearchHit hit = option.getHit();
+                    suggestedUsers.add(UserUtils.userToGenericItem(hit.getSourceAsMap()));
+                }
+            }
+            return suggestedUsers;
+        } catch(Exception ex) {
+        	ex.printStackTrace();
+        }
+		return new ArrayList<GenericItem<String>>();
+        
+
+    }
 
 	protected void sendMessageAsynch(UserTimelineItem uti) {
 		te.execute(new SenderRunnable<UserActionsAsynchMessageSender, UserTimelineItem>(uaam, uti));

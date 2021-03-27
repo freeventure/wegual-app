@@ -128,5 +128,26 @@ public class BeneficiaryController {
 			return new ResponseEntity<List<BeneficiaryTimelineItem>>(new ArrayList<BeneficiaryTimelineItem>(), HttpStatus.BAD_REQUEST);
 		}
 	}
+	
+	@PreAuthorize("#oauth2.hasScope('user-service')")
+	@GetMapping("/beneficiary/suggestByName/{name}")
+	List<GenericItem<String>> suggestBeneficiaryByName(@PathVariable String name) {
+		try {
+			return bs.getSuggestionSearch(name);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return new ArrayList<GenericItem<String>>();
+	}
+	
+	@GetMapping("/pledgedFor/{benId}")
+	public Long getGiveUpCountForBeneficiary(@PathVariable String benId) {
+		return bs.getGiveUpCountForBeneficiary(benId);
+	}
+	
+	@GetMapping("/amount/pledged/base/{benId}")
+	public Double getTotalAmountPledgedForBeneficiaryinBaseCurrency(@PathVariable String benId) {
+		return bs.getTotalAmountPledgedForBeneficiaryinBaseCurrency(benId);
+	}
 
 }

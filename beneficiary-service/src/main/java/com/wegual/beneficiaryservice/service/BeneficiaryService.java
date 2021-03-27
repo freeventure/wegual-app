@@ -2,6 +2,7 @@ package com.wegual.beneficiaryservice.service;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -13,18 +14,27 @@ import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
+import org.elasticsearch.common.unit.Fuzziness;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.aggregations.Aggregation;
 import org.elasticsearch.search.aggregations.AggregationBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
+import org.elasticsearch.search.aggregations.bucket.nested.Nested;
 import org.elasticsearch.search.aggregations.bucket.nested.NestedAggregationBuilder;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms.Bucket;
+import org.elasticsearch.search.aggregations.metrics.Cardinality;
 import org.elasticsearch.search.aggregations.metrics.Sum;
+import org.elasticsearch.search.aggregations.metrics.SumAggregationBuilder;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.sort.SortBuilders;
 import org.elasticsearch.search.sort.SortOrder;
+import org.elasticsearch.search.suggest.Suggest;
+import org.elasticsearch.search.suggest.SuggestBuilder;
+import org.elasticsearch.search.suggest.SuggestBuilders;
+import org.elasticsearch.search.suggest.SuggestionBuilder;
+import org.elasticsearch.search.suggest.completion.CompletionSuggestion;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -144,30 +154,31 @@ public class BeneficiaryService {
 		}
 	}
 
-	//	public Long getGiveUpCountForBeneficiary(Long benId) {
-	//		
-	//		SearchRequest searchRequest = new SearchRequest("pledge_idx");
-	//		SearchSourceBuilder sourceBuilder = new SearchSourceBuilder(); 
-	//		sourceBuilder.query(QueryBuilders.nestedQuery("beneficiary_followee", 
-	//			QueryBuilders.boolQuery().must(QueryBuilders.termQuery("beneficiary_followee.id", benId)), ScoreMode.None)); 
-	//		sourceBuilder.size(0); 		
-	//		searchRequest.source(sourceBuilder);
-	//		NestedAggregationBuilder aggregation = AggregationBuilders.nested("aggs", "give_up").subAggregation(AggregationBuilders.cardinality("giveups")
-	//				.field("give_up.id"));
-	//		sourceBuilder.aggregation(aggregation);
-	//		log.info("Inside Beneficiary Service");
-	//		try {
-	//			RestHighLevelClient client = esConfig.getElastcsearchClient();
-	//			SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
-	//			Aggregation aggs = searchResponse.getAggregations().get("aggs").;
-	//			Aggregation giveUps = aggs.getAggregations().get("giveups");
-	//			return ();
-	//		} catch (IOException e) {
-	//			log.error("Error getting followers count for beneficiary with id: " + benId , e);
-	//			return new Long(0L);
-	//		}
-	//	}
-	//	
+	public Long getGiveUpCountForBeneficiary(String benId) {
+		
+		SearchRequest searchRequest = new SearchRequest(ESIndices.PLEDGE_INDEX);
+		SearchSourceBuilder sourceBuilder = new SearchSourceBuilder(); 
+		sourceBuilder.query(QueryBuilders.nestedQuery("beneficiary", 
+			QueryBuilders.boolQuery().must(QueryBuilders.termQuery("beneficiary.id", benId)), ScoreMode.None)); 
+		sourceBuilder.size(0); 		
+		searchRequest.source(sourceBuilder);
+		NestedAggregationBuilder aggregation = AggregationBuilders.nested("aggs", "give_up").subAggregation(AggregationBuilders.cardinality("giveups")
+				.field("give_up.id"));
+		sourceBuilder.aggregation(aggregation);
+		log.info("Inside Beneficiary Service");
+		try {
+			RestHighLevelClient client = esConfig.getElasticsearchClient();
+			SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
+			Nested agg = searchResponse.getAggregations().get("aggs");
+			Cardinality cardinality = agg.getAggregations().get("giveups");
+			return(cardinality.getValue());
+		} catch (IOException e) {
+			log.error("Error getting followers count for beneficiary with id: " + benId , e);
+			//return new Long(0L);
+		}
+		return (0L);
+	}
+	
 	public HashMap<String, Double> getAmountByCurrency(String benId){
 
 		HashMap<String, Double> amountByCurrency = new HashMap<String, Double>();
@@ -337,6 +348,65 @@ public class BeneficiaryService {
 		}
 
 		return benFolloweeList;
+	}
+	
+	public static GenericItem<String> beneficiaryToGenericItem(Map<String, Object> ben){
+		//InstanceInfo instance = discoveryClient.getNextServerFromEureka("user-service", false);
+		GenericItem<String> item = new GenericItem<String>((String)ben.get("beneficiary_id"), (String)ben.get("beneficiary_name"), 
+				(String)("/user/" + ben.get("beneficiary_id")), (String)(ben.get("picture_link")));
+		return item;
+	}
+	
+	public List<GenericItem<String>> getSuggestionSearch(String name) {
+        String suggestionName = "completion-suggestion";
+        List<GenericItem<String>> suggestedUsers = new ArrayList<GenericItem<String>>();
+        try {
+        	SuggestionBuilder completionSuggestionFuzzyBuilder = SuggestBuilders
+                    .completionSuggestion("beneficiary_name.full_name_suggest").prefix(name, Fuzziness.TWO);
+
+            RestHighLevelClient client = esConfig.getElasticsearchClient();
+            SearchRequest searchRequest = new SearchRequest(ESIndices.BENEFICIARY_INDEX);
+            searchRequest.types("completion");
+    		SearchSourceBuilder sourceBuilder = new SearchSourceBuilder(); 
+    		sourceBuilder.suggest(new SuggestBuilder().addSuggestion(suggestionName, completionSuggestionFuzzyBuilder));
+    		searchRequest.source(sourceBuilder);
+    		SearchResponse searchResponse = client.search(searchRequest,RequestOptions.DEFAULT);
+    		
+            log.info("result {}", searchResponse);
+            Suggest suggest = searchResponse.getSuggest();
+            CompletionSuggestion completeSuggestion = suggest.getSuggestion(suggestionName);
+            for (CompletionSuggestion.Entry entry : completeSuggestion.getEntries()) {
+                for (CompletionSuggestion.Entry.Option option : entry) {
+                    SearchHit hit = option.getHit();
+                    suggestedUsers.add(beneficiaryToGenericItem(hit.getSourceAsMap()));
+                }
+            }
+            return suggestedUsers;
+        } catch(Exception ex) {
+        	ex.printStackTrace();
+        }
+		return new ArrayList<GenericItem<String>>();
+        
+
+    }
+	
+	public Double getTotalAmountPledgedForBeneficiaryinBaseCurrency(String benId) {
+		SearchRequest searchRequest = new SearchRequest(ESIndices.PLEDGE_INDEX);
+		SearchSourceBuilder sourceBuilder = new SearchSourceBuilder(); 
+		sourceBuilder.query(QueryBuilders.nestedQuery("beneficiary",QueryBuilders.boolQuery().must(QueryBuilders.termQuery("beneficiary.id", benId)), ScoreMode.None));
+		SumAggregationBuilder aggregation = AggregationBuilders.sum("base_currency_amount_sum").field("base_currency_amount");
+		sourceBuilder.aggregation(aggregation);
+		searchRequest.source(sourceBuilder);
+		try {
+			RestHighLevelClient client = esConfig.getElasticsearchClient();
+			SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
+			Sum agg = searchResponse.getAggregations().get("base_currency_amount_sum");
+			Double value = agg.getValue();
+			return value;
+		} catch(Exception ex) {
+			log.info("Error getting total amount pledged for beneficiary in base currency with benID = " + benId, ex);
+		}
+		return (double) 0;
 	}
 
 }

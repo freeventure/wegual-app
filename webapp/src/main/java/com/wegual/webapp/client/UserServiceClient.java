@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import app.wegual.common.model.TokenStatus;
 import app.wegual.common.model.User;
 import app.wegual.common.model.UserDetails;
+import app.wegual.common.model.GenericItem;
 import app.wegual.common.model.PledgeFeedItem;
 import app.wegual.common.model.UserTimelineItem;
 import app.wegual.common.rest.model.UserFollowees;
@@ -76,4 +77,7 @@ public interface UserServiceClient {
 	
 	@GetMapping(value = "/users/checktwitterauth")
 	public Long checkTwitterAuth(@RequestHeader(value = "Authorization", required = true) String token, @RequestParam("userId") String userId);
+	
+	@GetMapping("/users/suggest/{name}")
+	List<GenericItem<String>> suggestUserByName(@RequestHeader(value = "Authorization", required = true) String token, @PathVariable String name);
 }

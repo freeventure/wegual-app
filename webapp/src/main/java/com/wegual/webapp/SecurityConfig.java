@@ -55,6 +55,7 @@ class SecurityConfig extends KeycloakWebSecurityConfigurerAdapter
 				.antMatchers("/benadmin/**").hasRole("beneficiary_admin")
 				.antMatchers("/siteadmin/**").hasRole("site_admin")
 				.antMatchers("/sysadmin/**").hasRole("system_admin")
+				.antMatchers("/twitter/**").permitAll()
 				.anyRequest().permitAll();
 	}
 }

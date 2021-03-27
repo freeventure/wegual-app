@@ -416,10 +416,29 @@ public class HomeController {
 		}	
 	}
 	
-	private String getUserServiceUrl() {
+	public String getUserServiceUrl() {
+		System.out.println("User Service");
 	    InstanceInfo instance = discoveryClient.getNextServerFromEureka("user-service", false);
 	    return instance.getHomePageUrl();
-	}	
+	}
+	
+	@GetMapping(value = "/users/url")
+	public ResponseEntity<String> getUserServiceAddress() {
+	    InstanceInfo instance = discoveryClient.getNextServerFromEureka("user-service", false);
+	    return new ResponseEntity<String>(StringUtils.removeEnd(instance.getHomePageUrl(), "/"), HttpStatus.OK);
+	}
+	
+	@GetMapping(value = "/beneficiary/url")
+	public ResponseEntity<String> getBeneficiaryServiceAddress() {
+	    InstanceInfo instance = discoveryClient.getNextServerFromEureka("beneficiary-service", false);
+	    return new ResponseEntity<String>(StringUtils.removeEnd(instance.getHomePageUrl(), "/"), HttpStatus.OK);
+	}
+	
+	@GetMapping(value = "/giveup/url")
+	public ResponseEntity<String> getGiveupServiceAddress() {
+	    InstanceInfo instance = discoveryClient.getNextServerFromEureka("giveup-service", false);
+	    return new ResponseEntity<String>(StringUtils.removeEnd(instance.getHomePageUrl(), "/"), HttpStatus.OK);
+	}
 	
 	@RequestMapping("/home/profile")
 	public ModelAndView profile() {
@@ -535,7 +554,7 @@ public class HomeController {
 		return mv;
 	}
 	
-	@RequestMapping("/beneficiary/profile/{benid}")
+	@RequestMapping("/beneficiary/{benid}")
 	public ModelAndView beneficiaryProfilePage(@PathVariable ("benid") String benId) {
 		ModelAndView mv = new ModelAndView("benadmin/benprofile");
 		String username = kaf.getUserLoginName();
@@ -814,6 +833,24 @@ public class HomeController {
 		//String tweets = usc.getAllTweet(getBearerToken(), userId);
 		//System.out.println(tweets);
 		return(usc.getAllTweet(getBearerToken(), userId));
+	}
+	
+	@GetMapping("/users/suggest/{name}")
+	public ResponseEntity<List<GenericItem<String>>> searchUserByName(@PathVariable String name){
+		UserServiceClient usc = ClientBeans.getUserServiceClient();
+		return ( new ResponseEntity<List<GenericItem<String>>>(usc.suggestUserByName(getBearerToken(), name), HttpStatus.OK));
+	}
+	
+	@GetMapping("/beneficiary/suggest/{name}")
+	public ResponseEntity<List<GenericItem<String>>> searchBeneficiaryByName(@PathVariable String name){
+		BeneficiaryServiceClient bsc = ClientBeans.getBeneficiaryServiceClient();
+		return ( new ResponseEntity<List<GenericItem<String>>>(bsc.suggestBeneficiaryByName(getBearerTokenForBeneficiaryService(), name), HttpStatus.OK));
+	}
+	
+	@GetMapping("/giveup/suggest/{name}")
+	public ResponseEntity<List<GenericItem<String>>> searchGiveupByName(@PathVariable String name){
+		GiveUpServiceClient gsc = ClientBeans.getGiveUpServiceClient();
+		return ( new ResponseEntity<List<GenericItem<String>>>(gsc.suggestGiveupByName(getBearerTokenForGiveUpService(), name), HttpStatus.OK));
 	}
 	
 	@RequestMapping("/benadmin")
