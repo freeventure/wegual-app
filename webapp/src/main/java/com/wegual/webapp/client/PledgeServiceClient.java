@@ -33,4 +33,8 @@ public interface PledgeServiceClient {
 	List<Map<String, Object>> getAllPledgesForUser(@RequestHeader(value = "Authorization", required = true) String token, 
 			@PathVariable String userid);
 	
+	@GetMapping("/pledge/count")
+	Long getAllPledgeCount(@RequestHeader(value = "Authorization", required = true) String token);
+	
 }
+

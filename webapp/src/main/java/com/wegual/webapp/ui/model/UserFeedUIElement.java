@@ -27,12 +27,21 @@ public class UserFeedUIElement extends FeedUIElement<String>{
 	@Autowired
 	private EurekaClient discoveryClient;
 	
-	public static List<UserFeedUIElement> build(List<PledgeFeedItem> items, String userServiceUrl){
+	public static List<UserFeedUIElement> build(List<PledgeFeedItem> items, String userServiceUrl, List<String> likedFeedId){
 		UserFeedUIElement uiElement = null;
 		List<UserFeedUIElement> uiElements = new ArrayList<UserFeedUIElement>();
 		if(items != null) {
 			for(PledgeFeedItem pfi : items ) {
 				uiElement = new UserFeedUIElement();
+				System.out.println(pfi.getId());
+				uiElement.setFeedId(pfi.getId());
+				if(likedFeedId.contains(pfi.getId())) {
+					uiElement.setLiked(true);
+				}
+				else {
+					uiElement.setLiked(false);
+				}
+				uiElement.setDetailActions(pfi.getDetailActions());
 				uiElement.buildFrom(pfi, userServiceUrl);
 				uiElements.add(uiElement);
 			}

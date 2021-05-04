@@ -179,6 +179,7 @@ public class BeneficiaryService {
 		return (0L);
 	}
 	
+
 	public HashMap<String, Double> getAmountByCurrency(String benId){
 
 		HashMap<String, Double> amountByCurrency = new HashMap<String, Double>();
@@ -197,12 +198,9 @@ public class BeneficiaryService {
 			RestHighLevelClient client = esConfig.getElasticsearchClient();
 			SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
 			Terms currencyType = searchResponse.getAggregations().get("currency_type");
-			// For each entry
 			for (Bucket bucket : currencyType.getBuckets()) {
 				Sum sum = (Sum) bucket.getAggregations().asMap().get("sum");
 				amountByCurrency.put(bucket.getKeyAsString(), sum.getValue());
-				// System.out.println(bucket.getKeyAsString());      // Term
-				//				System.out.println(sum.getValue());
 			}
 			return amountByCurrency;
 		}
@@ -291,9 +289,9 @@ public class BeneficiaryService {
 			SearchSourceBuilder sourceBuilder = new SearchSourceBuilder(); 
 			sourceBuilder.query(QueryBuilders.nestedQuery("pledged_by",QueryBuilders.boolQuery().must(QueryBuilders.termQuery("pledged_by.id", userId)), ScoreMode.None));
 			searchRequest.source(sourceBuilder);
-			
+
 			RestHighLevelClient client = esConfig.getElasticsearchClient();
-			
+
 			SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
 			for(SearchHit hit : searchResponse.getHits()) {
 				Pledge pledge = new ObjectMapper().readValue(hit.getSourceAsString(), Pledge.class);
@@ -407,6 +405,26 @@ public class BeneficiaryService {
 			log.info("Error getting total amount pledged for beneficiary in base currency with benID = " + benId, ex);
 		}
 		return (double) 0;
+	}
+
+	public long getBeneficiaryCount() {
+
+		SearchRequest searchRequest = new SearchRequest(ESIndices.BENEFICIARY_INDEX);
+		SearchSourceBuilder sourceBuilder = new SearchSourceBuilder(); 
+		sourceBuilder.query(QueryBuilders.matchAllQuery());
+		sourceBuilder.size(0);
+		searchRequest.source(sourceBuilder);
+		long count = 0;
+		RestHighLevelClient client = esConfig.getElasticsearchClient();
+		try {
+			SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
+			count = searchResponse.getHits().getTotalHits().value;
+		} catch (IOException e) {
+			log.info("Unable to get total beneficiary count from elastic search index");
+			e.printStackTrace();
+		}
+		System.out.println(count);
+		return count;
 	}
 
 }

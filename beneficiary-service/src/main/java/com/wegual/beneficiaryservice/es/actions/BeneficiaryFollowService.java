@@ -1,10 +1,8 @@
 package com.wegual.beneficiaryservice.es.actions;
 
 import java.io.IOException;
-import java.util.Currency;
 import java.util.Map;
 
-import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.action.DocWriteRequest;
 import org.elasticsearch.action.DocWriteResponse;
 import org.elasticsearch.action.index.IndexRequest;
@@ -28,13 +26,13 @@ import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wegual.beneficiaryservice.ElasticSearchConfig;
 import com.wegual.beneficiaryservice.message.BeneficiaryFollowTimelineItemBuilder;
-import com.wegual.beneficiaryservice.message.UserTimelineMessageSender;
+import com.wegual.beneficiaryservice.message.TimelineMessageSender;
 
 import app.wegual.common.asynch.SenderRunnable;
 import app.wegual.common.model.Beneficiary;
 import app.wegual.common.model.BeneficiaryFollowItem;
+import app.wegual.common.model.BeneficiaryTimelineItem;
 import app.wegual.common.model.GenericItem;
-import app.wegual.common.model.Location;
 import app.wegual.common.model.User;
 import app.wegual.common.model.UserActionItem;
 import app.wegual.common.model.UserActionType;
@@ -55,7 +53,7 @@ public class BeneficiaryFollowService {
 	private TaskExecutor te;
 	
 	@Autowired
-	private UserTimelineMessageSender utms;
+	private TimelineMessageSender utms;
 
 	public void followBeneficiary(UserActionItem uai) {
 		String userId = uai.getActorId();
@@ -90,7 +88,13 @@ public class BeneficiaryFollowService {
 						.user(userFollower)
 						.beneficiary(benFollowee)
 						.build();
-				te.execute(new SenderRunnable<UserTimelineMessageSender, UserTimelineItem>(utms, uti));
+				te.execute(new SenderRunnable<TimelineMessageSender, UserTimelineItem>(utms, uti));
+				BeneficiaryTimelineItem bti = new BeneficiaryFollowTimelineItemBuilder(UserActionType.FOLLOW_BENEFICIARY)
+						.time(System.currentTimeMillis())
+						.user(userFollower)
+						.beneficiary(benFollowee)
+						.buildForBeneficiary();
+				te.execute(new SenderRunnable<TimelineMessageSender, BeneficiaryTimelineItem>(utms, bti));
 			}
 		} catch (Exception e) {
 			log.error("Unable to follow a ben for given userId in ES", benFollowee.getName(), userFollower.getId(), e);
@@ -121,12 +125,18 @@ public class BeneficiaryFollowService {
 				
 				userFollower = getUserGenericItem(uai.getActorId());
 				benFollowee = getBeneficiaryGenericItem(uai.getTargetId());
-				UserTimelineItem uti = new BeneficiaryFollowTimelineItemBuilder(UserActionType.FOLLOW_BENEFICIARY)
+				UserTimelineItem uti = new BeneficiaryFollowTimelineItemBuilder(UserActionType.UNFOLLOW_BENEFICIARY)
 						.time(System.currentTimeMillis())
 						.user(userFollower)
 						.beneficiary(benFollowee)
 						.build();
-				te.execute(new SenderRunnable<UserTimelineMessageSender, UserTimelineItem>(utms, uti));
+				te.execute(new SenderRunnable<TimelineMessageSender, UserTimelineItem>(utms, uti));
+				BeneficiaryTimelineItem bti = new BeneficiaryFollowTimelineItemBuilder(UserActionType.UNFOLLOW_BENEFICIARY)
+						.time(System.currentTimeMillis())
+						.user(userFollower)
+						.beneficiary(benFollowee)
+						.buildForBeneficiary();
+				te.execute(new SenderRunnable<TimelineMessageSender, BeneficiaryTimelineItem>(utms, bti));
 			}
 		} catch (IOException e) {
 			

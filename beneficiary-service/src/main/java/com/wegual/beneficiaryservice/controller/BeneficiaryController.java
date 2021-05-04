@@ -129,6 +129,16 @@ public class BeneficiaryController {
 		}
 	}
 	
+	@GetMapping("/pledgedFor/{benId}")
+	public Long getGiveUpCountForBeneficiary(@PathVariable String benId) {
+		return bs.getGiveUpCountForBeneficiary(benId);
+	}
+	
+	@GetMapping("/amount/pledged/base/{benId}")
+	public Double getTotalAmountPledgedForBeneficiaryinBaseCurrency(@PathVariable String benId) {
+		return bs.getTotalAmountPledgedForBeneficiaryinBaseCurrency(benId);
+	}
+	
 	@PreAuthorize("#oauth2.hasScope('user-service')")
 	@GetMapping("/beneficiary/suggestByName/{name}")
 	List<GenericItem<String>> suggestBeneficiaryByName(@PathVariable String name) {
@@ -140,14 +150,18 @@ public class BeneficiaryController {
 		return new ArrayList<GenericItem<String>>();
 	}
 	
-	@GetMapping("/pledgedFor/{benId}")
-	public Long getGiveUpCountForBeneficiary(@PathVariable String benId) {
-		return bs.getGiveUpCountForBeneficiary(benId);
-	}
 	
-	@GetMapping("/amount/pledged/base/{benId}")
-	public Double getTotalAmountPledgedForBeneficiaryinBaseCurrency(@PathVariable String benId) {
-		return bs.getTotalAmountPledgedForBeneficiaryinBaseCurrency(benId);
+	@PreAuthorize("#oauth2.hasScope('user-service')")
+	@GetMapping("/beneficiary/count")
+	ResponseEntity<Long> getAllBeneficiaryCount(){
+		log.info("Inside Beneficiary Service");
+		try {
+			long benCount = bs.getBeneficiaryCount();
+			return new ResponseEntity<Long>(benCount, HttpStatus.OK);
+		} catch (Exception e) {
+			log.info("Error fetching beneficiary count", e);
+			return new ResponseEntity<Long>(new Long(0), HttpStatus.BAD_REQUEST);
+		}
 	}
 
 }

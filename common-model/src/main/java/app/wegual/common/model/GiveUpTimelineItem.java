@@ -23,3 +23,4 @@ public class GiveUpTimelineItem extends TimelineItem<String>{
 		super(actorId, actionObject, actionTarget, uat);
 	}
 }
+

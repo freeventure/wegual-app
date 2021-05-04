@@ -3,6 +3,7 @@ package com.wegual.webapp;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -30,6 +31,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
@@ -59,6 +61,7 @@ import app.wegual.common.model.Beneficiary;
 import app.wegual.common.model.BeneficiaryProfileData;
 import app.wegual.common.model.BeneficiaryTimelineItem;
 import app.wegual.common.model.DBFile;
+import app.wegual.common.model.FeedComment;
 import app.wegual.common.model.FeedItem;
 import app.wegual.common.model.GenericItem;
 import app.wegual.common.model.GiveUp;
@@ -194,6 +197,43 @@ public class HomeController {
     public String index(){
         return "welcome";
     }
+	
+	@RequestMapping("/public")
+    public ModelAndView landingPage(){
+		ModelAndView mv = new ModelAndView("public/landingPage");
+		UserServiceClient usc = ClientBeans.getUserServiceClient();
+		PledgeServiceClient psc = ClientBeans.getPledgeServiceClient();
+		GiveUpServiceClient gsc = ClientBeans.getGiveUpServiceClient();
+		BeneficiaryServiceClient bsc = ClientBeans.getBeneficiaryServiceClient();
+		
+		String userBearerToken = HomeController.getBearerToken();
+		String beneficiaryBearerToken = HomeController.getBearerTokenForBeneficiaryService();
+		String giveupBearerToken = HomeController.getBearerTokenForGiveUpService();
+		String pledgeBearerToken = HomeController.getBearerTokenForPledgeService();
+		
+		try {
+			long userCount = (Long)usc.getAllUserCount(userBearerToken);
+			long beneficiaryCount = (Long)bsc.getAllBeneficiaryCount(beneficiaryBearerToken);
+			long giveupCount = (Long)gsc.getAllGiveupCount(giveupBearerToken);
+			long pledgeCount = (Long)psc.getAllPledgeCount(pledgeBearerToken);
+			
+			System.out.println(userCount);
+			System.out.println(beneficiaryCount);
+			System.out.println(giveupCount);
+			System.out.println(pledgeCount);
+			
+			mv.addObject("user" , userCount);
+			mv.addObject("beneficiary", beneficiaryCount);
+			mv.addObject("giveup", giveupCount);
+			mv.addObject("pledge", pledgeCount);
+			
+			
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
+		
+        return mv;
+    }
 
 	@GetMapping("/public/login")
     public String loginForm(){
@@ -239,7 +279,23 @@ public class HomeController {
 			psc.savePledge(bearerToken, ra);
 			}
 		catch (Exception ex) {
-			log.error("Error getting user profilde data", ex);
+			log.error("Error in submitting pledge", ex);
+		}
+        return new ModelAndView("user/home");
+    }
+	@RequestMapping(value ="/home/comment/submit",method = RequestMethod.POST)
+    public ModelAndView addComment(@RequestParam("userId") String userId,@RequestParam("feedId") String feedId, @RequestParam("comment") String comment) {
+		String bearerToken = null;
+		
+		try {
+			bearerToken = HomeController.getBearerToken();
+			UserServiceClient usc = ClientBeans.getUserServiceClient();
+			GenericItem<String> user = usc.getUserGenericItem(bearerToken, userId);
+			FeedComment feedComment = new FeedComment(feedId, System.currentTimeMillis(), comment, user);
+			usc.addComment(bearerToken, feedComment);
+			}
+		catch (Exception ex) {
+			log.error("Error in adding comment", ex);
 		}
         return new ModelAndView("user/home");
     }
@@ -319,8 +375,12 @@ public class HomeController {
 			uhd.setCounts(counts);
 			try {
 				List<PledgeFeedItem> feed = usc.getUserFeed(bearerToken, user.getId());
-				System.out.println("--------->>>>>>>> "+feed.size());
-				List<UserFeedUIElement> uiFeedElements =  UserFeedUIElement.build(feed, userServiceUrl);
+
+				for(PledgeFeedItem post : feed) {
+					System.out.println("Likes = "+ post.getDetailActions().getLikes());
+				}
+				List<String> likedFeedId = usc.getLikedFeedId(bearerToken, user.getId());
+				List<UserFeedUIElement> uiFeedElements =  UserFeedUIElement.build(feed, userServiceUrl, likedFeedId);
 				mv.addObject("feeds", uiFeedElements);
 			}
 			catch(Exception e){
@@ -333,6 +393,52 @@ public class HomeController {
 		}
 		return mv;
     }
+	
+	@RequestMapping(path ="/user/post/show/{postid}", method = RequestMethod.GET)
+	public ModelAndView showPost(@PathVariable String postid) {
+		System.out.println("This Method Called");
+		String bearerToken = null;
+		String userServiceUrl = StringUtils.removeEnd(getUserServiceUrl(), "/");
+		ModelAndView mv = new ModelAndView("user/comment");
+		try {
+			bearerToken = HomeController.getBearerToken();
+			UserServiceClient usc = ClientBeans.getUserServiceClient();
+			
+			PledgeFeedItem pfi = usc.getPostById(bearerToken, postid);
+			List<PledgeFeedItem> feed = new ArrayList<PledgeFeedItem>();
+			feed.add(pfi);
+			List<String> likedFeedId = usc.getLikedFeedId(bearerToken, kaf.getUserId());
+			List<FeedComment> comments = usc.getUserFeedComment(bearerToken, postid);
+			
+			List<UserFeedUIElement> uiFeedElements =  UserFeedUIElement.build(feed, userServiceUrl, likedFeedId);
+			UserFeedUIElement uiFeedElement = uiFeedElements.get(0);
+			
+			String username = kaf.getUserLoginName();
+			User user = null;
+			user = usc.getUser(bearerToken, username);
+			log.info("Got user object");
+			if(user != null && StringUtils.isEmpty(user.getPictureLink()))
+				user.setPictureLink("/img/avatar-empty.png");
+			else
+			{
+				log.info("User service URL is: " + userServiceUrl);
+				user.setPictureLink(userServiceUrl + user.getPictureLink());
+			}
+			UserHomePageData uhd = new UserHomePageData();
+			uhd.setUser(user);
+			
+			System.out.println(comments.size());
+			
+			mv.addObject("feed", uiFeedElement);
+			mv.addObject("comments", comments);
+			mv.addObject("homePageData", uhd);
+			
+		} catch (Exception ex) {
+			log.error("Error getting post by post id", ex);
+		}
+		return mv;
+	}
+	
 	@RequestMapping(path ="/beneficiary/all", method = RequestMethod.GET )
 	public ResponseEntity<List<Beneficiary>> getAllBeneficiary(){
 		String bearerToken = null;
@@ -377,6 +483,23 @@ public class HomeController {
 		} catch (Exception ex) {
 			log.error("Error getting user profilde data", ex);
 			return new ResponseEntity<List<PledgeFeedItem>>(new ArrayList<PledgeFeedItem>(),HttpStatus.BAD_REQUEST);
+		}
+	}
+	
+	@RequestMapping(path ="/user/post/comment/{postid}", method = RequestMethod.GET )
+	public ResponseEntity<List<FeedComment>> getFeedComments(@PathVariable String postid){
+		String bearerToken = null;
+		try {
+			bearerToken = HomeController.getBearerToken();
+			UserServiceClient usc = ClientBeans.getUserServiceClient();
+			
+			List<FeedComment> comments = usc.getUserFeedComment(bearerToken, postid);
+			System.out.println(comments.size());
+			return new ResponseEntity<List<FeedComment>>(comments,HttpStatus.OK);
+
+		} catch (Exception ex) {
+			log.error("Error getting comments for feed", ex);
+			return new ResponseEntity<List<FeedComment>>(new ArrayList<FeedComment>(),HttpStatus.BAD_REQUEST);
 		}
 	}
 	
@@ -695,6 +818,60 @@ public class HomeController {
 		}
 	}
 	
+	@RequestMapping(value = "/home/user/post/like/{postId}", method = {RequestMethod.POST})
+	public ResponseEntity<String> likePost(@PathVariable String postId) {
+		String userId = kaf.getUserId();
+		log.info(userId + " initiates like for post with id " + postId);
+		
+		try {
+			UserActionItem uat = new UserActionItem();
+			uat.setActorId(userId);
+			uat.setTargetId(postId);
+			uat.setActionType(UserActionType.LIKE_POST);
+			te.execute(new SenderRunnable<UserActionsMessageSender, UserActionItem>(uams, uat));
+			return(new ResponseEntity<String>("OK",HttpStatus.OK));
+		} catch (Exception e) {
+			log.info("Unable to like post with id" + postId + "for userId" + userId, e);
+			return(new ResponseEntity<String>("Error",HttpStatus.BAD_REQUEST));
+		}
+	}
+	
+	@RequestMapping(value = "/home/user/post/unlike/{postId}", method = {RequestMethod.POST})
+	public ResponseEntity<String> unlikePost(@PathVariable String postId) {
+		String userId = kaf.getUserId();
+		log.info(userId + " initiates unlike for post with id " + postId);
+		
+		try {
+			UserActionItem uat = new UserActionItem();
+			uat.setActorId(userId);
+			uat.setTargetId(postId);
+			uat.setActionType(UserActionType.UNLIKE_POST);
+			te.execute(new SenderRunnable<UserActionsMessageSender, UserActionItem>(uams, uat));
+			return(new ResponseEntity<String>("OK",HttpStatus.OK));
+		} catch (Exception e) {
+			log.info("Unable to like post with id" + postId + "for userId" + userId, e);
+			return(new ResponseEntity<String>("Error",HttpStatus.BAD_REQUEST));
+		}
+	}
+	
+	@RequestMapping(value = "/home/user/post/view/{postId}", method = {RequestMethod.POST})
+	public ResponseEntity<String> viewPost(@PathVariable String postId) {
+		String userId = kaf.getUserId();
+		log.info(userId + " initiates view for post with id " + postId);
+		
+		try {
+			UserActionItem uat = new UserActionItem();
+			uat.setActorId(userId);
+			uat.setTargetId(postId);
+			uat.setActionType(UserActionType.VIEW_POST);
+			te.execute(new SenderRunnable<UserActionsMessageSender, UserActionItem>(uams, uat));
+			return(new ResponseEntity<String>("OK",HttpStatus.OK));
+		} catch (Exception e) {
+			log.info("Unable to like post with id" + postId + "for userId" + userId, e);
+			return(new ResponseEntity<String>("Error",HttpStatus.BAD_REQUEST));
+		}
+	}
+	
 	@RequestMapping(value = "/home/giveup/follow/{giveupId}", method = {RequestMethod.POST})
 	public ResponseEntity<String> followGiveUp(@PathVariable String giveupId) {
 		String userId = kaf.getUserId();
@@ -852,6 +1029,12 @@ public class HomeController {
 		GiveUpServiceClient gsc = ClientBeans.getGiveUpServiceClient();
 		return ( new ResponseEntity<List<GenericItem<String>>>(gsc.suggestGiveupByName(getBearerTokenForGiveUpService(), name), HttpStatus.OK));
 	}
+	
+	
+	@GetMapping("/public/comment")
+    public String commentPage(){
+        return "user/comment";
+    }
 	
 	@RequestMapping("/benadmin")
     public String benadmin(){

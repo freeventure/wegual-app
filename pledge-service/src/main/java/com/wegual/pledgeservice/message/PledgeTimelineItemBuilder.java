@@ -16,12 +16,14 @@ public class PledgeTimelineItemBuilder extends TimelineItem<String>{
 			UserActionType uat) {
 		super(actorId, actionObject, actionTarget, uat);
 	}
+	
 	public PledgeTimelineItemBuilder() {
 		super(null, null, null, UserActionType.PLEDGE);
 		actionObject = new GenericActionTarget(UserActionTargetType.PLEDGE, "", "", "", "");
 		target = new GenericActionTarget(UserActionTargetType.BENEFICIARY, "", "", "", "");
 		detailActions = new TimelineItemDetailActions(true, true);
 	}
+	
 	public PledgeTimelineItemBuilder pledge(Pledge pledge) {
 		GenericActionTarget gat = (GenericActionTarget) actionObject;
 		gat.setId(pledge.getId());
@@ -35,7 +37,7 @@ public class PledgeTimelineItemBuilder extends TimelineItem<String>{
 		gt.setId(pledge.getBeneficiary().getId());
 		gt.setName(pledge.getBeneficiary().getName());
 		gt.setPermalink(pledge.getBeneficiary().getPermalink());
-		gt.setSummary("");
+		gt.setSummary(pledge.getPledgedBy().getName() + " pledged for you");
 
 		this.actionDate = System.currentTimeMillis();	
 		

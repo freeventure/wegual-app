@@ -19,6 +19,7 @@ public class UserTimelineMessages {
 	@Autowired
 	private UserTimelineActions actions;
 
+	
 	@RabbitListener(queues = "user-timeline")
 	public void receiveObjectMessage(Message message) {
 		MessageConverter mc = new SimpleMessageConverter();

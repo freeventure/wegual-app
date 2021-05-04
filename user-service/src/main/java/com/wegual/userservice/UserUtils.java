@@ -13,6 +13,7 @@ import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -24,6 +25,7 @@ import app.wegual.common.model.UserEmailVerifyToken;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
+@Component
 public class UserUtils {
 	
 	@Autowired
@@ -150,6 +152,18 @@ public class UserUtils {
 			log.info("Users not found", e);
 		}
 		return user;
+	}
+	public static GenericItem<String> userToGenericItem(User user){
+		GenericItem<String> item = new GenericItem<String>(user.getId(), user.getFirstName() + " " + user.getLastName(), 
+				"/user/" + user.getId(), user.getPictureLink());
+		return item;
+	}
+	
+	public static GenericItem<String> userToGenericItem(Map<String, Object> user){
+		//InstanceInfo instance = discoveryClient.getNextServerFromEureka("user-service", false);
+		GenericItem<String> item = new GenericItem<String>((String)user.get("user_id"), (String)user.get("full_name"), 
+				(String)("/user/" + user.get("user_id")), (String)(user.get("picture_link")));
+		return item;
 	}
 	
 }

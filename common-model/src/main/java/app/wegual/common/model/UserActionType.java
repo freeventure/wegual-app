@@ -19,5 +19,8 @@ public enum UserActionType {
 	SUSPEND,
 	RESUME,
 	LOGIN,
-	TWITTER_TWEET;
+	TWITTER_TWEET,
+	LIKE_POST,
+	UNLIKE_POST,
+	VIEW_POST;
 }

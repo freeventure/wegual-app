@@ -21,8 +21,10 @@
 <link
 	href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700"
 	rel="stylesheet">
+
 <link rel="stylesheet"
 	href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
 
 <style>
 .center {
@@ -45,18 +47,15 @@
 	z-index: 10000 !important;
 }
 
-.fa {
+.fa-twitter {
+	background: #55ACEE;
+	color: white;
 	padding: 10px;
 	font-size: 30px;
 	width: 50px;
 	text-align: center;
 	text-decoration: none;
 	border-radius: 50%;
-}
-
-.fa-twitter {
-	background: #55ACEE;
-	color: white;
 }
 
 .autocomplete {
@@ -121,6 +120,7 @@
 			class="main-header navbar navbar-expand navbar-white navbar-light">
 
 			<!-- SEARCH FORM -->
+<!--  <<<<<<< Updated upstream  -->
 			<!--<form class="form-inline ml-4">-->
 				<div class="autocomplete">
 					<input id="searchBar"
@@ -137,7 +137,7 @@
 			<!-- Right navbar links -->
 			<ul class="navbar-nav ml-auto">
 				<a href="#" class="btn btn-primary" onclick="renderdropdown()"
-					data-toggle="modal" data-target="#myModal">Pledge</a>
+					data-toggle="modal" data-target="#pledgeBox">Pledge</a>
 				<a href="#" id="user-details" class="btn btn-primary"
 					data-toggle="modal" data-target="#detailsModal"
 					style="display: none;"></a>
@@ -176,26 +176,53 @@
 				</a></li>
 			</ul>
 		</nav>
-		<!--  <div id="searchResultContainer" class="container" style="display:none;"> -->
-		<!-- <div id = "searchResult" class="modal d-none d-lg-block card card-footer-compact card-comments">
-				<div class='container'> 
-					<div class='card-header-compact'> 
-						<h5> <b> Users </b> </h5> 
-					</div>
-				</div>
-				<div id='searchResultUser' class="container"></div>
-				<div class='container'> 
-					<div class='card-header-compact'> 
-						<h5> <b> Beneficiaries </b> </h5> 
-					</div>
-				</div>
-				<div id='searchResultBen' class="container"></div>
-			</div>
-		</div> -->
-		
 		<!-- /.navbar -->
 
-		<div class="modal fade" id="myModal">
+<!-- Button trigger modal -->
+		<!-- New Modal for comments -->
+
+
+		<!-- Modal -->
+		<div class="modal fade" id="commentBox">
+			<div class="modal-dialog modal-dialog-centered">
+				<div class="modal-content">
+
+					<!-- Modal Header -->
+					<div class="modal-header">
+						<h5 class="modal-title">Enter Your Comment</h5>
+						<button type="button" class="close" data-dismiss="modal">&times;</button>
+					</div>
+					
+						<!-- Modal body -->
+						<div class="modal-body">
+
+							<div class="form-group">
+								<label for="exampleFormControlTextarea1">Comment</label>
+								<textarea class="form-control" name="description"
+									placeholder="Type your comment here" id = "commentTextBox" rows="3"></textarea>
+							</div>
+							
+							<div>
+								<input type = "hidden" name="userId"
+									id="commentTextBoxUserId" value="${homePageData.user.id}" />
+							</div>
+							
+							<div>
+								<input type = "hidden" name="feedId" id = "commentTextBoxFeedId" value=""/>
+							</div>
+
+						</div>
+
+						<!-- Modal footer -->
+						<div class="modal-footer">
+							<button  class="btn btn-success" data-dismiss="modal" onclick = "postComment()">Post</button>
+						</div>
+				</div>
+			</div>
+		</div>
+		<!-- New Modal for comments -->
+
+		<div class="modal fade" id="pledgeBox">
 			<div class="modal-dialog modal-dialog-centered">
 				<div class="modal-content">
 
@@ -251,7 +278,24 @@
 
 						<!-- Modal footer -->
 						<div class="modal-footer">
-							<button type="submit" class="btn btn-success" value="submit">Submit</button>
+							<button type="submit"  class="btn btn-success" value="submit">Submit</button>
+<!--   ======= -->
+	<!--  		<form class="form-inline ml-3">
+				<div class="input-group input-group-sm">
+					<input class="form-control form-control-navbar" type="search"
+						placeholder="Search" aria-label="Search">
+					<div class="input-group-append">
+						<button class="btn btn-navbar" type="submit">
+							<i class="fas fa-search"></i>
+						</button>
+					</div>
+				</div>
+			</form>
+	-->
+
+			
+		
+<!--     >>>>>>> Stashed changes -->
 						</div>
 					</form>
 				</div>
@@ -364,6 +408,7 @@
 						</a></li>
 						<li onClick="checkTwitterLink()" class="nav-item"><a
 							class="fa fa-twitter"></a></li>
+
 					</ul>
 				</nav>
 				<!-- /.sidebar-menu -->
@@ -376,6 +421,42 @@
 			<!-- Main content -->
 			<div class="container-fluid">
 				<div class="row">
+
+					<div class="col-md-3">
+						<div
+							class="d-none d-lg-block card card-footer-compact card-comments ">
+							<div class="card-header-compact">
+								<h5>
+									<b>Trends For You</b>
+								</h5>
+							</div>
+							<!-- /.card-header -->
+							<div class="card-comment card-body-compact">
+								<p class="text-muted">Beneficiaries - Trending</p>
+								<p class="username-light">OSAAT USA</p>
+								<p class="text-muted">24 Followers, $1200 Pledged</p>
+							</div>
+							<!-- /.card-body -->
+							<div class="card-comment card-body-compact">
+								<p class="text-muted">Users - Trending</p>
+								<p class="username-light">Wegual UserTwo</p>
+								<p class="text-muted">24 Followers, 6 pledges</p>
+							</div>
+							<div class="card-comment card-body-compact">
+								<p class="text-muted">Locations - Trending</p>
+								<p class="username-light">California, USA</p>
+								<p class="text-muted">24 Pledges, 6 Beneficiaries</p>
+							</div>
+							<div class="card-comment card-body-compact">
+								<p class="text-muted">Give Ups - Trending</p>
+								<p class="username-light">Birthday party gifts give up</p>
+								<p class="text-muted">224 Followers, 89 Beneficiaries</p>
+							</div>
+							<div class="card-comment center card-body-compact">
+								<p class="text-primary">Show more</p>
+							</div>
+						</div>
+					</div>
 					<div class="col-md-6">
 						<div class="row">
 							<div class="col-md-4">
@@ -421,74 +502,75 @@
 							<!-- /.col -->
 						</div>
 
+
 						<c:forEach var="feed" items="${feeds}">
-							<div class="col-md-12" style="padding: 1%;">
-								<div class="card-comment elevation-1">
+							<div class="col-md-12 card" style="padding: 1%;">
+								<div class="card-comment">
 									<!-- User image -->
-									<div class="container-fluid">
-										<img class="img-circle img-sm" src="${feed.pictureLink}"
-											alt="User Image"> <span class="username"
-											style="margin-left: 1%;"> <b>${feed.summary}</b>
-										</span> <span class="text-muted float-right">${feed.timeAgo}</span>
+									<div onclick="viewDetailedPost('${feed.feedId}')">
+										<div class="container-fluid">
+											<img class="img-circle img-sm" src="${feed.pictureLink}"
+												alt="User Image"> <span class="username"
+												style="margin-left: 1%;"> <b>${feed.summary}</b>
+											</span> <span class="text-muted float-right">${feed.timeAgo}</span>
+										</div>
+										<hr />
+										<div class="row" style="margin-left: 1%;">
+											<span class="row" style="margin-left: 1%;">
+												${feed.detail} </span>
+										</div>
 									</div>
-									<hr />
-									<div class="row" style="margin-left: 1%;">
-										<span class="row" style="margin-left: 1%;">
-											${feed.detail} </span>
-									</div>
-									<div class="row" style="margin: 1%;">
-										<button type="button" class="btn btn-light col-md-4">
-											<i class="fa fa-thumbs-up"></i>
-										</button>
-										<button type="button" class="btn btn-light col-md-4">
-											<i class="fa fa-comment"></i>
-										</button>
+									<div class="row feed-items" id="${feed.feedId}"
+										style="margin: 1%;">
+										<c:choose>
+											<c:when test="${feed.liked}">
+												<button onclick="postLike('${feed.feedId}')" type="button"
+													id="${feed.feedId}_like" class="btn btn-light col-md-4">
+													<i class="fas fa-heart	" style="color: red">
+														(${feed.detailActions.likes})</i>
+												</button>
+											</c:when>
+											<c:otherwise>
+												<button onclick="postLike('${feed.feedId}')" type="button"
+													id="${feed.feedId}_like" class="btn btn-light col-md-4">
+													<i class="far fa-heart	" style="color: black"></i>
+												</button>
+											</c:otherwise>
+										</c:choose>
+									<!-- Comment Button -->
+										<a data-id="${feed.feedId}" href="#" class="open-comment-box btn btn-light col-md-4 far fa-comment"
+											data-toggle="modal" data-target="#commentBox"></a>
+											
 										<button type="button" class="btn btn-light col-md-4">
 											<i class="fa fa-share"></i>
 										</button>
 									</div>
-									<!-- </div> -->
+									<!--  
+									<div>
+										<textarea class="form-control" id="${feed.feedId}_commentBox"
+											name="comment" placeholder="Write a comment" rows="1"></textarea>
+										<button
+											onclick="postComment('${feed.feedId}', '${homePageData.user.id}')"
+											class="btn btn-success">Post</button>
+									</div>
+									-->
+									<div id="displayComments"></div>
 								</div>
 							</div>
 						</c:forEach>
 
-					</div>
-					<!-- /.col -->
 
-					<div class="col-md-4">
-						<div
-							class="d-none d-lg-block card card-footer-compact card-comments ">
-							<div class="card-header-compact">
-								<h5>
-									<b>Trends For You</b>
-								</h5>
-							</div>
-							<!-- /.card-header -->
-							<div class="card-comment card-body-compact">
-								<p class="text-muted">Beneficiaries - Trending</p>
-								<p class="username-light">OSAAT USA</p>
-								<p class="text-muted">24 Followers, $1200 Pledged</p>
-							</div>
-							<!-- /.card-body -->
-							<div class="card-comment card-body-compact">
-								<p class="text-muted">Users - Trending</p>
-								<p class="username-light">Wegual UserTwo</p>
-								<p class="text-muted">24 Followers, 6 pledges</p>
-							</div>
-							<div class="card-comment card-body-compact">
-								<p class="text-muted">Locations - Trending</p>
-								<p class="username-light">California, USA</p>
-								<p class="text-muted">24 Pledges, 6 Beneficiaries</p>
-							</div>
-							<div class="card-comment card-body-compact">
-								<p class="text-muted">Give Ups - Trending</p>
-								<p class="username-light">Birthday party gifts give up</p>
-								<p class="text-muted">224 Followers, 89 Beneficiaries</p>
-							</div>
-							<div class="card-comment center card-body-compact">
-								<p class="text-primary">Show more</p>
-							</div>
-						</div>
+
+
+
+
+						<!-- /.col -->
+
+
+						<!-- /.col -->
+					</div>
+					<div class="col-md-3">
+
 
 						<div
 							class="d-none d-lg-block card card-footer-compact card-comments ">
@@ -557,40 +639,274 @@
 						</div>
 
 					</div>
-					<!-- /.col -->
+
+
+					<!-- /.row -->
 				</div>
-				<!-- /.row -->
+				<!-- /.container-fluid -->
+				<!-- /.content -->
 			</div>
-			<!-- /.container-fluid -->
-			<!-- /.content -->
+			<!-- /.content-wrapper -->
+
+
+			<!-- Control Sidebar -->
+			<aside class="control-sidebar control-sidebar-dark">
+				<!-- Control sidebar content goes here -->
+			</aside>
+			<!-- /.control-sidebar -->
 		</div>
-		<!-- /.content-wrapper -->
+		<!-- ./wrapper -->
+
+		<!-- ionic -->
+		<script src="https://unpkg.com/ionicons@5.0.0/dist/ionicons.js"></script>
+		<!-- jQuery -->
+		<script src="<c:url value="/plugins/jquery/jquery.min.js" />"></script>
+		<!-- Bootstrap 4 -->
+		<script
+			src="<c:url value="/plugins/bootstrap/js/bootstrap.bundle.min.js" />"></script>
+		<!-- AdminLTE App -->
+		<script src="<c:url value="/js/adminlte.min.js" />"></script>
+		<!-- AdminLTE for demo purposes -->
+		<script src="<c:url value="/js/demo.js" />"></script>
+		<script src="https://code.jquery.com/jquery-3.5.1.js"
+			integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc="
+			crossorigin="anonymous"></script>
+		<script type="text/javascript">
+
+$(document).on("click", ".open-comment-box", function () {
+		     var feedId = $(this).data('id');
+		     $(".modal-body #commentTextBoxFeedId").val( feedId );
+		    $('#commentBox').modal('show');
+		});
+var observerConfig = {
+		root: null,
+		rootMargin: '0px',
+		threshold: 1.0
+		};
+
+const userPosts = document.querySelectorAll('.feed-items');
+
+function callback(entries) {
+
+	var token = $("meta[name='_csrf']").attr("content");
+    var header = $("meta[name='_csrf_header']").attr("content");
+	   console.log(entries[0].target.id); // entries will 
+	   feedId = entries[0].target.id;
+	   
+	   $.ajax({
+       	url:'/home/user/post/view/'+feedId,
+       	type: "POST",
+       	cache: false,
+       	contentType: false,
+       	data : "{}",
+       	processsData: false,
+       	beforeSend: function(xhr){
+           	xhr.setRequestHeader(header, token);
+           	}
+       })
+       .done(function(e){
+           console.log("Post Viewed by current user");
+           });
+	}
+
+var observer = new IntersectionObserver(callback, observerConfig);
+
+userPosts.forEach( post => {
+	   observer.observe(post); 
+	});
+
+function getUserServiceURL(){
+	var token = $("meta[name='_csrf']").attr("content");
+	var header = $("meta[name='_csrf_header']").attr("content");
+	var url = "";
+	$.ajax({
+        url: '/users/url',
+        type: 'GET',
+        cache: false,
+        contentType: false,
+        processData: false,
+        async: false,
+        beforeSend: function (xhr) {
+            xhr.setRequestHeader(header, token);
+        },
+        success : function (data, status, xhr){
+            console.log(data);
+            url = data;
+            return data;
+        }
+	});
+	return url;
+}
+
+function viewDetailedPost(postid){
+	console.log(postid);
+	var token = $("meta[name='_csrf']").attr("content");
+    var header = $("meta[name='_csrf_header']").attr("content");
+    window.location.href = "http://localhost:9000/user/post/show/"+postid;
+    /*$.ajax({
+    	url:'/user/post/show/'+postid,
+    	type: "POST",
+    	cache: false,
+    	contentType: false,
+    	data : "{}",
+    	processsData: false,
+    	beforeSend: function(xhr){
+        	xhr.setRequestHeader(header, token);
+        	},
+   
+    success : function(data, status, xhr){
+        	console.log(data);
+			window.location = data;
+        }
+    })
+    .done(function(e){
+        console.log("Detailed post will be showen");
+        });*/
+}
 
 
-		<!-- Control Sidebar -->
-		<aside class="control-sidebar control-sidebar-dark">
-			<!-- Control sidebar content goes here -->
-		</aside>
-		<!-- /.control-sidebar -->
-	</div>
-	<!-- ./wrapper -->
+function showComment(postid){
+	var userUrl = getUserServiceURL();
+	var token = $("meta[name='_csrf']").attr("content");
+    var header = $("meta[name='_csrf_header']").attr("content");
+    $.ajax({
+        url:'/user/post/comment/'+postid,
+        type: "GET",
+        cache: false,
+        contentType: false,
+        processData: false,
+        beforeSend: function(xhr){
+            xhr.setRequestHeader(header, token);
+            },
+           success : function (data, status, xhr){
+			var coms ="";
+	        data.map((com) => {
+		        	console.log(com);
+	    	        coms = coms+
+	    	        "<div class='container-fluid'>"+
+                		"<img class='img-circle img-sm' src='"+userUrl+com.commenter.picture_link+"'>"+
+                		"<span class='username' style='margin-left: 1%;'>"+
+                    		"<b>"+com.commenter.name+"</b>"+
+                		"</span>"+
+            		"</div>"+
+            		"<hr/>"+
+            		"<div class='row' style='margin-left: 1%;'>"+
+                		"<span class='row' style='margin-left: 1%;'>"
+                   			+com.comment+
+                		"</span>"+
+            		"</div>"
+	    	        })
+	    	        document.getElementById("feedComments").innerHTML= coms;
+	        		jQuery.noConflict(); 
+	        		$('#commentsModal').modal('show');
+               }
+       });
+    
+}
 
-	<!-- ionic -->
-	<script src="https://unpkg.com/ionicons@5.0.0/dist/ionicons.js"></script>
-	<!-- jQuery -->
-	<script src="<c:url value="/plugins/jquery/jquery.min.js" />"></script>
-	<!-- Bootstrap 4 -->
-	<script
-		src="<c:url value="/plugins/bootstrap/js/bootstrap.bundle.min.js" />"></script>
-	<!-- AdminLTE App -->
-	<script src="<c:url value="/js/adminlte.min.js" />"></script>
-	<!-- AdminLTE for demo purposes -->
-	<script src="<c:url value="/js/demo.js" />"></script>
-	<script src="https://code.jquery.com/jquery-3.5.1.js"
-		integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc="
-		crossorigin="anonymous"></script>
-	<script>
-	
+function postLike(feedId){
+	var doc = feedId+"_like";
+	var temp = document.getElementById(doc).innerHTML;
+	var token = $("meta[name='_csrf']").attr("content");
+    var header = $("meta[name='_csrf_header']").attr("content");
+	if(temp.includes("fas")){
+		console.log("post was already liked now triggering unlike operation");
+		temp = temp.replace("fas", "far").replace("red", "black");
+		document.getElementById(doc).innerHTML = temp;
+		$.ajax({
+        	url:'/home/user/post/unlike/'+feedId,
+        	type: "POST",
+        	cache: false,
+        	contentType: false,
+        	data : "{}",
+        	processsData: false,
+        	beforeSend: function(xhr){
+            	xhr.setRequestHeader(header, token);
+            	}
+        })
+        .done(function(e){
+            console.log("Post Unliked");
+            });
+	}
+	else{
+		console.log("post was not liked now triggering like operation");
+		temp = temp.replace("far", "fas").replace("black", "red");
+		document.getElementById(doc).innerHTML = temp;
+		$.ajax({
+        	url:'/home/user/post/like/'+feedId,
+        	type: "POST",
+        	cache: false,
+        	contentType: false,
+        	data : "{}",
+        	processsData: false,
+        	beforeSend: function(xhr){
+            	xhr.setRequestHeader(header, token);
+            	}
+        })
+        .done(function(e){
+            console.log("Post Liked");
+         	});
+	}
+}
+/*function postComment(feedId, userId){
+	var comment = document.getElementById(feedId+"_commentBox").value;
+	if(comment.trim() == ""){
+		alert("No Text in Comment Box");
+		return;
+	}
+	var token = $("meta[name='_csrf']").attr("content");
+    var header = $("meta[name='_csrf_header']").attr("content");
+    var formData = new FormData();
+    formData.append("userId" , userId);
+    formData.append("feedId" , feedId);
+    formData.append("comment", comment);
+    $.ajax({
+        url:'home/comment/submit',
+        type: "POST",
+        cache: false,
+        contentType: false,
+        processData: false,
+        data : formData,
+        beforeSend: function(xhr){
+            xhr.setRequestHeader(header, token);
+            },
+           success : function (data, status, xhr){
+			console.log("Comment posted successfully");
+       }});
+    
+}
+*/
+
+function postComment(){
+	var comment = document.getElementById("commentTextBox").value;
+	var userId =  document.getElementById("commentTextBoxUserId").value;
+	var feedId = document.getElementById("commentTextBoxFeedId").value;
+	if(comment.trim() == ""){
+		alert("No Text in Comment Box");
+		return;
+	}
+	var token = $("meta[name='_csrf']").attr("content");
+    var header = $("meta[name='_csrf_header']").attr("content");
+    var formData = new FormData();
+    formData.append("userId" , userId);
+    formData.append("feedId" , feedId);
+    formData.append("comment", comment);
+    $.ajax({
+        url:'/home/comment/submit',
+        type: "POST",
+        cache: false,
+        contentType: false,
+        processData: false,
+        data : formData,
+        beforeSend: function(xhr){
+            xhr.setRequestHeader(header, token);
+            },
+           success : function (data, status, xhr){
+			console.log("Comment posted successfully");
+       }});
+    
+}
+
 function renderdropdown(){
     var token = $("meta[name='_csrf']").attr("content");
     var header = $("meta[name='_csrf_header']").attr("content");
@@ -691,7 +1007,7 @@ function renderdropdown(){
 	        });
 	});
 
-	function checkDetails(detailsFilled){
+   function checkDetails(detailsFilled){
 		console.log("inside details check", detailsFilled);
 		if(detailsFilled){
 			return;
@@ -714,9 +1030,9 @@ function renderdropdown(){
 	            var place = autocomplete.getPlace();
 	            console.log(place);
 	            for (var component in componentForm) {
-                	document.getElementById(component).value = '';
-                	document.getElementById(component).disabled = false;
-               }
+               	document.getElementById(component).value = '';
+               	document.getElementById(component).disabled = false;
+              }
 	            for (var i = 0; i < place.address_components.length; i++) {
 	                var addressType = place.address_components[i].types[0];
 	                if (componentForm[addressType]) {
@@ -990,6 +1306,5 @@ function renderdropdown(){
 	});
 
 </script>
-
 </body>
 </html>

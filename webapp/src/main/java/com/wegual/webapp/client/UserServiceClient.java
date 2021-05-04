@@ -11,6 +11,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import app.wegual.common.model.FeedComment;
+import app.wegual.common.model.FeedItem;
+import app.wegual.common.model.GenericItem;
 import app.wegual.common.model.TokenStatus;
 import app.wegual.common.model.User;
 import app.wegual.common.model.UserDetails;
@@ -80,4 +83,27 @@ public interface UserServiceClient {
 	
 	@GetMapping("/users/suggest/{name}")
 	List<GenericItem<String>> suggestUserByName(@RequestHeader(value = "Authorization", required = true) String token, @PathVariable String name);
+
+	@PostMapping(value = "/users/post/add/comment")
+	void addComment(@RequestHeader(value = "Authorization", required = true)String token,
+			@RequestBody FeedComment fc);
+	
+	@GetMapping("/users/post/get/comment/{postid}")
+	List<FeedComment> getUserFeedComment(@RequestHeader(value = "Authorization", required = true)String token,
+			@PathVariable String postid);
+
+	@GetMapping("/users/generic/{userId}")
+	GenericItem<String> getUserGenericItem(@RequestHeader(value = "Authorization", required = true)String token,
+	@PathVariable String userId);
+
+	@GetMapping("/users/feed/liked/{userid}")
+	List<String> getLikedFeedId(@RequestHeader(value = "Authorization", required = true) String token,
+			@PathVariable String userid);
+
+	@GetMapping("/users/post/get/postbyid/{postid}")
+	PledgeFeedItem getPostById(@RequestHeader(value = "Authorization", required = true)String token,
+			@PathVariable String postid);
+
+	@GetMapping("/users/count")
+	Long getAllUserCount(@RequestHeader(value = "Authorization", required = true)String token);
 }

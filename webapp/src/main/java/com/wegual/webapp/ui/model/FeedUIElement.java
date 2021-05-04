@@ -1,6 +1,7 @@
 package com.wegual.webapp.ui.model;
 
 import app.wegual.common.model.FeedItem;
+import app.wegual.common.model.FeedItemDetailActions;
 import app.wegual.common.model.TimelineItem;
 import lombok.Getter;
 import lombok.Setter;
@@ -9,11 +10,14 @@ import lombok.Setter;
 @Setter
 public abstract class FeedUIElement<T> {
 
+	protected String feedId;
 	protected String pictureLink;
 	protected String detail;
 	protected String timeAgo;
 	protected long dateTime;
 	protected String summary;
+	protected boolean liked;
+	protected FeedItemDetailActions detailActions;
 
 
 	public void buildFrom(FeedItem<T> feedItem, String userServiceUrl) {

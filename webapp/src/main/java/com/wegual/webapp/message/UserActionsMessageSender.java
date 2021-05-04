@@ -39,18 +39,30 @@ public class UserActionsMessageSender implements MessageSender {
 
 	protected void sendMessageToBeneficiary(UserActionItem uat) {
 		log.info("Sending message for beneficiary action...");
-		rabbitTemplate.convertAndSend(MessagingConstants.BENEFICIARY_FANOUT_EXCHANGE_NAME, MessagingConstants.BENEFICIARY_ACTION_QUEUE_NAME, uat);
+		rabbitTemplate.convertAndSend(MessagingConstants.BENEFICIARY_ACTION_EXCHANGE_NAME, MessagingConstants.BENEFICIARY_ACTION_QUEUE_NAME, uat);
+	}
+	
+	protected void sendMessageForFeedAction(UserActionItem uat) {
+		log.info("Sending message for user feed action...");
+		rabbitTemplate.convertAndSend(MessagingConstants.USERACTIONS_FANOUT_EXCHANGE_NAME, "user-action", uat);
 	}
 
 	@Override
 	public void sendMessage(Object object) {
 		List<UserActionType> giveupAction = new ArrayList<UserActionType>(Arrays.asList(
 				UserActionType.LIKE, 
-				UserActionType.UNLIKE
+				UserActionType.UNLIKE,
+				UserActionType.FOLLOW_GIVEUP,
+				UserActionType.UNFOLLOW_GIVEUP
 				));
 		List<UserActionType> benAction = new ArrayList<UserActionType>(Arrays.asList(
 				UserActionType.FOLLOW_BENEFICIARY, 
 				UserActionType.UNFOLLOW_BENEFICIARY
+				));
+		List<UserActionType> feedAction = new ArrayList<UserActionType>(Arrays.asList(
+				UserActionType.LIKE_POST,
+				UserActionType.UNLIKE_POST,
+				UserActionType.VIEW_POST
 				));
 		if(object != null) {
 			if(object instanceof UserTimelineItem)
@@ -59,7 +71,8 @@ public class UserActionsMessageSender implements MessageSender {
 				this.sendMessageToGiveUp((UserActionItem)object);
 			if(object instanceof UserActionItem && benAction.contains(((UserActionItem) object).getActionType()))
 					this.sendMessageToBeneficiary((UserActionItem) object);
+			if(object instanceof UserActionItem && feedAction.contains(((UserActionItem) object).getActionType()))
+				this.sendMessageForFeedAction((UserActionItem) object);
 		}
 	}
-
 }

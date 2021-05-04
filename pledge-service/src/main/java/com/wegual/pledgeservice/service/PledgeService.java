@@ -64,14 +64,14 @@ public class PledgeService {
 
 	@Autowired 
 	private UserFeedMessageSender ufms;
-	
+
 	@Autowired
 	private TimelineMessageSender utms;
 
 	@Autowired
 	@Qualifier("executorMessageSender")
 	private TaskExecutor te;
-	
+
 	//TODO : Modify function to return list of pledges
 	public List<Map<String, Object>> getAllPledgeForUser(String userId){
 		log.info("Inside pledge service");
@@ -81,9 +81,9 @@ public class PledgeService {
 			SearchSourceBuilder sourceBuilder = new SearchSourceBuilder(); 
 			sourceBuilder.query(QueryBuilders.nestedQuery("pledged_by",QueryBuilders.boolQuery().must(QueryBuilders.termQuery("pledged_by.id", userId)), ScoreMode.None));
 			searchRequest.source(sourceBuilder);
-			
+
 			RestHighLevelClient client = esConfig.getElastcsearchClient();
-			
+
 			SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
 			if(searchResponse.getHits().getTotalHits().value>0L) {
 				Map<String, Object> src = null;
@@ -99,19 +99,19 @@ public class PledgeService {
 		}
 		return pledges;
 	}
-	
+
 	public void createPledge(RegisterPledge pledge) throws JsonProcessingException {
 		Map<String, Object> giveup = null;
 		Map<String, Object> user = null;
 		Map<String, Object> beneficiary = null;
-		
+
 		SearchRequest userRequest = new SearchRequest("user_idx");
 		SearchSourceBuilder userBuilder = new SearchSourceBuilder(); 
 		userBuilder.query(QueryBuilders.termQuery("user_id", pledge.getUserId())); 		
 		userRequest.source(userBuilder);
 		RestHighLevelClient client = esConfig.getElastcsearchClient();
 		try {
-			
+
 			SearchResponse userResponse = client.search(userRequest, RequestOptions.DEFAULT);
 			SearchHit[] hits = userResponse.getHits().getHits();
 			user = hits[0].getSourceAsMap();
@@ -119,14 +119,14 @@ public class PledgeService {
 		catch (IOException e) {
 			log.error("Error getting user from ES: ", e);
 		}
-		
+
 		SearchRequest benRequest = new SearchRequest("beneficiary_idx");
 		SearchSourceBuilder benBuilder = new SearchSourceBuilder(); 
 		benBuilder.query(QueryBuilders.termQuery("beneficiary_id", pledge.getBeneficiaryId())); 		
 		benRequest.source(benBuilder);
-		
+
 		try {
-			
+
 			SearchResponse benResponse = client.search(benRequest, RequestOptions.DEFAULT);
 			SearchHit[] hits = benResponse.getHits().getHits();
 			beneficiary = hits[0].getSourceAsMap();
@@ -134,14 +134,14 @@ public class PledgeService {
 		catch (IOException e) {
 			log.error("Error getting beneficiary from ES: ", e);
 		}
-		
+
 		SearchRequest givupRequest = new SearchRequest("giveup_idx");
 		SearchSourceBuilder giveupBuilder = new SearchSourceBuilder(); 
 		giveupBuilder.query(QueryBuilders.termQuery("giveup_id", pledge.getGiveupId())); 		
 		givupRequest.source(giveupBuilder);
-		
+
 		try {
-			
+
 			SearchResponse giveupResponse = client.search(givupRequest, RequestOptions.DEFAULT);
 			SearchHit[] hits = giveupResponse.getHits().getHits();
 			giveup = hits[0].getSourceAsMap();
@@ -149,11 +149,11 @@ public class PledgeService {
 		catch (IOException e) {
 			log.error("Error getting giveup from ES: ", e);
 		}
-		
+
 		GenericItem<String> genericUser = GenericItemUserUtils.userGenericItemFromEsDocument(user);
 		GenericItem<String> genericBeneficiary = GenericItemBeneficiaryUtils.beneficiaryGenericItemFromEsDocument(beneficiary);
 		GenericItem<String> genericGiveUp = GenericItemGiveUpUtils.giveupGenericItemFromEsDocument(giveup);
-		
+
 		Pledge pledgeObject = new Pledge();
 		pledgeObject.setAmount(Double.parseDouble(pledge.getAmount()));
 		pledgeObject.setCurrency(Currency.getInstance(pledge.getCurrency()));
@@ -164,7 +164,7 @@ public class PledgeService {
 		pledgeObject.setDescription(pledge.getDescription());
 		pledgeObject.setBaseCurrency(Currency.getInstance(pledge.getBaseCurrency()));
 		pledgeObject.setBaseCurrencyAmount(Double.parseDouble(pledge.getBaseAmount()));
-		
+
 		IndexRequest indexRequest = new IndexRequest("pledge_idx").source(new ObjectMapper().writeValueAsString(pledgeObject),XContentType.JSON);
 		indexRequest.opType(DocWriteRequest.OpType.INDEX);
 		try {
@@ -179,9 +179,9 @@ public class PledgeService {
 				updateRequest.index("pledge_idx");
 				updateRequest.id(indexResponse.getId());
 				updateRequest.doc( XContentFactory.jsonBuilder()
-				        .startObject()
-				            .field("pledge_id",indexResponse.getId() )
-				        .endObject());
+						.startObject()
+						.field("pledge_id",indexResponse.getId() )
+						.endObject());
 				UpdateResponse update = esConfig.getElastcsearchClient().update(updateRequest, RequestOptions.DEFAULT);
 				log.info("Pledge Document update with id " + update.toString());
 				pledgeObject.setId(indexResponse.getId());
@@ -198,5 +198,23 @@ public class PledgeService {
 		} catch (IOException e) {	
 			log.error("Unable to create pledge document in ES", e);
 		}
+	}
+
+	public long getPledgeCount() {
+
+		SearchRequest searchRequest = new SearchRequest(ESIndices.PLEDGE_INDEX);
+		SearchSourceBuilder sourceBuilder = new SearchSourceBuilder(); 
+		sourceBuilder.query(QueryBuilders.matchAllQuery()).size(0);
+		searchRequest.source(sourceBuilder);
+		long count = 0;
+		RestHighLevelClient client = esConfig.getElastcsearchClient();
+		try {
+			SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
+			count = searchResponse.getHits().getTotalHits().value;
+		} catch (IOException e) {
+			log.info("Unable to get total pledge count from elastic search index");
+			e.printStackTrace();
+		}
+		return count;
 	}
 }

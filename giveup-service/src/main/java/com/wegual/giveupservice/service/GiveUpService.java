@@ -2,6 +2,7 @@ package com.wegual.giveupservice.service;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -39,15 +40,15 @@ public class GiveUpService {
 
 	@Autowired
 	private ElasticSearchConfig esConfig;
-	
+
 	public List<GiveUp> getAllGiveup(){
 		SearchRequest searchRequest = new SearchRequest(ESIndices.GIVEUP_INDEX);
 		SearchSourceBuilder sourceBuilder = new SearchSourceBuilder(); 
 		sourceBuilder.query(QueryBuilders.matchAllQuery());
 		searchRequest.source(sourceBuilder);
-		
+
 		RestHighLevelClient client = esConfig.getElasticsearchClient();
-		
+
 		try {
 			SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
 			List<GiveUp> giveups = new ArrayList<GiveUp>();
@@ -56,7 +57,7 @@ public class GiveUpService {
 					GiveUp giveup = new ObjectMapper().readValue(hit.getSourceAsString(), GiveUp.class);
 					giveups.add(giveup);
 				}
-				
+
 				return giveups;
 			}
 		} catch (IOException e) {
@@ -78,13 +79,13 @@ public class GiveUpService {
 		sourceBuilder.query(QueryBuilders.nestedQuery("user",QueryBuilders.boolQuery().must(QueryBuilders.termQuery("user.id", userId)), ScoreMode.None));
 		searchRequest.source(sourceBuilder);
 		SearchResponse searchResponse;
-		
+
 		SearchRequest giveupRequest = new SearchRequest(ESIndices.GIVEUP_INDEX);
 		SearchSourceBuilder giveupBuilder = new SearchSourceBuilder();
 		giveupBuilder.query(QueryBuilders.matchAllQuery());
 		giveupRequest.source(giveupBuilder);
 		SearchResponse giveupResponse;
-		
+
 		try {
 			searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
 			giveupResponse = client.search(giveupRequest, RequestOptions.DEFAULT);
@@ -113,18 +114,18 @@ public class GiveUpService {
 		return giveups;
 
 	}
-	
+
 	public List<GenericItem<String>> allGiveUpLikedByUser(String userId){
 		log.info("Searching for all giveups like by :" + userId);
 		List<GenericItem<String>> giveups = new ArrayList<GenericItem<String>>();
-		
+
 		SearchRequest searchRequest = new SearchRequest(ESIndices.GIVEUP_LIKE_INDEX);
 		SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
 		sourceBuilder.query(QueryBuilders.nestedQuery("user",QueryBuilders.boolQuery().must(QueryBuilders.termQuery("user.id", userId)), ScoreMode.None));
 		searchRequest.source(sourceBuilder);
-		
+
 		RestHighLevelClient client = esConfig.getElasticsearchClient();
-		
+
 		try {
 			SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
 			for(SearchHit hit : searchResponse.getHits()) {
@@ -136,26 +137,27 @@ public class GiveUpService {
 		}
 		return giveups;
 	}
-	
+
 	public List<GenericItem<String>> getAllGiveupUserPledgedFor(String userId) {
 		log.info("Inside giveup service");
-		Set<GenericItem<String>> giveups= new HashSet<GenericItem<String>>();
+		Map<String, GenericItem<String>> giveups = new HashMap<String, GenericItem<String>>();
 		List<GenericItem<String>> giveup = new ArrayList<GenericItem<String>>();
 		try {
 			SearchRequest searchRequest = new SearchRequest(ESIndices.PLEDGE_INDEX);
 			SearchSourceBuilder sourceBuilder = new SearchSourceBuilder(); 
 			sourceBuilder.query(QueryBuilders.nestedQuery("pledged_by",QueryBuilders.boolQuery().must(QueryBuilders.termQuery("pledged_by.id", userId)), ScoreMode.None));
 			searchRequest.source(sourceBuilder);
-			
+
 			RestHighLevelClient client = esConfig.getElasticsearchClient();
-			
+
 			SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
 			for(SearchHit hit : searchResponse.getHits()) {
 				Pledge pledge = new ObjectMapper().readValue(hit.getSourceAsString(), Pledge.class);
-				giveups.add(pledge.getGiveUp());
+				giveups.put(pledge.getGiveUp().getId(), pledge.getGiveUp());
 			}
-			for(GenericItem<String> g : giveups) {
-				giveup.add(g);
+			Set<Map.Entry<String, GenericItem<String>>> st = giveups.entrySet();
+			for(Map.Entry<String, GenericItem<String>> mp : st) {
+				giveup.add(mp.getValue());
 			}
 			return giveup;
 		} catch (Exception e) {
@@ -203,5 +205,23 @@ public class GiveUpService {
         
 
     }
+
+	public long getGiveupCount() {
+
+		SearchRequest searchRequest = new SearchRequest(ESIndices.GIVEUP_INDEX);
+		SearchSourceBuilder sourceBuilder = new SearchSourceBuilder(); 
+		sourceBuilder.query(QueryBuilders.matchAllQuery()).size(0);
+		searchRequest.source(sourceBuilder);
+		long count = 0;
+		RestHighLevelClient client = esConfig.getElasticsearchClient();
+		try {
+			SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
+			count = searchResponse.getHits().getTotalHits().value;
+		} catch (IOException e) {
+			log.info("Unable to get total giveup count from elastic search index");
+			e.printStackTrace();
+		}
+		return count;
+	}
 
 }

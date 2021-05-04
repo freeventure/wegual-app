@@ -19,18 +19,21 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.wegual.userservice.UserUtils;
 import com.wegual.userservice.analytics.UserAnalyticsService;
 import com.wegual.userservice.service.KeycloakUserService;
 import com.wegual.userservice.service.UserActionsService;
 import com.wegual.userservice.service.UserFeedService;
 import com.wegual.userservice.service.UserTimelineService;
 
+import app.wegual.common.model.FeedComment;
 import app.wegual.common.model.FeedItem;
 import app.wegual.common.model.GenericItem;
 import app.wegual.common.model.TokenStatus;
 import app.wegual.common.model.User;
 import app.wegual.common.model.UserDetails;
 import app.wegual.common.model.PledgeFeedItem;
+import app.wegual.common.model.RegisterPledge;
 import app.wegual.common.model.UserTimelineItem;
 import app.wegual.common.rest.model.UserFollowees;
 import app.wegual.common.rest.model.UserFollowers;
@@ -58,6 +61,7 @@ public class UserController {
 	
 	@Autowired
     private DBFileStorageService dbFileStorageService;
+	
 
 	@GetMapping(value="/test/keycloak/activate/account/{userid}")
 	ResponseEntity<String> activateKeycloakAcount(@PathVariable String userid) {
@@ -162,6 +166,43 @@ public class UserController {
 	}
 	
 	@PreAuthorize("#oauth2.hasScope('user-service')")
+	@GetMapping("/users/feed/liked/{userid}")
+	ResponseEntity<List<String>> getLikedFeedId(@PathVariable String userid){
+		try {
+			List<String> feedId = ufs.getLikedFeedId(userid);
+			return new ResponseEntity<List<String>>(feedId, HttpStatus.OK);
+		}
+		catch(Exception e) {
+			log.error("Error in getting post id's that have been liked by user", e);
+			return new ResponseEntity<List<String>>(new ArrayList<String>(), HttpStatus.BAD_REQUEST);
+		}
+	}
+	
+	@PreAuthorize("#oauth2.hasScope('user-service')")
+	@GetMapping("/users/post/get/comment/{postid}")
+	ResponseEntity<List<FeedComment>> getUserFeedComment(@PathVariable String postid) {
+		try {
+			List<FeedComment> feed = ufs.getFeedComments(postid);
+			return new ResponseEntity<List<FeedComment>>(feed, HttpStatus.OK);
+		} catch (Exception e) {
+			log.error("Error in getting feed", e);
+			return new ResponseEntity<List<FeedComment>>(new ArrayList<FeedComment>(), HttpStatus.BAD_REQUEST);
+		}
+		
+	}
+	@PreAuthorize("#oauth2.hasScope('user-service')")
+	@GetMapping("/users/post/get/postbyid/{postid}")
+	ResponseEntity<PledgeFeedItem> getPostById(@PathVariable String postid){
+		try {
+			PledgeFeedItem post = ufs.getPostById(postid);
+			return new ResponseEntity<PledgeFeedItem>(post, HttpStatus.OK);
+		} catch (Exception e) {
+			log.error("Error in getting feed", e);
+			return new ResponseEntity<PledgeFeedItem>(new PledgeFeedItem(), HttpStatus.BAD_REQUEST);
+		}
+	}
+	
+	@PreAuthorize("#oauth2.hasScope('user-service')")
 	@GetMapping("/users/following/{userid}")
 	ResponseEntity<UserFollowees> getUserFollowees(@PathVariable String userid) {
 		try {
@@ -187,6 +228,30 @@ public class UserController {
 		} catch (Exception e) {
 			log.error(""+e);
 			return new ResponseEntity<User>(new User(), HttpStatus.BAD_REQUEST);
+		}
+		
+	}
+	
+	@PreAuthorize("#oauth2.hasScope('user-service')")
+	@GetMapping("/users/count") 
+	ResponseEntity<Long> getAllUserCount(){
+		try {
+			long userCount = uactsvc.getUserCount();
+			return new ResponseEntity<Long>(userCount, HttpStatus.OK);
+		} catch (Exception e) {
+			log.error(""+e);
+			return new ResponseEntity<Long>(new Long(0), HttpStatus.BAD_REQUEST);
+		}
+	}
+	
+	@PreAuthorize("#oauth2.hasScope('user-service')")
+	@GetMapping("/users/generic/{userId}")
+	GenericItem<String> getUserGenericItem(@PathVariable("userId") String userId) {
+		try {
+			return uactsvc.getUserGenericItem(userId);
+		} catch (Exception e) {
+			log.error(""+e);
+			return new GenericItem<String>();
 		}
 		
 	}
@@ -228,6 +293,16 @@ public class UserController {
 			e.printStackTrace();
 		}
 		return new ArrayList<GenericItem<String>>();
+	}
+
+	@PreAuthorize("#oauth2.hasScope('user-service')")
+	@PostMapping("/users/post/add/comment")
+	void addComment(@RequestBody FeedComment comment) {
+		try {
+		    ufs.addComment(comment);    
+		} catch (Exception e) {
+			log.error("Error occured adding comment ",e);
+		}
 	}
 
 //	@GetMapping("/test/users/profile/{username}")

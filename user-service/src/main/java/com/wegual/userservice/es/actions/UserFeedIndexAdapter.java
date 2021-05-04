@@ -50,6 +50,7 @@ public class UserFeedIndexAdapter {
 					return xb;
 		}
 		return null;
+
 	}
 	
 	

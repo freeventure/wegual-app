@@ -2,6 +2,11 @@ package app.wegual.common.model;
 
 import java.io.Serializable;
 
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+
+import org.hibernate.annotations.GenericGenerator;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.Getter;
@@ -11,6 +16,11 @@ import lombok.Setter;
 @Setter
 public class FeedItem<T> implements Serializable {
 	private static final long serialVersionUID = 1L;
+	
+	@Id
+	@GeneratedValue(generator = "uuid")
+    @GenericGenerator(name = "uuid", strategy = "uuid2")
+	protected String id;
 	
 	protected GenericItem<T> actor;
 	

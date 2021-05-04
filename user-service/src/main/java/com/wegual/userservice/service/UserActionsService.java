@@ -69,37 +69,38 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 public class UserActionsService {	
 
+
 	@Autowired
 	@Qualifier("executorMessageSender")
 	TaskExecutor te;
-	
+
 	@Autowired
 	KeycloakUserService kus;
-	
+
 	@Autowired
 	private ElasticSearchConfig esConfig;
-	
+
 	@Autowired
 	private UserActionsAsynchMessageSender uaam;
-	
+
 	public void followUser(String userId, String actorId) {
-		
+
 	}
-	
+
 	public void unfollowUser(String userId, String actorId) {
-		
+
 	}
-	
+
 	public String sendVerificationToken(String secret, User user) throws Exception {
 		UserEmailVerifyToken uevt = UserEmailVerifyToken.with(user.getEmail());
 		user.setCreatedTimestamp(System.currentTimeMillis());
 		user.setAccountLocked(true);
 		user.setActive(false);
 		user.setEmailVerifyPending(true);
-		
+
 		byte[] decodedBytes = Base64.getDecoder().decode(secret);
 		String password = new String(decodedBytes);
-		
+
 		String id = kus.createInactiveUserAccount(user, password);
 		log.info("User id from keycloak is " + id);
 		uevt.setUserId(id);
@@ -108,42 +109,67 @@ public class UserActionsService {
 		return id;
 	}
 
-//	public void verifyToken(String token, String email) {
-//		UserEmailVerifyToken uevt = getVerifyTokenDocument(email);
-//		if(uevt == null)
-//			throw new IllegalStateException("token not found");
-//		if(!StringUtils.equals(token, uevt.getToken()))
-//			throw new IllegalStateException("Invalid token");
-//		deleteEmailToken(email);
-//		
-//	}
+	public void saveUserDetails(UserDetails ud) throws Exception {
+		System.out.println(ud.getCity() + " "  + ud.getState() + " " + ud.getCountry() + " " + ud.getBaseCurrency() + " " + ud.getUserId());
+		Map<String, Object> loc = new HashMap<String, Object>();
+		loc.put("city", ud.getCity());
+		loc.put("state", ud.getState());
+		loc.put("country", ud.getCountry());
+		
+		UpdateRequest updateRequest = new UpdateRequest();
+		updateRequest.index(ESIndices.USER_INDEX);
+		updateRequest.id(ud.getUserId());
+		updateRequest.doc( XContentFactory.jsonBuilder()
+				.startObject()
+				.field("location", loc)
+				.field("base_currency", ud.getBaseCurrency())
+				.field("filled_details", true)
+				.endObject());
+		try {
+			UpdateResponse update = esConfig.getElastcsearchClient().update(updateRequest, RequestOptions.DEFAULT);
+			log.info("User details updated successfully");
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 
-//	protected UserEmailVerifyToken getVerifyTokenDocument(String email) {
-//		UserEmailVerifyToken uevt = null;
-//		SearchRequest searchRequest = new SearchRequest(USER_TOKENS_INDEX);
-//		SearchSourceBuilder sourceBuilder = new SearchSourceBuilder(); 
-//		sourceBuilder.query(QueryBuilders.termQuery("email", email)).size(1);
-//		searchRequest.source(sourceBuilder);
-//		
-//		try {
-//			RestHighLevelClient client = esConfig.getElastcsearchClient();
-//			SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
-//			if(searchResponse.getHits().getTotalHits().value > 0L)
-//			{
-//				Map<String, Object> src = null;
-//				for (SearchHit hit: searchResponse.getHits()) {
-//					src = hit.getSourceAsMap();
-//					uevt = UserUtils.jsonPropertiesForEmailVerify(src);
-//					return uevt;
-//				}
-//			}
-//			else
-//				return null;
-//		} catch (Exception e) {
-//			log.error("Error getting emial verification document for: " + email , e);
-//		}
-//		return null;
-//	}
+	//	public void verifyToken(String token, String email) {
+	//		UserEmailVerifyToken uevt = getVerifyTokenDocument(email);
+	//		if(uevt == null)
+	//			throw new IllegalStateException("token not found");
+	//		if(!StringUtils.equals(token, uevt.getToken()))
+	//			throw new IllegalStateException("Invalid token");
+	//		deleteEmailToken(email);
+	//		
+	//	}
+
+	//	protected UserEmailVerifyToken getVerifyTokenDocument(String email) {
+	//		UserEmailVerifyToken uevt = null;
+	//		SearchRequest searchRequest = new SearchRequest(USER_TOKENS_INDEX);
+	//		SearchSourceBuilder sourceBuilder = new SearchSourceBuilder(); 
+	//		sourceBuilder.query(QueryBuilders.termQuery("email", email)).size(1);
+	//		searchRequest.source(sourceBuilder);
+	//		
+	//		try {
+	//			RestHighLevelClient client = esConfig.getElastcsearchClient();
+	//			SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
+	//			if(searchResponse.getHits().getTotalHits().value > 0L)
+	//			{
+	//				Map<String, Object> src = null;
+	//				for (SearchHit hit: searchResponse.getHits()) {
+	//					src = hit.getSourceAsMap();
+	//					uevt = UserUtils.jsonPropertiesForEmailVerify(src);
+	//					return uevt;
+	//				}
+	//			}
+	//			else
+	//				return null;
+	//		} catch (Exception e) {
+	//			log.error("Error getting emial verification document for: " + email , e);
+	//		}
+	//		return null;
+	//	}
 
 	public TokenStatus verifyTokenById(String id, String token) {
 		//UserEmailVerifyToken uevt = null;
@@ -153,20 +179,20 @@ public class UserActionsService {
 			RestHighLevelClient client = esConfig.getElastcsearchClient();
 			GetResponse getResponse = client.get(getRequest, RequestOptions.DEFAULT);
 			if (getResponse.isExists()) {
-			    Map<String, Object> sourceAsMap = getResponse.getSourceAsMap();
-			    try {
-			    	String tokenFound = sourceAsMap.get("token").toString();
-			    	log.info("token found:" + tokenFound);
-			    	if(StringUtils.equals(token, tokenFound))
-			    	{
-			    		kus.activateAccount(id);
-			    		deleteEmailToken(id);
-			    		return TokenStatus.VERIFIED;
-			    	}
-			    } catch (Exception ex) {
-			    	log.error("" + ex);
-			    	return TokenStatus.ERROR;
-			    }
+				Map<String, Object> sourceAsMap = getResponse.getSourceAsMap();
+				try {
+					String tokenFound = sourceAsMap.get("token").toString();
+					log.info("token found:" + tokenFound);
+					if(StringUtils.equals(token, tokenFound))
+					{
+						kus.activateAccount(id);
+						deleteEmailToken(id);
+						return TokenStatus.VERIFIED;
+					}
+				} catch (Exception ex) {
+					log.error("" + ex);
+					return TokenStatus.ERROR;
+				}
 			} else {
 				return TokenStatus.NOT_FOUND;
 			}
@@ -179,35 +205,35 @@ public class UserActionsService {
 	private void deleteEmailToken(String userId) {
 		
 		DeleteByQueryRequest request = new DeleteByQueryRequest(ESIndices.USER_TOKENS_INDEX); 
-		
+
 		TermQueryBuilder termQuery = QueryBuilders.termQuery("user_id", userId);
-				
+
 		request.setQuery(termQuery);
 		request.setMaxDocs(1);
 		request.setBatchSize(1);
 		request.setRefresh(true);
-		
+
 		try {
 			BulkByScrollResponse bulkResponse = esConfig.getElastcsearchClient().deleteByQuery(request, RequestOptions.DEFAULT);
 			log.info("bulk response for delete: " + bulkResponse.getDeleted());
 			if(bulkResponse.getDeleted() != 1)
 				throw new IllegalStateException("exactly one document was not deleted");
 		} catch (IOException e) {
-			
+
 			log.error("Unable to delete token email verification document by query: " + userId, e);
 		}
-		
+
 	}
-	
-	
+
+
 	private void createTokenEntry(UserEmailVerifyToken uevt) throws Exception {
 		Map<String, Object> jsonMap = UserUtils.jsonPropertiesForEmailVerify(uevt);
-		
+
 		String token = OTPGenerator.generateOTP(Instant.now());
 		jsonMap.put("token", token);
 		// this is important, as it will be used to send the OTP vial mail service.
 		uevt.setToken(token);
-		
+
 		// generate email verification token with user id 
 		IndexRequest indexRequest = new IndexRequest(ESIndices.USER_TOKENS_INDEX).id(uevt.getUserId()).source(jsonMap);
 		indexRequest.opType(DocWriteRequest.OpType.INDEX); 
@@ -327,10 +353,11 @@ public class UserActionsService {
 		SearchSourceBuilder sourceBuilder = new SearchSourceBuilder(); 
 		sourceBuilder.query(QueryBuilders.termQuery("username", username)).size(1);
 		searchRequest.source(sourceBuilder);
-		
+
 		try {
 			RestHighLevelClient client = esConfig.getElastcsearchClient();
 			SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
+			System.out.println(searchResponse.getHits().getTotalHits().value);
 			if(searchResponse.getHits().getTotalHits().value > 0L)
 			{
 				Map<String, Object> src = null;
@@ -351,6 +378,7 @@ public class UserActionsService {
 	// creates a User document in ES with the given User
 	public String createUserDocument(User user) {
 		Map<String, Object> jsonMap = UserUtils.jsonPropertiesFromUser(user);
+		log.info("User: "+ jsonMap);
 		IndexRequest indexRequest = new IndexRequest(ESIndices.USER_INDEX).id(user.getId()).source(jsonMap);
 		indexRequest.opType(DocWriteRequest.OpType.INDEX);
 		try {
@@ -360,66 +388,85 @@ public class UserActionsService {
 				throw new IllegalStateException("User document was not created for id: " + user.getId());
 			else
 			{
-				log.info("User document created successfully for id: " + user.getId());
+				log.info("User document created successfully for id: " + user);
 			}
 		} catch (IOException e) {
-			
+
 			log.error("Unable to create user document in ES", e);
 		}
 		return null;
 	}
 	
-	public void saveUserDetails(UserDetails ud) throws Exception {
-		System.out.println(ud.getCity() + " "  + ud.getState() + " " + ud.getCountry() + " " + ud.getBaseCurrency() + " " + ud.getUserId());
-		Map<String, Object> loc = new HashMap<String, Object>();
-		loc.put("city", ud.getCity());
-		loc.put("state", ud.getState());
-		loc.put("country", ud.getCountry());
-		
-		UpdateRequest updateRequest = new UpdateRequest();
-		updateRequest.index(ESIndices.USER_INDEX);
-		updateRequest.id(ud.getUserId());
-		updateRequest.doc( XContentFactory.jsonBuilder()
-				.startObject()
-				.field("location", loc)
-				.field("base_currency", ud.getBaseCurrency())
-				.field("filled_details", true)
-				.endObject());
+	
+
+	public GenericItem<String> getUserGenericItem(String userId) {
+		GenericItem<String> genericUser = new GenericItem<String>();
 		try {
-			UpdateResponse update = esConfig.getElastcsearchClient().update(updateRequest, RequestOptions.DEFAULT);
-			log.info("User details updated successfully");
+			SearchRequest searchRequest = new SearchRequest("user_idx");
+			SearchSourceBuilder sourceBuilder = new SearchSourceBuilder(); 
+			sourceBuilder.query(QueryBuilders.termQuery("user_id", userId));
+			searchRequest.source(sourceBuilder);
+			
+			RestHighLevelClient client = esConfig.getElastcsearchClient();
+			SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
+			SearchHit[] hits = searchResponse.getHits().getHits();
+			Map<String, Object> user = hits[0].getSourceAsMap();
+			
+			genericUser.setId(user.get("user_id").toString());
+			genericUser.setName(user.get("full_name").toString());
+			genericUser.setPictureLink(user.get("picture_link").toString());
+			genericUser.setPermalink("/user/"+user.get("user_id").toString());
+			return genericUser;
+			
+		} catch (Exception e) {
+			log.info("Users not found", e);
+		}
+		return genericUser;
+	}
+	
+	public long getUserCount() {		
+		SearchRequest searchRequest = new SearchRequest(ESIndices.USER_INDEX);
+		SearchSourceBuilder sourceBuilder = new SearchSourceBuilder(); 
+		sourceBuilder.query(QueryBuilders.matchAllQuery()).size(0);
+		searchRequest.source(sourceBuilder);
+		long count = 0;
+		RestHighLevelClient client = esConfig.getElastcsearchClient();
+		try {
+			SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
+			count = searchResponse.getHits().getTotalHits().value;
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
+			log.info("Unable to get total user count from elastic search index");
 			e.printStackTrace();
 		}
+		return count;
 	}
 
-//	private String createTemporaryUserDocument(User user, String secret) {
-//		Map<String, Object> jsonMap = UserUtils.jsonPropertiesFromUser(user);
-//		jsonMap.put("secret", secret);
-//		IndexRequest indexRequest = null;
-//		indexRequest = new IndexRequest(USER_INDEX).id(user.getId()).source(jsonMap);
-//		indexRequest.opType(DocWriteRequest.OpType.INDEX);
-//		 
-//		try {
-//			IndexResponse indexResponse = esConfig.getElastcsearchClient().index(
-//					indexRequest, RequestOptions.DEFAULT);
-//			if (indexResponse.getResult() != DocWriteResponse.Result.CREATED)
-//				throw new IllegalStateException("Temp User document was not created for user: " + user.getUsername());
-//			else
-//			{
-//				log.info("Temp User document created successfully for user: " + user.getUsername());
-//				return indexResponse.getId();
-//			}
-//		} catch (IOException e) {
-//			
-//			log.error("Unable to create user document in ES", e);
-//		}
-//		return null;
-//	}
-	
+	//	private String createTemporaryUserDocument(User user, String secret) {
+	//		Map<String, Object> jsonMap = UserUtils.jsonPropertiesFromUser(user);
+	//		jsonMap.put("secret", secret);
+	//		IndexRequest indexRequest = null;
+	//		indexRequest = new IndexRequest(USER_INDEX).id(user.getId()).source(jsonMap);
+	//		indexRequest.opType(DocWriteRequest.OpType.INDEX);
+	//		 
+	//		try {
+	//			IndexResponse indexResponse = esConfig.getElastcsearchClient().index(
+	//					indexRequest, RequestOptions.DEFAULT);
+	//			if (indexResponse.getResult() != DocWriteResponse.Result.CREATED)
+	//				throw new IllegalStateException("Temp User document was not created for user: " + user.getUsername());
+	//			else
+	//			{
+	//				log.info("Temp User document created successfully for user: " + user.getUsername());
+	//				return indexResponse.getId();
+	//			}
+	//		} catch (IOException e) {
+	//			
+	//			log.error("Unable to create user document in ES", e);
+	//		}
+	//		return null;
+	//	}
+
 	public void updateProfile() {
-		
+
 	}
 	
 //	public void updateProfilePicture(String userId, String pictureId) {
@@ -465,6 +512,7 @@ public class UserActionsService {
 
     }
 
+
 	protected void sendMessageAsynch(UserTimelineItem uti) {
 		te.execute(new SenderRunnable<UserActionsAsynchMessageSender, UserTimelineItem>(uaam, uti));
 	}
@@ -472,9 +520,9 @@ public class UserActionsService {
 	protected void sendMessageAsynch(UserEmailVerifyToken uevt) {
 		te.execute(new SenderRunnable<UserActionsAsynchMessageSender, UserEmailVerifyToken>(uaam, uevt));
 	}
-	
+
 	protected void sendMessageAsynch(GiveUpLike gul) {
 		te.execute(new SenderRunnable<UserActionsAsynchMessageSender, GiveUpLike>(uaam, gul));
 	}
-	
+
 }

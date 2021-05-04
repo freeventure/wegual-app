@@ -49,4 +49,6 @@ public interface BeneficiaryServiceClient {
 	@GetMapping("/beneficiary/suggestByName/{name}")
 	List<GenericItem<String>> suggestBeneficiaryByName(@RequestHeader(value = "Authorization", required = true) String token, @PathVariable String name);
 
+	@GetMapping("/beneficiary/count")
+	Long getAllBeneficiaryCount(@RequestHeader(value = "Authorization", required = true) String token);
 }

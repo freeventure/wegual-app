@@ -15,6 +15,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import app.wegual.common.model.GenericItem;
 import app.wegual.common.model.GiveUp;
 import app.wegual.common.model.User;
+import app.wegual.common.util.ESIndices;
 import lombok.extern.slf4j.Slf4j;
 
 
@@ -29,7 +30,7 @@ public class GiveUpUtils {
 		GenericItem<String> user = new GenericItem<String>();
 		try {
 			System.out.println("Searching for user with id" + userId);
-			SearchRequest searchRequest = new SearchRequest("user_idx");
+			SearchRequest searchRequest = new SearchRequest(ESIndices.USER_INDEX);
 			SearchSourceBuilder sourceBuilder = new SearchSourceBuilder(); 
 			sourceBuilder.query(QueryBuilders.termQuery("user_id", userId));
 			searchRequest.source(sourceBuilder);
@@ -61,7 +62,7 @@ public class GiveUpUtils {
 		GenericItem<String> giveUp = new GenericItem<String>();
 		try {
 			System.out.println("Searching for giveup with id" + giveupId);
-			SearchRequest searchRequest = new SearchRequest("giveup_idx");
+			SearchRequest searchRequest = new SearchRequest(ESIndices.GIVEUP_INDEX);
 			SearchSourceBuilder sourceBuilder = new SearchSourceBuilder(); 
 			sourceBuilder.query(QueryBuilders.termQuery("giveup_id", giveupId));
 			searchRequest.source(sourceBuilder);

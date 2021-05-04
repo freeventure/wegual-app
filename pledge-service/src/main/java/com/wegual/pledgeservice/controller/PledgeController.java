@@ -74,4 +74,15 @@ public class PledgeController {
 		users.add("102");
 		return new ResponseEntity<>(users, HttpStatus.OK);
 	}
+	
+	@PreAuthorize("#oauth2.hasScope('user-service')")
+	@GetMapping("/pledge/count")
+	ResponseEntity<Long> getAllPledgeCount(){
+		try {
+			long pledgeCount = ps.getPledgeCount();
+			return new ResponseEntity<Long>(pledgeCount, HttpStatus.OK);
+		} catch (Exception e) {
+			return new ResponseEntity<Long>(new Long(0), HttpStatus.BAD_REQUEST);
+		}
+	}
 }

@@ -13,7 +13,7 @@ import app.wegual.common.model.GiveUp;
 @FeignClient("giveup-service")
 public interface GiveUpServiceClient {
 	
-	@GetMapping("/giveup/suggest/{userId}")
+	@GetMapping("/giveup/suggest/like/{userId}")
 	public List<GiveUp> suggestGiveUpToLike(@RequestHeader(value = "Authorization", required = true) String token, @PathVariable("userId") String userId);
 	
 	@GetMapping("/giveup/suggest/follow/{userId}")
@@ -33,4 +33,7 @@ public interface GiveUpServiceClient {
 	
 	@GetMapping("/giveup/suggestByName/{name}")
 	List<GenericItem<String>> suggestGiveupByName(@RequestHeader(value = "Authorization", required = true) String token, @PathVariable String name);
+
+	@GetMapping("/giveup/count")
+	public Long getAllGiveupCount(@RequestHeader(value = "Authorization", required = true) String token);
 }

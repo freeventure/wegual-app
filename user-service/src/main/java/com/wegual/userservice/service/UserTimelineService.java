@@ -42,7 +42,7 @@ public class UserTimelineService {
 		sourceBuilder.query(QueryBuilders.termQuery("actor_id", userId)).size(100)
 		.sort(SortBuilders.fieldSort("date_stamp").order(SortOrder.DESC));
 		searchRequest.source(sourceBuilder);
-		
+
 		try {
 			RestHighLevelClient client = esConfig.getElastcsearchClient();
 			SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
@@ -50,11 +50,11 @@ public class UserTimelineService {
 				return parseTimelineSearchHits(searchResponse);
 			return new ArrayList<UserTimelineItem>();
 		} catch (IOException e) {
-			log.error("Error getting follower count for user: " + userId , e);
+			log.error("Error getting timeline for user with id: " + userId , e);
 			return new ArrayList<UserTimelineItem>();
 		}
 	}
-	
+
 	public List<UserTimelineItem> getScrollableTimeline(String userId, long timestamp) {
 		log.debug("userId :- ", userId);
 		log.debug("timestamp:- ", timestamp);
@@ -80,7 +80,7 @@ public class UserTimelineService {
 			return new ArrayList<UserTimelineItem>();
 		}
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	private List<UserTimelineItem> parseTimelineSearchHits(SearchResponse searchResponse) {
 		Map<String, Object> src = null;
@@ -114,7 +114,7 @@ public class UserTimelineService {
 		log.info("Parsed timeline items, total items: " + timeline.size());
 		return timeline;
 	}
-	
+
 	private TimelineItemDetailActions parseDetailActions(Map<String, Object> values) {
 		TimelineItemDetailActions tda = new TimelineItemDetailActions();
 		if(values == null)
@@ -127,7 +127,7 @@ public class UserTimelineService {
 			tda.setShare(Boolean.parseBoolean(object.toString()));
 		return tda;
 	}
-	
+
 	private GenericActionTarget parseActionTarget(Map<String, Object> values) {
 		GenericActionTarget gat = new GenericActionTarget();
 		Object object = values.get("id");
@@ -145,8 +145,8 @@ public class UserTimelineService {
 		object = values.get("action_type");
 		if(object!= null)
 			gat.setActionType(UserActionTargetType.valueOf(object.toString()));
-		
+
 		return gat;
 	}
-	
+
 }

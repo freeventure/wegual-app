@@ -18,5 +18,14 @@ public class AsyncExecutionConfig {
         return executor;
     } 
 
+	@Bean(name="executorESActions")
+    public TaskExecutor executorESActions() {
+        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        executor.setCorePoolSize(4);
+        executor.setMaxPoolSize(8);
+        executor.setThreadNamePrefix("es_asynch_thread");
+        executor.initialize();
+        return executor;
+    } 
 
 }
